@@ -1,10 +1,11 @@
+# Support
+
 - [Support](#support)
   - [How to ask questions](#how-to-ask-questions)
   - [How to file issues and get help](#how-to-file-issues-and-get-help)
   - [Contributions](#contributions)
   - [License](#license)
 
-# Support
 
 This article explains where to get help with remark.
 Please read through the following guidelines.
@@ -39,7 +40,7 @@ See [`contributing.md`][contributing] on how to contribute.
 <!-- Definitions -->
 [chat]: https://github.com/MNB-Software/Aegis/discussions
 
-[license]: https://github.com/MNB-Software/Aegis/blob/AEG-3/LICENSE
+[license]: https://github.com/MNB-Software/Aegis/blob/main/LICENSE
 
 [author]: https://mnb.software
 

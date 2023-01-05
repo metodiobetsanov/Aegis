@@ -1,7 +1,7 @@
+# Security Policy
+
 - [Security Policy](#security-policy)
   - [Reporting a Vulnerability](#reporting-a-vulnerability)
-
-# Security Policy
 
 ## Reporting a Vulnerability
 
