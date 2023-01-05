@@ -11,6 +11,14 @@
 
 # Aegis Project
 
+  <div style="display: flex; gap: 10px; justify-content: center;">
+
+  [![Build](https://github.com/MNB-Software/Aegis/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/MNB-Software/Aegis/actions/workflows/build.yml)
+
+  [![SonarCloud](https://github.com/MNB-Software/Aegis/actions/workflows/sonarcloud.yml/badge.svg?branch=main)](https://github.com/MNB-Software/Aegis/actions/workflows/sonarcloud.yml)
+
+  </div>
+
 </div>
 
 
