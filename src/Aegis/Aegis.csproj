@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Aegis.Application\Aegis.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\assets\images\" />
+  </ItemGroup>
+
 </Project>
