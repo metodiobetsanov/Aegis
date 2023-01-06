@@ -1,32 +1,30 @@
 ﻿namespace Aegis.Controllers
 {
-	using System.Diagnostics;
-	using Aegis.Models;
-	using Microsoft.AspNetCore.Mvc;
+    using System.Diagnostics;
 
-	public class HomeController : Controller
-	{
-		private readonly ILogger<HomeController> _logger;
+    using Aegis.Models;
 
-		public HomeController(ILogger<HomeController> logger)
-		{
-			_logger = logger;
-		}
+    using Microsoft.AspNetCore.Mvc;
 
-		public IActionResult Index()
-		{
-			return View();
-		}
+    /// <summary>
+    /// Home Controller
+    /// </summary>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
+    public class HomeController : Controller
+    {
+        /// <summary>
+        /// Index.
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+            => this.View();
 
-		public IActionResult Privacy()
-		{
-			return View();
-		}
-
-		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-		public IActionResult Error()
-		{
-			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-		}
-	}
+        /// <summary>
+        /// Error.
+        /// </summary>
+        /// <returns></returns>
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+            => this.View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
 }
