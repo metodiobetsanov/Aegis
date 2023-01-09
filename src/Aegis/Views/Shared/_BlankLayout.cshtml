@@ -1,0 +1,22 @@
+﻿<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Meta section -->
+    <partial name="_MetaPartial" />
+
+    <!-- CSS section -->
+    <partial name="_CssPartial" />
+    @RenderSection("styles", required: false)
+
+</head>
+
+<body>
+    @RenderBody()
+
+    <!-- JS section -->
+    <partial name="_JsPartial" />
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

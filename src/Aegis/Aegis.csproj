@@ -28,4 +28,9 @@
 		<Folder Include="wwwroot\assets\ico\" />
 	</ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\assets\images\" />
+    <Folder Include="wwwroot\assets\ico\" />
+  </ItemGroup>
+
 </Project>
