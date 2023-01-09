@@ -1,11 +1,7 @@
 using Aegis.Application.Constants;
-using Aegis.Application.Contracts;
-using Aegis.Application.Contracts.Application;
-using Aegis.Models.Settings;
+using Aegis.Extensions;
 
 using HealthChecks.UI.Client;
-
-using MediatR;
 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -17,113 +13,83 @@ using Serilog.Enrichers.Sensitive;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Serilog
+// Serilog Logger
 Logger logger = new LoggerConfiguration()
-    .Enrich.WithSensitiveDataMasking(options =>
-        options.MaskProperties.AddRange(Helper.ProtectedFields))
-    .ReadFrom.Configuration(builder.Configuration)
-    .CreateLogger();
+	.Enrich.WithSensitiveDataMasking(options =>
+		options.MaskProperties.AddRange(Helper.ProtectedFields))
+	.ReadFrom.Configuration(builder.Configuration)
+	.CreateLogger();
 
 try
 {
-    logger.Information("Building Chimera Identity Server.");
+	logger.Information("Building Chimera Identity Server.");
 
-    // Logging
-    builder.Logging
-        .ClearProviders();
+	// Add Logging
+	builder.Logging
+		.ClearProviders();
 
-    builder.Host
-        .UseSerilog(logger);
+	builder.Host
+		.UseSerilog(logger);
 
-    // MVC
-    builder.Services
-        .AddMvc()
-        .AddNewtonsoftJson();
+	// Add MVC
+	builder.Services
+		.AddMvc()
+		.AddNewtonsoftJson();
 
-    // Settings
-    AppSettings appSettings = builder.Configuration.GetSection(AppSettings.Section).Get<AppSettings>();
+	// Add Aegis
+	builder.AddAegisApplication();
 
-    builder.Services
-        .AddSingleton<AppSettings>(appSettings);
+	// Add Forwarded Header
+	builder.Services
+		.Configure<ForwardedHeadersOptions>(options
+			=> options.ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto);
 
-    // Services
-    builder.Services.AddMediatR(typeof(IAegisApplicationAssembly).Assembly);
+	// Add Health Checks
+	builder.Services.AddHealthChecks()
+		.AddCheck("Service", () => HealthCheckResult.Healthy(), new[] { "self", "appHealth" });
 
-    // Forwared Header
-    builder.Services
-        .Configure<ForwardedHeadersOptions>(options
-            => options.ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto);
+	// Application
+	WebApplication app = builder.Build();
 
-    // Health Checks
-    builder.Services.AddHealthChecks()
-        .AddCheck("Service", () => HealthCheckResult.Healthy(), new[] { "self", "appHealth" });
+	// Use Aegis
+	app.UseAegisApplication();
 
-    // Application
-    WebApplication app = builder.Build();
+	app.UseStaticFiles();
+	app.UseForwardedHeaders();
 
-    app.UsePathBase(new PathString(builder.Configuration.GetValue<string>("BASEPATH", "/")));
+	app.UseSerilogRequestLogging();
+	app.UseRouting();
 
-    using (IServiceScope scope = app.Services.CreateScope())
-    {
-        IEnumerable<IInitializer> initializers = scope.ServiceProvider.GetServices<IInitializer>();
+	app.UseEndpoints(endpoints =>
+	{
+		endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
+		{
+			Predicate = r => r.Tags.Contains("self"),
+			ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+		});
 
-        foreach (IInitializer initializer in initializers)
-        {
-            initializer.Initialize().GetAwaiter().GetResult();
-        }
-    }
+		endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
+		{
+			Predicate = r => r.Tags.Contains("appHealth"),
+			ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+		});
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
-    else
-    {
-        app.UseExceptionHandler("/Error");
-    }
+		endpoints.MapControllerRoute(
+				name: "default",
+				pattern: "{controller=Home}/{action=Index}/{id?}");
+	});
 
-    app.UseStaticFiles();
-    app.UseForwardedHeaders();
+	logger.Information("Starting Chimera Identity Server.");
+	app.Run();
 
-    app.UseSerilogRequestLogging();
-    app.UseRouting();
-
-    app.Use(async (ctx, next) =>
-    {
-        ctx.Request.Scheme = "https";
-        await next();
-    });
-
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
-        {
-            Predicate = r => r.Tags.Contains("self"),
-            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-        });
-
-        endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
-        {
-            Predicate = r => r.Tags.Contains("appHealth"),
-            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-        });
-
-        endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-    });
-
-    logger.Information("Starting Chimera Identity Server.");
-    app.Run();
-
-    return 0;
+	return 0;
 }
 catch (Exception ex)
 {
-    logger.Fatal(ex, "An unexpected error was thrown!");
-    return 1;
+	logger.Fatal(ex, "An unexpected error was thrown!");
+	return 1;
 }
 finally
 {
-    Log.CloseAndFlush();
+	Log.CloseAndFlush();
 }
