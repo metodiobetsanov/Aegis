@@ -7,15 +7,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A4CEE721-6B0
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{367FAEBF-667D-49B4-9928-A786439EF10E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aegis", "src\Aegis\Aegis.csproj", "{1E70F335-A67F-4F5E-A815-464F4D584AED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis", "src\Aegis\Aegis.csproj", "{1E70F335-A67F-4F5E-A815-464F4D584AED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aegis.Models", "src\Aegis.Models\Aegis.Models.csproj", "{36CA17E1-890D-4246-ADB1-239616F01346}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis.Models", "src\Aegis.Models\Aegis.Models.csproj", "{36CA17E1-890D-4246-ADB1-239616F01346}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aegis.Persistence", "src\Aegis.Persistence\Aegis.Persistence.csproj", "{84C9BCC3-2ED5-49BF-835D-FB6DB9F3A9A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis.Persistence", "src\Aegis.Persistence\Aegis.Persistence.csproj", "{84C9BCC3-2ED5-49BF-835D-FB6DB9F3A9A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aegis.Application", "src\Aegis.Application\Aegis.Application.csproj", "{4C8F38A2-3B41-48A5-B161-722B335E821F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis.Application", "src\Aegis.Application\Aegis.Application.csproj", "{4C8F38A2-3B41-48A5-B161-722B335E821F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aegis.UnitTests", "tests\Aegis.UnitTests\Aegis.UnitTests.csproj", "{553AF2B1-33AC-473A-AEC9-27BBA690C73D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis.UnitTests", "tests\Aegis.UnitTests\Aegis.UnitTests.csproj", "{553AF2B1-33AC-473A-AEC9-27BBA690C73D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F12EA828-29F7-4A3C-B047-083F5D493B8B}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
