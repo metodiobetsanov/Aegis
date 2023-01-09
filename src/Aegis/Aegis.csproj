@@ -24,6 +24,7 @@
 
 
 	<ItemGroup>
+		<Folder Include="Extensions\" />
 		<Folder Include="wwwroot\assets\images\" />
 		<Folder Include="wwwroot\assets\ico\" />
 	</ItemGroup>
