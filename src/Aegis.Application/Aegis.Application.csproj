@@ -1,14 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Aegis.Models\Aegis.Models.csproj" />
-    <ProjectReference Include="..\Aegis.Persistence\Aegis.Persistence.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="11.0.1" />
+		<PackageReference Include="AutoMapper.Collection" Version="8.0.0" />
+		<PackageReference Include="AutoMapper.Extensions.EnumMapping" Version="2.0.1" />
+		<PackageReference Include="AutoMapper.Extensions.ExpressionMapping" Version="5.1.0" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+		<PackageReference Include="MediatR" Version="11.1.0" />
+		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Aegis.Models\Aegis.Models.csproj" />
+		<ProjectReference Include="..\Aegis.Persistence\Aegis.Persistence.csproj" />
+	</ItemGroup>
 
 </Project>
