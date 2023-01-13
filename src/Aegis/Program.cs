@@ -16,7 +16,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Serilog Logger
 Logger logger = new LoggerConfiguration()
 	.Enrich.WithSensitiveDataMasking(options =>
-		options.MaskProperties.AddRange(Helper.ProtectedFields))
+		options.MaskProperties.AddRange(ApplicationConstants.ProtectedFields))
 	.ReadFrom.Configuration(builder.Configuration)
 	.CreateLogger();
 
@@ -38,6 +38,8 @@ try
 
 	// Add Aegis
 	builder.AddAegisApplication();
+	builder.AddAegisIdentityProvider();
+	builder.AddAegisIdentityServer();
 
 	// Add Forwarded Header
 	builder.Services
@@ -46,7 +48,7 @@ try
 
 	// Add Health Checks
 	builder.Services.AddHealthChecks()
-		.AddCheck("Service", () => HealthCheckResult.Healthy(), new[] { "self", "appHealth" });
+		.AddCheck("Server", () => HealthCheckResult.Healthy(), new[] { "self", "appHealth" });
 
 	// Application
 	WebApplication app = builder.Build();
@@ -54,30 +56,23 @@ try
 	// Use Aegis
 	app.UseAegisApplication();
 
-	app.UseStaticFiles();
-	app.UseForwardedHeaders();
+	app.UseAegisIdentityServer();
 
-	app.UseSerilogRequestLogging();
-	app.UseRouting();
-
-	app.UseEndpoints(endpoints =>
+	app.MapHealthChecks("/health/live", new HealthCheckOptions
 	{
-		endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
-		{
-			Predicate = r => r.Tags.Contains("self"),
-			ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-		});
-
-		endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
-		{
-			Predicate = r => r.Tags.Contains("appHealth"),
-			ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-		});
-
-		endpoints.MapControllerRoute(
-				name: "default",
-				pattern: "{controller=Home}/{action=Index}/{id?}");
+		Predicate = r => r.Tags.Contains("self"),
+		ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 	});
+
+	app.MapHealthChecks("/health/ready", new HealthCheckOptions
+	{
+		Predicate = r => r.Tags.Contains("appHealth"),
+		ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+	});
+
+	app.MapControllerRoute(
+		name: "default",
+		pattern: "{controller=Home}/{action=Index}/{id?}");
 
 	logger.Information("Starting Chimera Identity Server.");
 	app.Run();

@@ -1,21 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
-		<PackageReference Include="Duende.IdentityServer" Version="6.1.7" />
-		<PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="6.1.7" />
+		<PackageReference Include="Duende.IdentityServer" Version="6.2.0" />
+		<PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="6.2.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.12" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Serilog" Version="2.12.0" />
-		<PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
+		<PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
 		<PackageReference Include="Serilog.Enrichers.Sensitive" Version="1.5.1" />
-		<PackageReference Include="Scrutor" Version="3.3.0" />
+		<PackageReference Include="Scrutor" Version="4.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -24,14 +28,13 @@
 
 
 	<ItemGroup>
-		<Folder Include="Extensions\" />
 		<Folder Include="wwwroot\assets\images\" />
 		<Folder Include="wwwroot\assets\ico\" />
 	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\assets\images\" />
-    <Folder Include="wwwroot\assets\ico\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\assets\images\" />
+		<Folder Include="wwwroot\assets\ico\" />
+	</ItemGroup>
 
 </Project>
