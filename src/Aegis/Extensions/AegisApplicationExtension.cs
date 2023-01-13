@@ -2,14 +2,17 @@
 {
 	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.Application;
+	using Aegis.Exceptions;
 	using Aegis.Models.Settings;
 
 	using MediatR;
 
 	using Scrutor;
 
+	using Serilog;
+
 	/// <summary>
-	/// Application Setup Extension
+	/// Application Extension
 	/// </summary>
 	internal static class AegisApplicationExtension
 	{
@@ -21,7 +24,12 @@
 		internal static WebApplicationBuilder AddAegisApplication(this WebApplicationBuilder builder)
 		{
 			// Add Application Settings
-			AppSettings appSettings = builder.Configuration.GetSection(AppSettings.Section).Get<AppSettings>();
+			AppSettings? appSettings = builder.Configuration.GetSection(AppSettings.Section).Get<AppSettings>();
+
+			if (appSettings is null)
+			{
+				throw new HostException($"Missing Configuration Section: {AppSettings.Section}");
+			}
 
 			builder.Services
 				.AddSingleton<AppSettings>(appSettings);
@@ -85,6 +93,12 @@
 			{
 				app.UseExceptionHandler("/Error");
 			}
+
+			app.UseStaticFiles();
+			app.UseForwardedHeaders();
+
+			app.UseSerilogRequestLogging();
+			app.UseRouting();
 
 			return app;
 		}
