@@ -57,6 +57,9 @@
 					{
 						_logger.LogInformation("Database Initializer: Migrating {ApplicationName} DBs.", ApplicationConstants.ApplicationName);
 
+						_logger.LogInformation("Database Initializer: Migrating SecureDbContext.");
+						await scope.ServiceProvider.GetService<SecureDbContext>()!.Database.MigrateAsync();
+
 						_logger.LogInformation("Database Initializer: Migrating ApplicationIdentityDbContext.");
 						await scope.ServiceProvider.GetService<AegisIdentityDbContext>()!.Database.MigrateAsync();
 

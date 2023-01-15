@@ -5,7 +5,7 @@
 	/// <summary>
 	/// Aegis Entity
 	/// </summary>
-	public interface IAegisEntity
+	public interface IEntity
 	{
 		/// <summary>
 		/// A random value that should change whenever an entity is persisted to the store

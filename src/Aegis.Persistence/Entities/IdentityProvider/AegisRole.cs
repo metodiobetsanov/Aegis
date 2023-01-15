@@ -6,8 +6,8 @@
 	/// Aegis Role
 	/// </summary>
 	/// <seealso cref="Microsoft.AspNetCore.Identity.IdentityRole&lt;System.Guid&gt;" />
-	/// <seealso cref="Aegis.Persistence.Entities.IAegisEntity" />
-	public class AegisRole : IdentityRole<Guid>, IAegisEntity
+	/// <seealso cref="Aegis.Persistence.Entities.IEntity" />
+	public class AegisRole : IdentityRole<Guid>, IEntity
 	{
 		/// <summary>
 		/// Gets or sets the description.

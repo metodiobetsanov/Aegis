@@ -22,7 +22,7 @@ Logger logger = new LoggerConfiguration()
 
 try
 {
-	logger.Information("Building Chimera Identity Server.");
+	logger.Information("Building Aegis Identity Server.");
 
 	// Add Logging
 	builder.Logging
@@ -74,7 +74,7 @@ try
 		name: "default",
 		pattern: "{controller=Home}/{action=Index}/{id?}");
 
-	logger.Information("Starting Chimera Identity Server.");
+	logger.Information("Starting Aegis Identity Server.");
 	app.Run();
 
 	return 0;

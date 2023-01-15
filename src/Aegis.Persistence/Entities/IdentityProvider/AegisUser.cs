@@ -6,8 +6,8 @@
 	/// AegisUser
 	/// </summary>
 	/// <seealso cref="Microsoft.AspNetCore.Identity.IdentityUser&lt;System.Guid&gt;" />
-	/// <seealso cref="Aegis.Persistence.Entities.IAegisEntity" />
-	public class AegisUser : IdentityUser<Guid>, IAegisEntity
+	/// <seealso cref="Aegis.Persistence.Entities.IEntity" />
+	public class AegisUser : IdentityUser<Guid>, IEntity
 	{
 		/// <summary>
 		/// Gets or sets the first name.

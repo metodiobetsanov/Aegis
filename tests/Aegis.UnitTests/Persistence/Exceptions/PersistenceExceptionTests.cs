@@ -1,6 +1,6 @@
 ﻿namespace Aegis.UnitTests.Persistence.Exceptions
 {
-	using global::Aegis.Persistence.Contracts;
+	using global::Aegis.Persistence.Constants;
 	using global::Aegis.Persistence.Exceptions;
 
 	public class PersistenceExceptionTests

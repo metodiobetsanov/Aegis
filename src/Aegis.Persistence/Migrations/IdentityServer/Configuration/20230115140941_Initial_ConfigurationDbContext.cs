@@ -4,16 +4,20 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
+namespace Aegis.Persistence.Migrations.IdentityServer.Configuration
 {
     /// <inheritdoc />
-    public partial class InitialMigrationConfigurationDbContext : Migration
+    public partial class InitialConfigurationDbContext : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "aegis-ids");
+
             migrationBuilder.CreateTable(
                 name: "ApiResources",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -37,6 +41,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ApiScopes",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -60,6 +65,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "Clients",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -118,6 +124,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "IdentityProviders",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -139,6 +146,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "IdentityResources",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -161,6 +169,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ApiResourceClaims",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -174,6 +183,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ApiResourceClaims_ApiResources_ApiResourceId",
                         column: x => x.ApiResourceId,
+                        principalSchema: "aegis-ids",
                         principalTable: "ApiResources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -181,6 +191,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ApiResourceProperties",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -195,6 +206,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ApiResourceProperties_ApiResources_ApiResourceId",
                         column: x => x.ApiResourceId,
+                        principalSchema: "aegis-ids",
                         principalTable: "ApiResources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -202,6 +214,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ApiResourceScopes",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -215,6 +228,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ApiResourceScopes_ApiResources_ApiResourceId",
                         column: x => x.ApiResourceId,
+                        principalSchema: "aegis-ids",
                         principalTable: "ApiResources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -222,6 +236,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ApiResourceSecrets",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -239,6 +254,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ApiResourceSecrets_ApiResources_ApiResourceId",
                         column: x => x.ApiResourceId,
+                        principalSchema: "aegis-ids",
                         principalTable: "ApiResources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -246,6 +262,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ApiScopeClaims",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -259,6 +276,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ApiScopeClaims_ApiScopes_ScopeId",
                         column: x => x.ScopeId,
+                        principalSchema: "aegis-ids",
                         principalTable: "ApiScopes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -266,6 +284,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ApiScopeProperties",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -280,6 +299,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ApiScopeProperties_ApiScopes_ScopeId",
                         column: x => x.ScopeId,
+                        principalSchema: "aegis-ids",
                         principalTable: "ApiScopes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -287,6 +307,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ClientClaims",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -301,6 +322,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ClientClaims_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalSchema: "aegis-ids",
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -308,6 +330,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ClientCorsOrigins",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -321,6 +344,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ClientCorsOrigins_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalSchema: "aegis-ids",
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -328,6 +352,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ClientGrantTypes",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -341,6 +366,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ClientGrantTypes_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalSchema: "aegis-ids",
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -348,6 +374,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ClientIdPRestrictions",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -361,6 +388,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ClientIdPRestrictions_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalSchema: "aegis-ids",
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -368,6 +396,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ClientPostLogoutRedirectUris",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -381,6 +410,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ClientPostLogoutRedirectUris_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalSchema: "aegis-ids",
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -388,6 +418,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ClientProperties",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -402,6 +433,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ClientProperties_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalSchema: "aegis-ids",
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -409,6 +441,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ClientRedirectUris",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -422,6 +455,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ClientRedirectUris_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalSchema: "aegis-ids",
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -429,6 +463,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ClientScopes",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -442,6 +477,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ClientScopes_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalSchema: "aegis-ids",
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -449,6 +485,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "ClientSecrets",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -466,6 +503,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_ClientSecrets_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalSchema: "aegis-ids",
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -473,6 +511,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "IdentityResourceClaims",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -486,6 +525,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_IdentityResourceClaims_IdentityResources_IdentityResourceId",
                         column: x => x.IdentityResourceId,
+                        principalSchema: "aegis-ids",
                         principalTable: "IdentityResources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -493,6 +533,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateTable(
                 name: "IdentityResourceProperties",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -507,6 +548,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
                     table.ForeignKey(
                         name: "FK_IdentityResourceProperties_IdentityResources_IdentityResour~",
                         column: x => x.IdentityResourceId,
+                        principalSchema: "aegis-ids",
                         principalTable: "IdentityResources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -514,130 +556,152 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiResourceClaims_ApiResourceId_Type",
+                schema: "aegis-ids",
                 table: "ApiResourceClaims",
                 columns: new[] { "ApiResourceId", "Type" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiResourceProperties_ApiResourceId_Key",
+                schema: "aegis-ids",
                 table: "ApiResourceProperties",
                 columns: new[] { "ApiResourceId", "Key" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiResources_Name",
+                schema: "aegis-ids",
                 table: "ApiResources",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiResourceScopes_ApiResourceId_Scope",
+                schema: "aegis-ids",
                 table: "ApiResourceScopes",
                 columns: new[] { "ApiResourceId", "Scope" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiResourceSecrets_ApiResourceId",
+                schema: "aegis-ids",
                 table: "ApiResourceSecrets",
                 column: "ApiResourceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiScopeClaims_ScopeId_Type",
+                schema: "aegis-ids",
                 table: "ApiScopeClaims",
                 columns: new[] { "ScopeId", "Type" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiScopeProperties_ScopeId_Key",
+                schema: "aegis-ids",
                 table: "ApiScopeProperties",
                 columns: new[] { "ScopeId", "Key" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApiScopes_Name",
+                schema: "aegis-ids",
                 table: "ApiScopes",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientClaims_ClientId_Type_Value",
+                schema: "aegis-ids",
                 table: "ClientClaims",
                 columns: new[] { "ClientId", "Type", "Value" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientCorsOrigins_ClientId_Origin",
+                schema: "aegis-ids",
                 table: "ClientCorsOrigins",
                 columns: new[] { "ClientId", "Origin" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientGrantTypes_ClientId_GrantType",
+                schema: "aegis-ids",
                 table: "ClientGrantTypes",
                 columns: new[] { "ClientId", "GrantType" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientIdPRestrictions_ClientId_Provider",
+                schema: "aegis-ids",
                 table: "ClientIdPRestrictions",
                 columns: new[] { "ClientId", "Provider" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientPostLogoutRedirectUris_ClientId_PostLogoutRedirectUri",
+                schema: "aegis-ids",
                 table: "ClientPostLogoutRedirectUris",
                 columns: new[] { "ClientId", "PostLogoutRedirectUri" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientProperties_ClientId_Key",
+                schema: "aegis-ids",
                 table: "ClientProperties",
                 columns: new[] { "ClientId", "Key" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientRedirectUris_ClientId_RedirectUri",
+                schema: "aegis-ids",
                 table: "ClientRedirectUris",
                 columns: new[] { "ClientId", "RedirectUri" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_ClientId",
+                schema: "aegis-ids",
                 table: "Clients",
                 column: "ClientId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientScopes_ClientId_Scope",
+                schema: "aegis-ids",
                 table: "ClientScopes",
                 columns: new[] { "ClientId", "Scope" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientSecrets_ClientId",
+                schema: "aegis-ids",
                 table: "ClientSecrets",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IdentityProviders_Scheme",
+                schema: "aegis-ids",
                 table: "IdentityProviders",
                 column: "Scheme",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_IdentityResourceClaims_IdentityResourceId_Type",
+                schema: "aegis-ids",
                 table: "IdentityResourceClaims",
                 columns: new[] { "IdentityResourceId", "Type" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_IdentityResourceProperties_IdentityResourceId_Key",
+                schema: "aegis-ids",
                 table: "IdentityResourceProperties",
                 columns: new[] { "IdentityResourceId", "Key" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_IdentityResources_Name",
+                schema: "aegis-ids",
                 table: "IdentityResources",
                 column: "Name",
                 unique: true);
@@ -647,70 +711,92 @@ namespace Aegis.Persistence.Migrations.IdentityServer.ConfigurationDb
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ApiResourceClaims");
+                name: "ApiResourceClaims",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ApiResourceProperties");
+                name: "ApiResourceProperties",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ApiResourceScopes");
+                name: "ApiResourceScopes",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ApiResourceSecrets");
+                name: "ApiResourceSecrets",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ApiScopeClaims");
+                name: "ApiScopeClaims",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ApiScopeProperties");
+                name: "ApiScopeProperties",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ClientClaims");
+                name: "ClientClaims",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ClientCorsOrigins");
+                name: "ClientCorsOrigins",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ClientGrantTypes");
+                name: "ClientGrantTypes",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ClientIdPRestrictions");
+                name: "ClientIdPRestrictions",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ClientPostLogoutRedirectUris");
+                name: "ClientPostLogoutRedirectUris",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ClientProperties");
+                name: "ClientProperties",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ClientRedirectUris");
+                name: "ClientRedirectUris",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ClientScopes");
+                name: "ClientScopes",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ClientSecrets");
+                name: "ClientSecrets",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "IdentityProviders");
+                name: "IdentityProviders",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "IdentityResourceClaims");
+                name: "IdentityResourceClaims",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "IdentityResourceProperties");
+                name: "IdentityResourceProperties",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ApiResources");
+                name: "ApiResources",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ApiScopes");
+                name: "ApiScopes",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "Clients");
+                name: "Clients",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "IdentityResources");
+                name: "IdentityResources",
+                schema: "aegis-ids");
         }
     }
 }

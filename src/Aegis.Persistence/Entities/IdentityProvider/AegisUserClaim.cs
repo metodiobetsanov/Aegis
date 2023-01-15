@@ -6,8 +6,8 @@
 	/// AegisUserClaim
 	/// </summary>
 	/// <seealso cref="Microsoft.AspNetCore.Identity.IdentityUserClaim&lt;System.Guid&gt;" />
-	/// <seealso cref="Aegis.Persistence.Entities.IAegisEntity" />
-	public class AegisUserClaim : IdentityUserClaim<Guid>, IAegisEntity
+	/// <seealso cref="Aegis.Persistence.Entities.IEntity" />
+	public class AegisUserClaim : IdentityUserClaim<Guid>, IEntity
 	{
 		/// <summary>
 		/// A random value that should change whenever an entity is persisted to the store
