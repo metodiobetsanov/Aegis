@@ -3,7 +3,7 @@
 	using System;
 	using System.Runtime.Serialization;
 
-	using Aegis.Persistence.Contracts;
+	using Aegis.Persistence.Constants;
 
 	/// <summary>
 	/// Initializer Exception

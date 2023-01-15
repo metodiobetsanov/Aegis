@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
+namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrant
 {
     [DbContext(typeof(PersistedGrantDbContext))]
     partial class PersistedGrantDbContextModelSnapshot : ModelSnapshot
@@ -17,6 +17,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("aegis-ids")
                 .HasAnnotation("ProductVersion", "7.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -69,7 +70,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
 
                     b.HasIndex("Expiration");
 
-                    b.ToTable("DeviceCodes", (string)null);
+                    b.ToTable("DeviceCodes", "aegis-ids");
                 });
 
             modelBuilder.Entity("Duende.IdentityServer.EntityFramework.Entities.Key", b =>
@@ -105,7 +106,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
 
                     b.HasIndex("Use");
 
-                    b.ToTable("Keys", (string)null);
+                    b.ToTable("Keys", "aegis-ids");
                 });
 
             modelBuilder.Entity("Duende.IdentityServer.EntityFramework.Entities.PersistedGrant", b =>
@@ -169,7 +170,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
 
                     b.HasIndex("SubjectId", "SessionId", "Type");
 
-                    b.ToTable("PersistedGrants", (string)null);
+                    b.ToTable("PersistedGrants", "aegis-ids");
                 });
 
             modelBuilder.Entity("Duende.IdentityServer.EntityFramework.Entities.ServerSideSession", b =>
@@ -229,7 +230,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("ServerSideSessions", (string)null);
+                    b.ToTable("ServerSideSessions", "aegis-ids");
                 });
 #pragma warning restore 612, 618
         }

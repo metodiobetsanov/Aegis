@@ -35,18 +35,24 @@
 				.AddServerSideSessions()
 				.AddConfigurationStore(
 					options =>
-					options.ConfigureDbContext = b =>
-						b.UseNpgsql(
-							builder.Configuration.GetConnectionString("DefaultConnection"),
-							builder =>
-								builder.MigrationsAssembly(migrationAssembly)))
+					{
+						options.DefaultSchema = "aegis-ids";
+						options.ConfigureDbContext = b =>
+									b.UseNpgsql(
+										builder.Configuration.GetConnectionString("IdentityServerDatabase"),
+										builder =>
+											builder.MigrationsAssembly(migrationAssembly));
+					})
 				.AddOperationalStore(
 					options =>
-					options.ConfigureDbContext = b =>
-						b.UseNpgsql(
-							builder.Configuration.GetConnectionString("DefaultConnection"),
-							builder =>
-								builder.MigrationsAssembly(migrationAssembly)))
+					{
+						options.DefaultSchema = "aegis-ids";
+						options.ConfigureDbContext = b =>
+							b.UseNpgsql(
+								builder.Configuration.GetConnectionString("IdentityServerDatabase"),
+								builder =>
+									builder.MigrationsAssembly(migrationAssembly));
+					})
 				.AddAspNetIdentity<AegisUser>();
 
 			return builder;

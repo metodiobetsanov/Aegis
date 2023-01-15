@@ -4,16 +4,20 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
+namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrant
 {
     /// <inheritdoc />
-    public partial class InitialMigrationPersistedGrantDbContext : Migration
+    public partial class InitialPersistedGrantDbContext : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "aegis-ids");
+
             migrationBuilder.CreateTable(
                 name: "DeviceCodes",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     UserCode = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
@@ -33,6 +37,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
 
             migrationBuilder.CreateTable(
                 name: "Keys",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
@@ -51,6 +56,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
 
             migrationBuilder.CreateTable(
                 name: "PersistedGrants",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -73,6 +79,7 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
 
             migrationBuilder.CreateTable(
                 name: "ServerSideSessions",
+                schema: "aegis-ids",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -94,69 +101,82 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeviceCodes_DeviceCode",
+                schema: "aegis-ids",
                 table: "DeviceCodes",
                 column: "DeviceCode",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeviceCodes_Expiration",
+                schema: "aegis-ids",
                 table: "DeviceCodes",
                 column: "Expiration");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Keys_Use",
+                schema: "aegis-ids",
                 table: "Keys",
                 column: "Use");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersistedGrants_ConsumedTime",
+                schema: "aegis-ids",
                 table: "PersistedGrants",
                 column: "ConsumedTime");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersistedGrants_Expiration",
+                schema: "aegis-ids",
                 table: "PersistedGrants",
                 column: "Expiration");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersistedGrants_Key",
+                schema: "aegis-ids",
                 table: "PersistedGrants",
                 column: "Key",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersistedGrants_SubjectId_ClientId_Type",
+                schema: "aegis-ids",
                 table: "PersistedGrants",
                 columns: new[] { "SubjectId", "ClientId", "Type" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersistedGrants_SubjectId_SessionId_Type",
+                schema: "aegis-ids",
                 table: "PersistedGrants",
                 columns: new[] { "SubjectId", "SessionId", "Type" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServerSideSessions_DisplayName",
+                schema: "aegis-ids",
                 table: "ServerSideSessions",
                 column: "DisplayName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServerSideSessions_Expires",
+                schema: "aegis-ids",
                 table: "ServerSideSessions",
                 column: "Expires");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServerSideSessions_Key",
+                schema: "aegis-ids",
                 table: "ServerSideSessions",
                 column: "Key",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServerSideSessions_SessionId",
+                schema: "aegis-ids",
                 table: "ServerSideSessions",
                 column: "SessionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServerSideSessions_SubjectId",
+                schema: "aegis-ids",
                 table: "ServerSideSessions",
                 column: "SubjectId");
         }
@@ -165,16 +185,20 @@ namespace Aegis.Persistence.Migrations.IdentityServer.PersistedGrantDb
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "DeviceCodes");
+                name: "DeviceCodes",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "Keys");
+                name: "Keys",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "PersistedGrants");
+                name: "PersistedGrants",
+                schema: "aegis-ids");
 
             migrationBuilder.DropTable(
-                name: "ServerSideSessions");
+                name: "ServerSideSessions",
+                schema: "aegis-ids");
         }
     }
 }

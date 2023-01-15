@@ -5,7 +5,7 @@
 	using System.Threading;
 	using System.Threading.Tasks;
 
-	using Aegis.Persistence.Contracts;
+	using Aegis.Persistence.Constants;
 	using Aegis.Persistence.Entities;
 	using Aegis.Persistence.Entities.IdentityProvider;
 	using Aegis.Persistence.Exceptions;
@@ -19,14 +19,8 @@
 	/// Aegis Identity Db Context
 	/// </summary>
 	/// <seealso cref="Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext&lt;Aegis.Persistence.Entities.IdentityProvider.AegisUser, Aegis.Persistence.Entities.IdentityProvider.AegisRole, System.Guid, Aegis.Persistence.Entities.IdentityProvider.AegisUserClaim, Aegis.Persistence.Entities.IdentityProvider.AegisUserRole, Aegis.Persistence.Entities.IdentityProvider.AegisUserLogin, Aegis.Persistence.Entities.IdentityProvider.AegisRoleClaim, Aegis.Persistence.Entities.IdentityProvider.AegisUserToken&gt;" />
-	/// <seealso cref="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.IDataProtectionKeyContext" />
-	public class AegisIdentityDbContext : IdentityDbContext<AegisUser, AegisRole, Guid, AegisUserClaim, AegisUserRole, AegisUserLogin, AegisRoleClaim, AegisUserToken>, IDataProtectionKeyContext
+	public class AegisIdentityDbContext : IdentityDbContext<AegisUser, AegisRole, Guid, AegisUserClaim, AegisUserRole, AegisUserLogin, AegisRoleClaim, AegisUserToken>
 	{
-		/// <summary>
-		/// A collection of <see cref="T:Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey" />
-		/// </summary>
-		public DbSet<DataProtectionKey> DataProtectionKeys => this.Set<DataProtectionKey>();
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AegisIdentityDbContext"/> class.
 		/// </summary>
@@ -36,17 +30,12 @@
 
 		}
 
-		protected override void OnConfiguring(DbContextOptionsBuilder builder)
-		{
-			base.OnConfiguring(builder);
-		}
-
 		/// <summary>
 		/// Override this method to further configure the model that was discovered by convention from the entity types
 		/// exposed in <see cref="T:Microsoft.EntityFrameworkCore.DbSet`1" /> properties on your derived context. The resulting model may be cached
 		/// and re-used for subsequent instances of your derived context.
 		/// </summary>
-		/// <param name="modelBuilder">The builder being used to construct the model for this context. Databases (and other extensions) typically
+		/// <param name="builder">The builder being used to construct the model for this context. Databases (and other extensions) typically
 		/// define extension methods on this object that allow you to configure aspects of the model that are specific
 		/// to a given database.</param>
 		/// <remarks>
@@ -284,7 +273,7 @@
 			{
 				// for entities that inherit from IAegisEntity,
 				// set UpdatedOn appropriately
-				if (entry.Entity is IAegisEntity aegisEntity)
+				if (entry.Entity is IEntity aegisEntity)
 				{
 					switch (entry.State)
 					{

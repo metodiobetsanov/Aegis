@@ -13,7 +13,7 @@
 	using Microsoft.Extensions.Logging;
 
 	/// <summary>
-	/// Service Initializer
+	/// Identity Initializer
 	/// </summary>
 	/// <seealso cref="Chimera.Services.Abstractions.IServiceInitializer" />
 	public sealed class IdentityInitializer : IInitializer

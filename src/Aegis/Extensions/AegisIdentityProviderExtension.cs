@@ -48,7 +48,7 @@
 				 {
 					 b.UseLazyLoadingProxies();
 					 b.UseNpgsql(
-						 builder.Configuration.GetConnectionString("DefaultConnection"),
+						 builder.Configuration.GetConnectionString("IdentityProviderDatabase"),
 						 builder =>
 							 builder.MigrationsAssembly(migrationAssembly));
 				 });
@@ -86,40 +86,13 @@
 
 			builder.Services.AddSingleton<IPersonalDataProtector, AegisPersonalDataProtector>();
 			builder.Services.AddSingleton<ILookupProtector, AegisLookupProtector>();
-
-			// TODO: AEG-15
-			switch (identityProviderSettings.LookupProtectorKeyRingType)
-			{
-				case LookupProtectorKeyRingType.Internal:
-					if (!builder.Environment.IsDevelopment())
-					{
-						throw new HostException("Invalid Lookup Protector KeyRyng type 'Internal'. Internal KeyRing can be used only in Development");
-					}
-
-					builder.Services.AddSingleton<ILookupProtectorKeyRing, AegisInternalLookupProtectorKeyRing>();
-					break;
-				default:
-					throw new HostException("Unknown Lookup Protector KeyRyng type.");
-			}
+			builder.Services.AddSingleton<ILookupProtectorKeyRing, AegisLookupProtectorKeyRing>();
 
 			builder.Services.ConfigureApplicationCookie(options =>
 			{
 				options.LoginPath = "/auth/signin";
 				options.AccessDeniedPath = "/access-denied";
 			});
-
-			// Data Protection
-			IDataProtectionBuilder dpBuilder = builder.Services
-				.AddDataProtection()
-				.PersistKeysToDbContext<AegisIdentityDbContext>()
-				.SetApplicationName(ApplicationConstants.ApplicationName.ToLower().Replace(' ', '_'))
-				.SetDefaultKeyLifetime(TimeSpan.FromDays(14));
-
-			if (!builder.Environment.IsDevelopment())
-			{
-				// TODO: AEG-14
-				throw new NotImplementedException();
-			}
 
 			return builder;
 		}

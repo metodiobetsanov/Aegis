@@ -6,8 +6,8 @@
 	/// AegisRoleClaim
 	/// </summary>
 	/// <seealso cref="Microsoft.AspNetCore.Identity.IdentityRoleClaim&lt;System.Guid&gt;" />
-	/// <seealso cref="Aegis.Persistence.Entities.IAegisEntity" />
-	public class AegisRoleClaim : IdentityRoleClaim<Guid>, IAegisEntity
+	/// <seealso cref="Aegis.Persistence.Entities.IEntity" />
+	public class AegisRoleClaim : IdentityRoleClaim<Guid>, IEntity
 	{
 		/// <summary>
 		/// A random value that should change whenever an entity is persisted to the store

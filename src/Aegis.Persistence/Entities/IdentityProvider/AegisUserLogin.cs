@@ -6,8 +6,8 @@
 	/// AegisUserLogin
 	/// </summary>
 	/// <seealso cref="Microsoft.AspNetCore.Identity.IdentityUserLogin&lt;System.Guid&gt;" />
-	/// <seealso cref="Aegis.Persistence.Entities.IAegisEntity" />
-	public class AegisUserLogin : IdentityUserLogin<Guid>, IAegisEntity
+	/// <seealso cref="Aegis.Persistence.Entities.IEntity" />
+	public class AegisUserLogin : IdentityUserLogin<Guid>, IEntity
 	{
 		/// <summary>
 		/// A random value that should change whenever an entity is persisted to the store

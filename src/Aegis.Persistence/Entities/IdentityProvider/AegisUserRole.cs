@@ -6,8 +6,8 @@
 	/// AegisUserRole
 	/// </summary>
 	/// <seealso cref="Microsoft.AspNetCore.Identity.IdentityUserRole&lt;System.Guid&gt;" />
-	/// <seealso cref="Aegis.Persistence.Entities.IAegisEntity" />
-	public class AegisUserRole : IdentityUserRole<Guid>, IAegisEntity
+	/// <seealso cref="Aegis.Persistence.Entities.IEntity" />
+	public class AegisUserRole : IdentityUserRole<Guid>, IEntity
 	{
 		/// <summary>
 		/// Gets or sets the primary key of the user that is linked to a role.

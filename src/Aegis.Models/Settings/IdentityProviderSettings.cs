@@ -14,12 +14,12 @@
 		public static readonly string Section = nameof(IdentityProviderSettings);
 
 		/// <summary>
-		/// Gets the type of the lookup protector key ring.
+		/// Gets the lookup protector encryption derivation password.
 		/// </summary>
 		/// <value>
-		/// The type of the lookup protector key ring.
+		/// The lookup protector encryption derivation password.
 		/// </value>
-		public LookupProtectorKeyRingType? LookupProtectorKeyRingType { get; init; }
+		public string LookupProtectorEncryptionDerivationPassword { get; init; } = default!;
 
 		/// <summary>
 		/// Gets the lookup protector encryption derivation password.
@@ -27,21 +27,14 @@
 		/// <value>
 		/// The lookup protector encryption derivation password.
 		/// </value>
-		public string LookupProtectorEncryptionDerivationPassword { get; init; }
-
-		/// <summary>
-		/// Gets the lookup protector encryption derivation password.
-		/// </summary>
-		/// <value>
-		/// The lookup protector encryption derivation password.
-		/// </value>
-		public string LookupProtectorSigningDerivationPassword { get; init; }
+		public string LookupProtectorSigningDerivationPassword { get; init; } = default!;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AppSettings"/> class.
 		/// </summary>
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-		public IdentityProviderSettings() { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+		public IdentityProviderSettings()
+		{
+
+		}
 	}
 }
