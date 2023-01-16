@@ -4,10 +4,13 @@
 
 	using Aegis.Application.Constants;
 	using Aegis.Application.Contracts.Application;
+	using Aegis.Application.Events.Audit.DataProtection;
 	using Aegis.Application.Exceptions;
 	using Aegis.Application.Helpers;
 	using Aegis.Persistence.Contracts;
 	using Aegis.Persistence.Entities.Application;
+
+	using MediatR;
 
 	using Microsoft.Extensions.DependencyInjection;
 	using Microsoft.Extensions.Logging;
@@ -15,7 +18,7 @@
 	/// <summary>
 	/// Encryption Initializer
 	/// </summary>
-	/// <seealso cref="Chimera.Services.Abstractions.IServiceInitializer" />
+	/// <seealso cref="Aegis.Services.Abstractions.IServiceInitializer" />
 	public sealed class EncryptionInitializer : IInitializer
 	{
 		/// <summary>
@@ -55,29 +58,56 @@
 				{
 					using (IServiceScope scope = _scopeFactory.CreateScope())
 					{
-						_logger.LogInformation("Security Initializer: Setting up {ApplicationName} Initial Personal Data Protection Key.", ApplicationConstants.ApplicationName);
+						_logger.LogInformation("Encryption Initializer: Setting up {ApplicationName} Initial Personal Data Protection Key.", ApplicationConstants.ApplicationName);
+						IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 						IAegisContext context = scope.ServiceProvider.GetRequiredService<IAegisContext>();
+						_logger.LogInformation("Encryption Initializer: check if there are any keys.");
 
 						if (!context.PersonalDataProtectionKeys.GetEntities().Any())
 						{
-							string rndString = IdentityProviderHelper.GenerateRandomPassword();
-							string key = Convert.ToBase64String(Encoding.UTF8.GetBytes(rndString));
-							string keyHash = key.GetHashCode().ToString();
+							Guid keyId = Guid.NewGuid();
+							_logger.LogInformation("Encryption Initializer: no keys found, creating new short-lived key(ID: {keyId}).", keyId);
 
-							context.PersonalDataProtectionKeys.Create(new PersonalDataProtectionKey
+							try
 							{
-								Id = Guid.NewGuid(),
-								Key = key,
-								KeyHash = keyHash,
-								ExpiresOn = DateTime.UtcNow.AddDays(15)
-							});
+								string rndString = IdentityProviderHelper.GenerateRandomPassword();
+								string key = Convert.ToBase64String(Encoding.UTF8.GetBytes(rndString));
+								string keyHash = key.GetHashCode().ToString();
 
-							await context.SaveChangesAsync();
+								PersonalDataProtectionKey personalDataProtectionKey = new PersonalDataProtectionKey
+								{
+									Id = keyId,
+									Key = key,
+									KeyHash = keyHash,
+									ExpiresOn = DateTime.UtcNow.AddDays(3)
+								};
+
+								context.PersonalDataProtectionKeys.Create(personalDataProtectionKey);
+
+								int result = await context.SaveChangesAsync();
+
+								if (result > 0)
+								{
+									_initialized = true;
+									await mediator.Publish(new CreateLookupProtectionKeySucceededAuditEvent(
+									keyId, "Encryption Initializer: add a lookup protection key.", true));
+								}
+								else
+								{
+									await mediator.Publish(new CreateLookupProtectionKeyFailedAuditEvent(
+										keyId, "Encryption Initializer: add a lookup protection key.", true));
+								}
+							}
+							catch (Exception ex)
+							{
+								this._logger.LogError(ex, "Encryption Initializer Error: {message}", ex.Message);
+								await mediator.Publish(new CreateLookupProtectionKeyFailedAuditEvent(
+											keyId, "Encryption Initializer: " + ex.Message, true));
+							}
+
+							_logger.LogInformation("{ApplicationName} Encryption Initializer was successful: {_initialized}.", ApplicationConstants.ApplicationName, _initialized);
 						}
 					}
-
-					_logger.LogInformation("{ApplicationName} Initial Security is Initialized.", ApplicationConstants.ApplicationName);
-					_initialized = true;
 				}
 				catch (Exception ex) when (ex is not InitializerException)
 				{

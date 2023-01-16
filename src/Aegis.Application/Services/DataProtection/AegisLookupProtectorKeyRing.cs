@@ -5,10 +5,15 @@
 	using System.Security.Cryptography;
 	using System.Text;
 
+	using Aegis.Application.Events.Audit.DataProtection;
+	using Aegis.Application.Exceptions;
+	using Aegis.Application.Helpers;
 	using Aegis.Persistence.Contracts;
 	using Aegis.Persistence.Entities.Application;
 
 	using Duende.IdentityServer.Validation;
+
+	using MediatR;
 
 	using Microsoft.AspNetCore.Identity;
 	using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +35,11 @@
 		private readonly Dictionary<string, string> _keyRing = new Dictionary<string, string>();
 
 		/// <summary>
+		/// The active keys
+		/// </summary>
+		private readonly List<string> _activeKeys = new List<string>();
+
+		/// <summary>
 		/// The scope factory
 		/// </summary>
 		private readonly IServiceScopeFactory _scopeFactory;
@@ -37,7 +47,7 @@
 		/// <summary>
 		/// Get the current key id.
 		/// </summary>
-		public string CurrentKeyId => _keyRing.Keys.ElementAt(_rnd.Next(_keyRing.Count));
+		public string CurrentKeyId => _activeKeys.ElementAt(_rnd.Next(0, _keyRing.Count - 1));
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AegisLookupProtectorKeyRing"/> class.
@@ -45,7 +55,7 @@
 		public AegisLookupProtectorKeyRing(IServiceScopeFactory scopeFactory)
 		{
 			_scopeFactory = scopeFactory;
-			InitializeKeys();
+			this.InitializeKeys();
 		}
 
 		/// <summary>
@@ -82,6 +92,57 @@
 				foreach (PersonalDataProtectionKey key in keys)
 				{
 					_keyRing.Add(key.KeyHash, key.Key);
+
+					if (key.ExpiresOn >= DateTime.UtcNow.AddDays(3))
+					{
+						_activeKeys.Add(key.KeyHash);
+					}
+				}
+
+				if (_activeKeys.Count == 0)
+				{
+					IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+					Guid keyId = Guid.NewGuid();
+
+					try
+					{
+						string rndString = IdentityProviderHelper.GenerateRandomPassword();
+						string key = Convert.ToBase64String(Encoding.UTF8.GetBytes(rndString));
+						string keyHash = key.GetHashCode().ToString();
+
+						PersonalDataProtectionKey personalDataProtectionKey = new PersonalDataProtectionKey
+						{
+							Id = keyId,
+							Key = key,
+							KeyHash = keyHash,
+							ExpiresOn = DateTime.UtcNow.AddDays(15)
+						};
+
+						context.PersonalDataProtectionKeys.Create(personalDataProtectionKey);
+						int result = context.SaveChanges();
+
+						if (result > 0)
+						{
+							mediator.Publish(new CreateLookupProtectionKeySucceededAuditEvent(
+							keyId, "AegisLookupProtectorKeyRing: add a short-lived lookup protection key.", true))
+								.GetAwaiter().GetResult();
+						}
+						else
+						{
+							mediator.Publish(new CreateLookupProtectionKeyFailedAuditEvent(
+								keyId, "AegisLookupProtectorKeyRing: add a short-lived lookup protection key.", true))
+								.GetAwaiter().GetResult();
+						}
+					}
+					catch (Exception ex)
+					{
+						mediator.Publish(new CreateLookupProtectionKeyFailedAuditEvent(
+							keyId, "AegisLookupProtectorKeyRing: add a short-lived lookup protection key.", true))
+							.GetAwaiter().GetResult();
+						throw new InitializerException(
+							"Security Initializer Error!",
+							$"Security Initializer Error: {ex.Message}", ex);
+					}
 				}
 			}
 		}

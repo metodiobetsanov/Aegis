@@ -16,6 +16,14 @@
 		IRepository<PersonalDataProtectionKey> PersonalDataProtectionKeys { get; }
 
 		/// <summary>
+		/// Gets the audit logs.
+		/// </summary>
+		/// <value>
+		/// The audit logs.
+		/// </value>
+		IRepository<AuditLog> AuditLogs { get; }
+
+		/// <summary>
 		/// Saves the changes.
 		/// </summary>
 		int SaveChanges();

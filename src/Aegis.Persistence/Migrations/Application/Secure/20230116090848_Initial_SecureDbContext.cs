@@ -16,6 +16,32 @@ namespace Aegis.Persistence.Migrations.Application.Secure
                 name: "aegis-sc");
 
             migrationBuilder.CreateTable(
+                name: "AuditLogs",
+                schema: "aegis-sc",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    EventName = table.Column<string>(type: "text", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Succeeded = table.Column<bool>(type: "boolean", nullable: false),
+                    Module = table.Column<int>(type: "integer", nullable: false),
+                    Action = table.Column<int>(type: "integer", nullable: false),
+                    Subject = table.Column<int>(type: "integer", nullable: false),
+                    SubjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserName = table.Column<string>(type: "text", nullable: true),
+                    UserIp = table.Column<string>(type: "text", nullable: true),
+                    UserAgent = table.Column<string>(type: "text", nullable: true),
+                    Summary = table.Column<string>(type: "text", nullable: false),
+                    OldValues = table.Column<string>(type: "text", nullable: true),
+                    NewValues = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuditLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DataProtectionKeys",
                 schema: "aegis-sc",
                 columns: table => new
@@ -52,6 +78,10 @@ namespace Aegis.Persistence.Migrations.Application.Secure
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AuditLogs",
+                schema: "aegis-sc");
+
             migrationBuilder.DropTable(
                 name: "DataProtectionKeys",
                 schema: "aegis-sc");

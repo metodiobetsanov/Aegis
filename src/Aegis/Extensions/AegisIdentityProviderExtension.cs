@@ -1,19 +1,12 @@
 ﻿namespace Aegis.Extensions
 {
-	using System.IO;
-	using System.Security.Cryptography.X509Certificates;
-
-	using Aegis.Application.Constants;
 	using Aegis.Application.Contracts;
 	using Aegis.Application.Services.DataProtection;
 	using Aegis.Exceptions;
-	using Aegis.Models.Enums;
 	using Aegis.Models.Settings;
 	using Aegis.Persistence;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
-	using Microsoft.AspNetCore.DataProtection;
-	using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
 	using Microsoft.AspNetCore.Identity;
 	using Microsoft.EntityFrameworkCore;
 	using Microsoft.Extensions.DependencyInjection;

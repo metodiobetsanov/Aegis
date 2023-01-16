@@ -7,8 +7,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="6.2.0" />
-		<PackageReference Include="Duende.IdentityServer.EntityFramework.Storage" Version="6.2.0" />
+		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="6.2.1" />
+		<PackageReference Include="Duende.IdentityServer.EntityFramework.Storage" Version="6.2.1" />
 		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="7.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.2" />
@@ -29,6 +29,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Migrations\Application\" />
+	  <Folder Include="Migrations\Application\Secure\" />
 	  <Folder Include="Migrations\IdentityServer\" />
 	</ItemGroup>
 

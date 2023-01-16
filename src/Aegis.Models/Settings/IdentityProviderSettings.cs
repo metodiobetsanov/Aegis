@@ -1,7 +1,5 @@
 ﻿namespace Aegis.Models.Settings
 {
-	using Aegis.Models.Enums;
-
 	/// <summary>
 	/// Identity Provider Settings
 	/// </summary>

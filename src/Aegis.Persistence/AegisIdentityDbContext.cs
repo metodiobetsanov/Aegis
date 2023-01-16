@@ -1,7 +1,6 @@
 ﻿namespace Aegis.Persistence
 {
 	using System;
-	using System.Reflection.Emit;
 	using System.Threading;
 	using System.Threading.Tasks;
 

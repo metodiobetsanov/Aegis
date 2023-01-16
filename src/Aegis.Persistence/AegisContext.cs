@@ -1,7 +1,5 @@
 ﻿namespace Aegis.Persistence
 {
-	using System.Threading.Channels;
-
 	using Aegis.Persistence.Contracts;
 	using Aegis.Persistence.Entities.Application;
 	using Aegis.Persistence.Repositories;
@@ -28,6 +26,11 @@
 		private IRepository<PersonalDataProtectionKey>? _personalDataProtectionKeys;
 
 		/// <summary>
+		/// The personal data protection keys
+		/// </summary>
+		private IRepository<AuditLog>? _auditLogs;
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="AegisContext"/> class.
 		/// </summary>
 		/// <param name="secureDbContext">The secure database context.</param>
@@ -49,6 +52,22 @@
 				_personalDataProtectionKeys ??= new Repository<PersonalDataProtectionKey>(_secureDbContext);
 
 				return _personalDataProtectionKeys;
+			}
+		}
+
+		/// <summary>
+		/// Gets the audit logs.
+		/// </summary>
+		/// <value>
+		/// The audit logs.
+		/// </value>
+		public IRepository<AuditLog> AuditLogs
+		{
+			get
+			{
+				_auditLogs ??= new Repository<AuditLog>(_secureDbContext);
+
+				return _auditLogs;
 			}
 		}
 
