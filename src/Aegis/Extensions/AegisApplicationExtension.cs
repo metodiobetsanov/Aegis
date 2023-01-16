@@ -5,10 +5,13 @@
 	using Aegis.Application.Constants;
 	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.Application;
+	using Aegis.Application.Validators.Application.Settings;
 	using Aegis.Exceptions;
 	using Aegis.Models.Settings;
 	using Aegis.Persistence;
 	using Aegis.Persistence.Contracts;
+
+	using FluentValidation.Results;
 
 	using MediatR;
 
@@ -27,11 +30,15 @@
 		/// <summary>
 		/// Adds the Aegis application components.
 		/// </summary>
-		/// <param name="builder">The builder.</param>
+		/// <param name="builder">The builder.</param
+		/// <param name="logger">The logger.</param>
 		/// <returns></returns>
-		internal static WebApplicationBuilder AddAegisApplication(this WebApplicationBuilder builder)
+		internal static WebApplicationBuilder AddAegisApplication(this WebApplicationBuilder builder, ILogger logger)
 		{
+			logger.Information("Building Aegis Core.");
+
 			// Add Application Settings
+			logger.Information("Aegis Core: adding settings.");
 			AppSettings? appSettings = builder.Configuration.GetSection(AppSettings.Section).Get<AppSettings>();
 
 			if (appSettings is null)
@@ -39,9 +46,23 @@
 				throw new HostException($"Missing Configuration Section: {AppSettings.Section}");
 			}
 
+			AppSettingsValidator validator = new AppSettingsValidator();
+			ValidationResult validatioNresults = validator.Validate(appSettings);
+
+			if (!validatioNresults.IsValid)
+			{
+				foreach (ValidationFailure error in validatioNresults.Errors)
+				{
+					logger.Error(error.ErrorMessage);
+				}
+
+				throw new HostException($"Validation of Configuration Section {AppSettings.Section} failed!");
+			}
+
 			builder.Services
 				.AddSingleton<AppSettings>(appSettings);
 
+			logger.Information("Aegis Core: adding DB context.");
 			string migrationAssembly = typeof(IAegisPersistenceAssembly).Assembly.GetName().Name!.ToString();
 
 			builder.Services
@@ -55,6 +76,7 @@
 				 });
 
 			// Data Protection
+			logger.Information("Aegis Core: adding Data Protection.");
 			builder.Services
 				.AddDataProtection()
 				.PersistKeysToDbContext<SecureDbContext>()
@@ -64,15 +86,18 @@
 				 new X509Certificate2(appSettings.DataProtectionCertificateLocation, appSettings.DataProtectionCertificatePassword));
 
 			// Add MediatR
+			logger.Information("Aegis Core: adding MediatR.");
 			builder.Services
 				.AddMediatR(typeof(IAegisApplicationAssembly).Assembly);
 
+			logger.Information("Aegis Core: adding AutoMapper.");
 			//Add AutoMapper
 			builder.Services
 				.AddAutoMapper(cfg =>
 				{
 				});
 
+			logger.Information("Aegis Core: adding Initializers.");
 			// Add Initializers
 			builder.Services.Scan(delegate (ITypeSourceSelector s)
 			{
@@ -83,6 +108,7 @@
 					.WithSingletonLifetime();
 			});
 
+			logger.Information("Aegis Core: adding Services.");
 			builder.Services
 				.AddScoped<IAegisContext, AegisContext>();
 

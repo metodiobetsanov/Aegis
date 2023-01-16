@@ -5,6 +5,8 @@
 
 	using Microsoft.EntityFrameworkCore;
 
+	using Serilog;
+
 	/// <summary>
 	/// Identity Server Extension
 	/// </summary>
@@ -14,9 +16,13 @@
 		/// Adds the Aegis Identity Server components.
 		/// </summary>
 		/// <param name="builder">The builder.</param>
+		/// <param name="logger">The logger.</param>
 		/// <returns></returns>
-		internal static WebApplicationBuilder AddAegisIdentityServer(this WebApplicationBuilder builder)
+		internal static WebApplicationBuilder AddAegisIdentityServer(this WebApplicationBuilder builder, ILogger logger)
 		{
+			logger.Information("Building Aegis Identity Server.");
+
+			logger.Information("Aegis Identity Server: adding Duende IS.");
 			string migrationAssembly = typeof(IAegisPersistenceAssembly).Assembly.GetName().Name!.ToString();
 
 			// Identity Server
