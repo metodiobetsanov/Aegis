@@ -183,6 +183,25 @@
 				}
 			}
 
+			if (result)
+			{
+				_logger.LogInformation("Identity Initializer: user created, adding roles.");
+				result = await this.AddRolesToUser(userManager, mediator, result, identityUser);
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Adds the roles to user.
+		/// </summary>
+		/// <param name="userManager">The user manager.</param>
+		/// <param name="mediator">The mediator.</param>
+		/// <param name="result">if set to <c>true</c> [result].</param>
+		/// <param name="identityUser">The identity user.</param>
+		/// <returns></returns>
+		private async Task<bool> AddRolesToUser(UserManager<AegisUser> userManager, IMediator mediator, bool result, AegisUser identityUser)
+		{
 			try
 			{
 				_logger.LogInformation("Identity Initializer: check if user has roles.");
