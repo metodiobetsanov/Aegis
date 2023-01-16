@@ -5,6 +5,7 @@
 	using System.Security.Cryptography;
 	using System.Text;
 
+	using Aegis.Application.Constants;
 	using Aegis.Application.Events.Audit.DataProtection;
 	using Aegis.Application.Exceptions;
 	using Aegis.Application.Helpers;
@@ -123,6 +124,9 @@
 
 						if (result > 0)
 						{
+							_keyRing.Add(personalDataProtectionKey.KeyHash, personalDataProtectionKey.Key);
+							_activeKeys.Add(personalDataProtectionKey.KeyHash);
+
 							mediator.Publish(new CreateLookupProtectionKeySucceededAuditEvent(
 							keyId, "AegisLookupProtectorKeyRing: add a short-lived lookup protection key.", true))
 								.GetAwaiter().GetResult();
@@ -132,15 +136,20 @@
 							mediator.Publish(new CreateLookupProtectionKeyFailedAuditEvent(
 								keyId, "AegisLookupProtectorKeyRing: add a short-lived lookup protection key.", true))
 								.GetAwaiter().GetResult();
+
+							throw new ServiceException(
+								ServiceConstants.SomethingWentWrong,
+								"Failed to execute InitializeKeys in AegisLookupProtectorKeyRing!");
 						}
 					}
-					catch (Exception ex)
+					catch (Exception ex) when (ex is not ServiceException)
 					{
 						mediator.Publish(new CreateLookupProtectionKeyFailedAuditEvent(
 							keyId, "AegisLookupProtectorKeyRing: add a short-lived lookup protection key.", true))
 							.GetAwaiter().GetResult();
-						throw new InitializerException(
-							"Security Initializer Error!",
+
+						throw new ServiceException(
+								ServiceConstants.SomethingWentWrong,
 							$"Security Initializer Error: {ex.Message}", ex);
 					}
 				}
