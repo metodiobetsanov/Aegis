@@ -37,9 +37,9 @@ try
 		.AddNewtonsoftJson();
 
 	// Add Aegis
-	builder.AddAegisApplication();
-	builder.AddAegisIdentityProvider();
-	builder.AddAegisIdentityServer();
+	builder.AddAegisApplication(logger);
+	builder.AddAegisIdentityProvider(logger);
+	builder.AddAegisIdentityServer(logger);
 
 	// Add Forwarded Header
 	builder.Services
