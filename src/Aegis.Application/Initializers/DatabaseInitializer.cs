@@ -69,8 +69,8 @@
 						_logger.LogInformation("Database Initializer: Migrating PersistedGrantDbContext.");
 						await scope.ServiceProvider.GetService<PersistedGrantDbContext>()!.Database.MigrateAsync();
 
-						_logger.LogInformation("{ApplicationName} DBs are Initialized.", ApplicationConstants.ApplicationName);
 						_initialized = true;
+						_logger.LogInformation("{ApplicationName} Database Initializer was successful: {_initialized}.", ApplicationConstants.ApplicationName, _initialized);
 					}
 				}
 				catch (Exception ex)

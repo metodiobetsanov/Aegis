@@ -4,18 +4,26 @@
 
 	using Aegis.Application.Constants;
 	using Aegis.Application.Contracts.Application;
+	using Aegis.Application.Events.Audit.IdentityProvider;
 	using Aegis.Application.Exceptions;
 	using Aegis.Application.Helpers;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
+	using MediatR;
+
 	using Microsoft.AspNetCore.Identity;
+	using Microsoft.AspNetCore.Routing.Constraints;
 	using Microsoft.Extensions.DependencyInjection;
 	using Microsoft.Extensions.Logging;
+
+	using Newtonsoft.Json;
+
+	using static System.Runtime.InteropServices.JavaScript.JSType;
 
 	/// <summary>
 	/// Identity Initializer
 	/// </summary>
-	/// <seealso cref="Chimera.Services.Abstractions.IServiceInitializer" />
+	/// <seealso cref="Aegis.Services.Abstractions.IServiceInitializer" />
 	public sealed class IdentityInitializer : IInitializer
 	{
 		/// <summary>
@@ -55,36 +63,42 @@
 				{
 					using (IServiceScope scope = _scopeFactory.CreateScope())
 					{
-						_logger.LogInformation("Service Initializer: Setting up {ApplicationName} Initial Identity.", ApplicationConstants.ApplicationName);
+						_logger.LogInformation("Identity Initializer: Setting up {ApplicationName} Initial Identity.", ApplicationConstants.ApplicationName);
+						IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 						RoleManager<AegisRole> roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AegisRole>>();
 						UserManager<AegisUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<AegisUser>>();
 
-						await this.InitializeRole(
+						_initialized = await this.InitializeRole(
 							roleManager,
+							mediator,
 							IdentityProviderConstants.RootRole,
-							"Chimera root server role.",
+							"Aegis root server role.",
 							true,
 							true,
 							false);
-						await this.InitializeRole(
+
+						_initialized = _initialized && await this.InitializeRole(
 							roleManager,
+							mediator,
 							IdentityProviderConstants.OperatorRole,
-							"Chimera base Operator role.",
+							"Aegis base Operator role.",
 							true,
 							true,
 							false);
-						await this.InitializeRole(
+
+						_initialized = _initialized && await this.InitializeRole(
 							roleManager,
+							mediator,
 							IdentityProviderConstants.UserRole,
-							"Chimera base User role.",
+							"Aegis base User role.",
 							true,
 							true,
 							true);
-						await this.InitializeUser(userManager, IdentityProviderConstants.RootUserName);
-					}
 
-					_logger.LogInformation("{ApplicationName} Initial Identity is Initialized.", ApplicationConstants.ApplicationName);
-					_initialized = true;
+						_initialized = _initialized && await this.InitializeUser(userManager, mediator, IdentityProviderConstants.RootUserName);
+
+						_logger.LogInformation("{ApplicationName} Identity Initializer was successful: {_initialized}.", ApplicationConstants.ApplicationName, _initialized);
+					}
 				}
 				catch (Exception ex) when (ex is not InitializerException)
 				{
@@ -99,119 +113,181 @@
 		/// Initializes the user.
 		/// </summary>
 		/// <param name="userManager">The user manager.</param>
+		/// <param name="mediator">The mediator.</param>
 		/// <param name="userName">Name of the user.</param>
-		/// <exception cref="Chimera.Application.Exceptions.InitializerException">
-		/// Service Initializer: failed to create user.
+		/// <exception cref="Aegis.Application.Exceptions.InitializerException">
+		/// Identity Initializer: failed to create user.
 		/// or
-		/// Service Initializer: failed to add roles to the user.
+		/// Identity Initializer: failed to add roles to the user.
 		/// </exception>
-		private async Task InitializeUser(UserManager<AegisUser> userManager, string userName)
+		private async Task<bool> InitializeUser(UserManager<AegisUser> userManager, IMediator mediator, string userName)
 		{
-			_logger.LogInformation("Service Initializer: check if user exists.");
+			_logger.LogInformation("Identity Initializer: check if user exists.");
+			bool result = true;
 			AegisUser? identityUser = await userManager.FindByNameAsync(userName);
 
 			if (identityUser is null)
 			{
-				_logger.LogInformation("Service Initializer: attempting to create user.");
-				identityUser = new AegisUser()
+				try
 				{
-					FirstName = "John",
-					LastName = "Doe",
-					UserName = userName,
-					NormalizedUserName = userName.ToUpper(),
-					Email = userName,
-					NormalizedEmail = userName.ToUpper(),
-					EmailConfirmed = true,
-					SystemUser = true,
-					ProtectedUser = true,
-					ActiveProfile = true,
-					CompletedProfile = true
-				};
-
-				string password = IdentityProviderHelper.GenerateRandomPassword();
-
-				_logger.LogInformation("Service Initializer: creating user.");
-				IdentityResult userResult = await userManager.CreateAsync(identityUser, password);
-
-				if (!userResult.Succeeded)
-				{
-					foreach (IdentityError? error in userResult.Errors)
+					_logger.LogInformation("Identity Initializer: attempting to create the root user.");
+					identityUser = new AegisUser()
 					{
-						_logger.LogError("Service Initializer Error:  {Code} => {Description}", error.Code, error.Description);
+						FirstName = "John",
+						LastName = "Doe",
+						UserName = userName,
+						NormalizedUserName = userName.ToUpper(),
+						Email = userName,
+						NormalizedEmail = userName.ToUpper(),
+						EmailConfirmed = true,
+						SystemUser = true,
+						ProtectedUser = true,
+						ActiveProfile = true,
+						CompletedProfile = true
+					};
+
+					string password = IdentityProviderHelper.GenerateRandomPassword();
+
+					_logger.LogInformation("Identity Initializer: creating the root user.");
+					IdentityResult userResult = await userManager.CreateAsync(identityUser, password);
+
+					if (!userResult.Succeeded)
+					{
+						result = false;
+						List<string> errors = new List<string>();
+
+						foreach (IdentityError? error in userResult.Errors)
+						{
+							_logger.LogError("Identity Initializer Error: {Code} => {Description}", error.Code, error.Description);
+							errors.Add(error.Description);
+						}
+
+						await mediator.Publish(new CreateUserFailedAuditEvent(
+							identityUser.Id, $"Identity Initializer: failed to create the root user. {string.Join(", ", errors)}", true, null, JsonConvert.SerializeObject(identityUser)));
 					}
 
-					throw new InitializerException("Service Initializer: failed to create user.");
+					await mediator.Publish(new CreateRoleSucceededAuditEvent(
+						identityUser.Id, "Identity Initializer: created the root user.", true, null, JsonConvert.SerializeObject(identityUser)));
+
+					string encPass = Convert.ToBase64String(Encoding.UTF8.GetBytes(password));
+					_logger.LogInformation("Identity Initializer: user created.");
+					_logger.LogInformation("LRUP: {encPass}", encPass);
 				}
-
-				string encPass = Convert.ToBase64String(Encoding.UTF8.GetBytes(password));
-				_logger.LogInformation("Service Initializer: user created.");
-				_logger.LogInformation("LRUP: {encPass}", encPass);
-			}
-
-			_logger.LogInformation("Service Initializer: check if user has roles.");
-			List<string> roles = new List<string> { IdentityProviderConstants.RootRole, IdentityProviderConstants.OperatorRole, IdentityProviderConstants.UserRole };
-			List<string> rolesToAdd = new List<string>();
-			IList<string>? userRoles = await userManager.GetRolesAsync(identityUser);
-
-			if (userRoles is not null)
-			{
-				rolesToAdd.AddRange(roles.Where(r => !userRoles.Contains(r)));
-			}
-			else
-			{
-				rolesToAdd.AddRange(roles);
-			}
-
-			if (rolesToAdd.Count > 0)
-			{
-				IdentityResult addToRolesResult = await userManager.AddToRolesAsync(identityUser, rolesToAdd);
-
-				if (!addToRolesResult.Succeeded)
+				catch (Exception ex)
 				{
-					foreach (IdentityError? error in addToRolesResult.Errors)
-					{
-						_logger.LogError("Service Initializer Error:  {Code} => {Description}", error.Code, error.Description);
-					}
+					result = false;
+					this._logger.LogError(ex, "Identity Initializer Error: {message}", ex.Message);
+
+					await mediator.Publish(new CreateUserFailedAuditEvent(
+							identityUser!.Id, "Identity Initializer: failed to the create user. Error: " + ex.Message, true, null, JsonConvert.SerializeObject(identityUser)));
+				}
+			}
+
+			try
+			{
+				_logger.LogInformation("Identity Initializer: check if user has roles.");
+				List<string> roles = new List<string> { IdentityProviderConstants.RootRole, IdentityProviderConstants.OperatorRole, IdentityProviderConstants.UserRole };
+				List<string> rolesToAdd = new List<string>();
+				IList<string>? userRoles = await userManager.GetRolesAsync(identityUser);
+
+				if (userRoles is not null)
+				{
+					rolesToAdd.AddRange(roles.Where(r => !userRoles.Contains(r)));
+				}
+				else
+				{
+					rolesToAdd.AddRange(roles);
 				}
 
-				_logger.LogInformation("Service Initializer: roles assigned.");
+				if (rolesToAdd.Count > 0)
+				{
+					IdentityResult addToRolesResult = await userManager.AddToRolesAsync(identityUser, rolesToAdd);
+
+					if (!addToRolesResult.Succeeded)
+					{
+						result = false;
+						List<string> errors = new List<string>();
+
+						foreach (IdentityError? error in addToRolesResult.Errors)
+						{
+							_logger.LogError("Identity Initializer Error: {Code} => {Description}", error.Code, error.Description);
+							errors.Add(error.Description);
+						}
+
+						await mediator.Publish(new AssignRoleFailedAuditEvent(
+							identityUser.Id, $"Identity Initializer: add roles to the root user. Error: {string.Join(", ", errors)}", true, null, string.Join(",", rolesToAdd)));
+					}
+
+					await mediator.Publish(new AssignRoleSucceededAuditEvent(
+						identityUser.Id, "Identity Initializer: add roles to the root user.", true, null, string.Join(",", rolesToAdd)));
+					_logger.LogInformation("Identity Initializer: roles assigned.");
+				}
 			}
+			catch (Exception ex)
+			{
+				result = false;
+				this._logger.LogError(ex, "Identity Initializer Error: {message}", ex.Message);
+
+				await mediator.Publish(new AssignRoleFailedAuditEvent(
+						identityUser.Id, "Identity Initializer: add roles to the root user. Error: " + ex.Message, true, null, JsonConvert.SerializeObject(identityUser)));
+			}
+
+			return result;
 		}
 
 		/// <summary>
 		/// Initializes the role.
 		/// </summary>
 		/// <param name="roleManager">The role manager.</param>
+		/// <param name="mediator">The mediator.</param>
 		/// <param name="roleName">Name of the role.</param>
 		/// <param name="description">The description.</param>
 		/// <param name="protectedRole">if set to <c>true</c> [protected role].</param>
 		/// <param name="systemRole">if set to <c>true</c> [system role].</param>
 		/// <param name="assignByDefault">if set to <c>true</c> [assign by default].</param>
-		/// <exception cref="Chimera.Application.Exceptions.InitializerException">Service Initializer: failed to create a role.</exception>
-		private async Task InitializeRole(RoleManager<AegisRole> roleManager, string roleName, string description, bool protectedRole, bool systemRole, bool assignByDefault)
+		/// <exception cref="Aegis.Application.Exceptions.InitializerException">Failed to create '{roleName}' role.</exception>
+		private async Task<bool> InitializeRole(RoleManager<AegisRole> roleManager, IMediator mediator, string roleName, string description, bool protectedRole, bool systemRole, bool assignByDefault)
 		{
-			_logger.LogInformation("Service Initializer: check if role '{roleName}' exists.", roleName);
+			_logger.LogInformation("Identity Initializer: check if role '{roleName}' exists.", roleName);
+			bool result = true;
 			AegisRole? role = await roleManager.FindByNameAsync(roleName);
 
 			if (role is null)
 			{
-				_logger.LogInformation("Identity Initializer: attempting to create '{roleName}' role.", roleName);
-
-				role = new AegisRole(roleName, description, protectedRole, systemRole, assignByDefault);
-				IdentityResult roleResult = await roleManager.CreateAsync(role);
-
-				if (!roleResult.Succeeded)
+				try
 				{
-					foreach (IdentityError? error in roleResult.Errors)
+					_logger.LogInformation("Identity Initializer: attempting to create '{roleName}' role.", roleName);
+					role = new AegisRole(roleName, description, protectedRole, systemRole, assignByDefault);
+					IdentityResult roleResult = await roleManager.CreateAsync(role);
+
+					if (!roleResult.Succeeded)
 					{
-						_logger.LogError("Identity Initializer Error:  {Code} => {Description}", error.Code, error.Description);
+						result = false;
+						List<string> errors = new List<string>();
+
+						foreach (IdentityError? error in roleResult.Errors)
+						{
+							_logger.LogError("Identity Initializer Error:  {Code} => {Description}", error.Code, error.Description);
+							errors.Add(error.Description);
+						}
+
+						await mediator.Publish(new CreateRoleFailedAuditEvent(
+							role.Id, $"Identity Initializer: add role '{roleName}'. Error: {string.Join(", ", errors)}", true, null, JsonConvert.SerializeObject(role)));
 					}
 
-					throw new InitializerException($"Failed to create '{roleName}' role.");
+					await mediator.Publish(new CreateRoleSucceededAuditEvent(
+						role.Id, $"Identity Initializer: add role '{roleName}'.", true, null, JsonConvert.SerializeObject(role)));
+					_logger.LogInformation("Identity Initializer: role '{roleName}' created.", roleName);
 				}
-
-				_logger.LogInformation("Identity Initializer: role '{roleName}' created.", roleName);
+				catch (Exception ex)
+				{
+					result = false;
+					await mediator.Publish(new CreateRoleFailedAuditEvent(
+							role!.Id, "Identity Initializer: add role '{roleName}'. Error: " + ex.Message, true, null, JsonConvert.SerializeObject(role)));
+				}
 			}
+
+			return result;
 		}
 	}
 }

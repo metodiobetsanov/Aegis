@@ -22,7 +22,7 @@
 						Id= Guid.Parse("18b29352-359f-4d8e-9a20-765b46403904"),
 						KeyHash = _key.GetHashCode().ToString(),
 						Key = _key,
-						ExpiresOn = DateTime.Now.AddDays(1)
+						ExpiresOn = DateTime.Now.AddDays(7)
 					}
 				});
 			ServiceCollection sc = new ServiceCollection();

@@ -1,11 +1,8 @@
 ﻿namespace Aegis.Persistence
 {
-	using System.Reflection.Emit;
-
 	using Aegis.Persistence.Attributes;
 	using Aegis.Persistence.Converters;
 	using Aegis.Persistence.Entities.Application;
-	using Aegis.Persistence.Entities.IdentityProvider;
 
 	using Microsoft.AspNetCore.DataProtection;
 	using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
@@ -31,6 +28,14 @@
 		/// The personal data protection keys.
 		/// </value>
 		public DbSet<PersonalDataProtectionKey> PersonalDataProtectionKeys { get; set; } = default!;
+
+		/// <summary>
+		/// Gets or sets the audit logs.
+		/// </summary>
+		/// <value>
+		/// The audit logs.
+		/// </value>
+		public DbSet<AuditLog> AuditLogs { get; set; } = default!;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="SecureDbContext"/> class.
@@ -90,6 +95,13 @@
 
 				// A concurrency token for use with the optimistic concurrency checking
 				b.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
+			});
+
+			//  AuditLog table
+			modelBuilder.Entity<AuditLog>(b =>
+			{
+				// Maps to the AuditLogs table
+				b.ToTable("AuditLogs");
 			});
 		}
 	}
