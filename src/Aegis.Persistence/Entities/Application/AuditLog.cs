@@ -21,7 +21,7 @@
 		/// <value>
 		/// The name of the event.
 		/// </value>
-		public string EventName { get; set; }
+		public string EventName { get; set; } = default!;
 
 		/// <summary>
 		/// Gets or sets the timestamp.
@@ -113,7 +113,7 @@
 		/// <value>
 		/// The summary.
 		/// </value>
-		public string Summary { get; set; }
+		public required string Summary { get; set; }
 
 		/// <summary>
 		/// Gets or sets the old values.
@@ -136,48 +136,10 @@
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AuditLog"/> class.
 		/// </summary>
-		/// <param name="eventName">Name of the event.</param>
-		/// <param name="succeeded">if set to <c>true</c> [succeeded].</param>
-		/// <param name="module">The module.</param>
-		/// <param name="action">The action.</param>
-		/// <param name="subject">The subject.</param>
-		/// <param name="subjectId">The subject identifier.</param>
-		/// <param name="userId">The user identifier.</param>
-		/// <param name="userName">Name of the user.</param>
-		/// <param name="userIp">The user ip.</param>
-		/// <param name="userAgent">The user agent.</param>
-		/// <param name="summary">The summary.</param>
-		/// <param name="oldValues">The old values.</param>
-		/// <param name="newValues">The new values.</param>
-		public AuditLog(
-			string eventName,
-			bool succeeded,
-			int module,
-			int action,
-			int subject,
-			Guid subjectId,
-			Guid userId,
-			string? userName,
-			string? userIp,
-			string? userAgent,
-			string summary,
-			string? oldValues = null,
-			string? newValues = null)
+		public AuditLog()
 		{
+			this.Id = Guid.NewGuid();
 			this.Timestamp = DateTime.UtcNow;
-			this.EventName = eventName;
-			this.Succeeded = succeeded;
-			this.Module = module;
-			this.Action = action;
-			this.Subject = subject;
-			this.SubjectId = subjectId;
-			this.UserId = userId;
-			this.UserName = userName;
-			this.UserIp = userIp;
-			this.UserAgent = userAgent;
-			this.Summary = summary;
-			this.OldValues = oldValues;
-			this.NewValues = newValues;
 		}
 	}
 }
