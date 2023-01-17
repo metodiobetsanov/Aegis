@@ -71,8 +71,8 @@
 					 b.UseLazyLoadingProxies();
 					 b.UseNpgsql(
 						 builder.Configuration.GetConnectionString("SecureDatabase"),
-						 builder =>
-							 builder.MigrationsAssembly(migrationAssembly));
+						 npq =>
+							 npq.MigrationsAssembly(migrationAssembly));
 				 });
 
 			// Data Protection

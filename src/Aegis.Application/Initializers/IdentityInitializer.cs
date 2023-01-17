@@ -12,13 +12,10 @@
 	using MediatR;
 
 	using Microsoft.AspNetCore.Identity;
-	using Microsoft.AspNetCore.Routing.Constraints;
 	using Microsoft.Extensions.DependencyInjection;
 	using Microsoft.Extensions.Logging;
 
 	using Newtonsoft.Json;
-
-	using static System.Runtime.InteropServices.JavaScript.JSType;
 
 	/// <summary>
 	/// Identity Initializer
@@ -37,9 +34,12 @@
 		private readonly IServiceScopeFactory _scopeFactory;
 
 		/// <summary>
-		/// The initialized
+		/// Gets a value indicating whether this <see cref="IInitializer" /> is initialized.
 		/// </summary>
-		private bool _initialized = false;
+		/// <value>
+		///   <c>true</c> if initialized; otherwise, <c>false</c>.
+		/// </value>
+		public bool Initialized { get; private set; } = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="IdentityInitializer"/> class.
@@ -57,7 +57,7 @@
 		/// </summary>
 		public async Task Initialize()
 		{
-			if (!_initialized)
+			if (!this.Initialized)
 			{
 				try
 				{
@@ -68,7 +68,7 @@
 						RoleManager<AegisRole> roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AegisRole>>();
 						UserManager<AegisUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<AegisUser>>();
 
-						_initialized = await this.InitializeRole(
+						this.Initialized = await this.InitializeRole(
 							roleManager,
 							mediator,
 							IdentityProviderConstants.RootRole,
@@ -77,7 +77,7 @@
 							true,
 							false);
 
-						_initialized = _initialized && await this.InitializeRole(
+						this.Initialized = this.Initialized && await this.InitializeRole(
 							roleManager,
 							mediator,
 							IdentityProviderConstants.OperatorRole,
@@ -86,7 +86,7 @@
 							true,
 							false);
 
-						_initialized = _initialized && await this.InitializeRole(
+						this.Initialized = this.Initialized && await this.InitializeRole(
 							roleManager,
 							mediator,
 							IdentityProviderConstants.UserRole,
@@ -95,9 +95,9 @@
 							true,
 							true);
 
-						_initialized = _initialized && await this.InitializeUser(userManager, mediator, IdentityProviderConstants.RootUserName);
+						this.Initialized = this.Initialized && await this.InitializeUser(userManager, mediator, IdentityProviderConstants.RootUserName);
 
-						_logger.LogInformation("{ApplicationName} Identity Initializer was successful: {_initialized}.", ApplicationConstants.ApplicationName, _initialized);
+						_logger.LogInformation("{ApplicationName} Identity Initializer was successful: {Initialized}.", ApplicationConstants.ApplicationName, this.Initialized);
 					}
 				}
 				catch (Exception ex) when (ex is not InitializerException)
@@ -151,7 +151,15 @@
 					_logger.LogInformation("Identity Initializer: creating the root user.");
 					IdentityResult userResult = await userManager.CreateAsync(identityUser, password);
 
-					if (!userResult.Succeeded)
+					if (userResult.Succeeded)
+					{
+						_logger.LogInformation("Identity Initializer: user created.");
+						string encPass = Convert.ToBase64String(Encoding.UTF8.GetBytes(password));
+						_logger.LogInformation("LRUP: {encPass}", encPass);
+						await mediator.Publish(new CreateRoleSucceededAuditEvent(
+						identityUser.Id, "Identity Initializer: created the root user.", true, null, JsonConvert.SerializeObject(identityUser)));
+					}
+					else
 					{
 						result = false;
 						List<string> errors = new List<string>();
@@ -165,13 +173,6 @@
 						await mediator.Publish(new CreateUserFailedAuditEvent(
 							identityUser.Id, $"Identity Initializer: failed to create the root user. {string.Join(", ", errors)}", true, null, JsonConvert.SerializeObject(identityUser)));
 					}
-
-					await mediator.Publish(new CreateRoleSucceededAuditEvent(
-						identityUser.Id, "Identity Initializer: created the root user.", true, null, JsonConvert.SerializeObject(identityUser)));
-
-					string encPass = Convert.ToBase64String(Encoding.UTF8.GetBytes(password));
-					_logger.LogInformation("Identity Initializer: user created.");
-					_logger.LogInformation("LRUP: {encPass}", encPass);
 				}
 				catch (Exception ex)
 				{
@@ -186,7 +187,7 @@
 			if (result)
 			{
 				_logger.LogInformation("Identity Initializer: user created, adding roles.");
-				result = await this.AddRolesToUser(userManager, mediator, result, identityUser);
+				result = await this.AddRolesToUser(userManager, mediator, identityUser);
 			}
 
 			return result;
@@ -197,11 +198,11 @@
 		/// </summary>
 		/// <param name="userManager">The user manager.</param>
 		/// <param name="mediator">The mediator.</param>
-		/// <param name="result">if set to <c>true</c> [result].</param>
 		/// <param name="identityUser">The identity user.</param>
 		/// <returns></returns>
-		private async Task<bool> AddRolesToUser(UserManager<AegisUser> userManager, IMediator mediator, bool result, AegisUser identityUser)
+		private async Task<bool> AddRolesToUser(UserManager<AegisUser> userManager, IMediator mediator, AegisUser identityUser)
 		{
+			bool result = true;
 			try
 			{
 				_logger.LogInformation("Identity Initializer: check if user has roles.");
@@ -222,7 +223,13 @@
 				{
 					IdentityResult addToRolesResult = await userManager.AddToRolesAsync(identityUser, rolesToAdd);
 
-					if (!addToRolesResult.Succeeded)
+					if (addToRolesResult.Succeeded)
+					{
+						_logger.LogInformation("Identity Initializer: roles assigned.");
+						await mediator.Publish(new AssignRoleSucceededAuditEvent(
+						identityUser.Id, "Identity Initializer: add roles to the root user.", true, null, string.Join(",", rolesToAdd)));
+					}
+					else
 					{
 						result = false;
 						List<string> errors = new List<string>();
@@ -236,10 +243,6 @@
 						await mediator.Publish(new AssignRoleFailedAuditEvent(
 							identityUser.Id, $"Identity Initializer: add roles to the root user. Error: {string.Join(", ", errors)}", true, null, string.Join(",", rolesToAdd)));
 					}
-
-					await mediator.Publish(new AssignRoleSucceededAuditEvent(
-						identityUser.Id, "Identity Initializer: add roles to the root user.", true, null, string.Join(",", rolesToAdd)));
-					_logger.LogInformation("Identity Initializer: roles assigned.");
 				}
 			}
 			catch (Exception ex)
@@ -279,7 +282,13 @@
 					role = new AegisRole(roleName, description, protectedRole, systemRole, assignByDefault);
 					IdentityResult roleResult = await roleManager.CreateAsync(role);
 
-					if (!roleResult.Succeeded)
+					if (roleResult.Succeeded)
+					{
+						_logger.LogInformation("Identity Initializer: role '{roleName}' created.", roleName);
+						await mediator.Publish(new CreateRoleSucceededAuditEvent(
+							role.Id, $"Identity Initializer: add role '{roleName}'.", true, null, JsonConvert.SerializeObject(role)));
+					}
+					else
 					{
 						result = false;
 						List<string> errors = new List<string>();
@@ -293,10 +302,6 @@
 						await mediator.Publish(new CreateRoleFailedAuditEvent(
 							role.Id, $"Identity Initializer: add role '{roleName}'. Error: {string.Join(", ", errors)}", true, null, JsonConvert.SerializeObject(role)));
 					}
-
-					await mediator.Publish(new CreateRoleSucceededAuditEvent(
-						role.Id, $"Identity Initializer: add role '{roleName}'.", true, null, JsonConvert.SerializeObject(role)));
-					_logger.LogInformation("Identity Initializer: role '{roleName}' created.", roleName);
 				}
 				catch (Exception ex)
 				{

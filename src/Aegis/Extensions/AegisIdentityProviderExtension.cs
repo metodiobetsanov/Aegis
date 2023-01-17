@@ -65,8 +65,8 @@
 					 b.UseLazyLoadingProxies();
 					 b.UseNpgsql(
 						 builder.Configuration.GetConnectionString("IdentityProviderDatabase"),
-						 builder =>
-							 builder.MigrationsAssembly(migrationAssembly));
+						 npq =>
+							 npq.MigrationsAssembly(migrationAssembly));
 				 });
 
 			// Identity Provider

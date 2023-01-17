@@ -32,9 +32,12 @@
 		private readonly IServiceScopeFactory _scopeFactory;
 
 		/// <summary>
-		/// The initialized
+		/// Gets a value indicating whether this <see cref="IInitializer" /> is initialized.
 		/// </summary>
-		private bool _initialized = false;
+		/// <value>
+		///   <c>true</c> if initialized; otherwise, <c>false</c>.
+		/// </value>
+		public bool Initialized { get; private set; } = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="EncryptionInitializer"/> class.
@@ -52,7 +55,7 @@
 		/// </summary>
 		public async Task Initialize()
 		{
-			if (!_initialized)
+			if (!this.Initialized)
 			{
 				try
 				{
@@ -88,7 +91,7 @@
 
 								if (result > 0)
 								{
-									_initialized = true;
+									this.Initialized = true;
 									await mediator.Publish(new CreateLookupProtectionKeySucceededAuditEvent(
 									keyId, "Encryption Initializer: add a lookup protection key.", true));
 								}
@@ -105,7 +108,7 @@
 											keyId, "Encryption Initializer: " + ex.Message, true));
 							}
 
-							_logger.LogInformation("{ApplicationName} Encryption Initializer was successful: {_initialized}.", ApplicationConstants.ApplicationName, _initialized);
+							_logger.LogInformation("{ApplicationName} Encryption Initializer was successful: {Initialized}.", ApplicationConstants.ApplicationName, this.Initialized);
 						}
 					}
 				}
