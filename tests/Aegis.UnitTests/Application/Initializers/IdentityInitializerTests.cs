@@ -139,7 +139,7 @@
 		[Fact]
 		public void Initialize_ShouldBeFalse_OnException()
 		{
-			// Arrange 
+			// Arrange
 			_scf.Setup(x => x.CreateScope()).Throws(new Exception());
 
 			IdentityInitializer initializer = new IdentityInitializer(_logger.Object, _scf.Object);
@@ -157,7 +157,7 @@
 		[Fact]
 		public void Initialize_ShouldBeFalse_OnCreateUserException()
 		{
-			// Arrange 
+			// Arrange
 			_userManager.Setup(x => x.CreateAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
 				.Throws(new Exception());
 			_userManager.Setup(x => x.AddToRolesAsync(It.IsAny<AegisUser>(), It.IsAny<List<string>>()))
@@ -169,16 +169,18 @@
 			initializer.Initialized.ShouldBeFalse();
 
 			// Act
-			initializer.Initialize().GetAwaiter().GetResult();
+			Exception exception = Record.Exception(() => initializer.Initialize().GetAwaiter().GetResult());
 
 			// Assert
 			initializer.Initialized.ShouldBeFalse();
+			exception.ShouldNotBeNull();
+			exception.ShouldBeOfType<InitializerException>();
 		}
 
 		[Fact]
 		public void Initialize_ShouldBeFalse_OnCreateRoleException()
 		{
-			// Arrange 
+			// Arrange
 			_userManager.Setup(x => x.CreateAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
 				.Returns(Task.FromResult(IdentityResult.Success));
 			_userManager.Setup(x => x.AddToRolesAsync(It.IsAny<AegisUser>(), It.IsAny<List<string>>()))
@@ -190,10 +192,12 @@
 			initializer.Initialized.ShouldBeFalse();
 
 			// Act
-			initializer.Initialize().GetAwaiter().GetResult();
+			Exception exception = Record.Exception(() => initializer.Initialize().GetAwaiter().GetResult());
 
 			// Assert
 			initializer.Initialized.ShouldBeFalse();
+			exception.ShouldNotBeNull();
+			exception.ShouldBeOfType<InitializerException>();
 		}
 
 		[Fact]
@@ -211,10 +215,11 @@
 			initializer.Initialized.ShouldBeFalse();
 
 			// Act
-			initializer.Initialize().GetAwaiter().GetResult();
+			Exception exception = Record.Exception(() => initializer.Initialize().GetAwaiter().GetResult());
 
 			// Assert
 			initializer.Initialized.ShouldBeFalse();
+			exception.ShouldNotBeNull();
 		}
 	}
 }

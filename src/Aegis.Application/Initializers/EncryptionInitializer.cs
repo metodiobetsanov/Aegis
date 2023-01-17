@@ -103,20 +103,32 @@
 							}
 							catch (Exception ex)
 							{
+								this.Initialized = false;
 								this._logger.LogError(ex, "Encryption Initializer Error: {message}", ex.Message);
 								await mediator.Publish(new CreateLookupProtectionKeyFailedAuditEvent(
 											keyId, "Encryption Initializer: " + ex.Message, true));
+
+								throw new InitializerException(
+									InitializerConstants.SomethingWentWrong,
+									$"Encryption Initializer Error: {ex.Message}", ex);
 							}
 
 							_logger.LogInformation("{ApplicationName} Encryption Initializer was successful: {Initialized}.", ApplicationConstants.ApplicationName, this.Initialized);
+						}
+						else
+						{
+							this.Initialized = true;
 						}
 					}
 				}
 				catch (Exception ex) when (ex is not InitializerException)
 				{
+					this.Initialized = false;
+					this._logger.LogError(ex, "Encryption Initializer Error: {message}", ex.Message);
+
 					throw new InitializerException(
-						"Security Initializer Error!",
-						$"Security Initializer Error: {ex.Message}", ex);
+						InitializerConstants.SomethingWentWrong,
+						$"Encryption Initializer Error: {ex.Message}", ex);
 				}
 			}
 		}

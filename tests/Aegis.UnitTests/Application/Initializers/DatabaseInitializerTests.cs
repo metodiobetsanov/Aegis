@@ -69,6 +69,5 @@
 			exception.ShouldNotBeNull();
 			exception.ShouldBeOfType<InitializerException>();
 		}
-
 	}
 }

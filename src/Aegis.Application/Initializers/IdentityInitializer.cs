@@ -102,8 +102,11 @@
 				}
 				catch (Exception ex) when (ex is not InitializerException)
 				{
+					this.Initialized = false;
+					this._logger.LogError(ex, "Identity Initializer Error: {message}", ex.Message);
+
 					throw new InitializerException(
-						"Identity Initializer Error!",
+						InitializerConstants.SomethingWentWrong,
 						$"Identity Initializer Error: {ex.Message}", ex);
 				}
 			}
@@ -156,7 +159,7 @@
 						_logger.LogInformation("Identity Initializer: user created.");
 						string encPass = Convert.ToBase64String(Encoding.UTF8.GetBytes(password));
 						_logger.LogInformation("LRUP: {encPass}", encPass);
-						await mediator.Publish(new CreateRoleSucceededAuditEvent(
+						await mediator.Publish(new CreateUserSucceededAuditEvent(
 						identityUser.Id, "Identity Initializer: created the root user.", true, null, JsonConvert.SerializeObject(identityUser)));
 					}
 					else
@@ -176,11 +179,15 @@
 				}
 				catch (Exception ex)
 				{
-					result = false;
+					this.Initialized = false;
 					this._logger.LogError(ex, "Identity Initializer Error: {message}", ex.Message);
 
 					await mediator.Publish(new CreateUserFailedAuditEvent(
 							identityUser!.Id, "Identity Initializer: failed to the create user. Error: " + ex.Message, true, null, JsonConvert.SerializeObject(identityUser)));
+
+					throw new InitializerException(
+						InitializerConstants.SomethingWentWrong,
+						$"Identity Initializer Error: {ex.Message}", ex);
 				}
 			}
 
@@ -203,6 +210,7 @@
 		private async Task<bool> AddRolesToUser(UserManager<AegisUser> userManager, IMediator mediator, AegisUser identityUser)
 		{
 			bool result = true;
+
 			try
 			{
 				_logger.LogInformation("Identity Initializer: check if user has roles.");
@@ -247,11 +255,14 @@
 			}
 			catch (Exception ex)
 			{
-				result = false;
+				this.Initialized = false;
 				this._logger.LogError(ex, "Identity Initializer Error: {message}", ex.Message);
-
 				await mediator.Publish(new AssignRoleFailedAuditEvent(
 						identityUser.Id, "Identity Initializer: add roles to the root user. Error: " + ex.Message, true, null, JsonConvert.SerializeObject(identityUser)));
+
+				throw new InitializerException(
+					InitializerConstants.SomethingWentWrong,
+					$"Identity Initializer Error: {ex.Message}", ex);
 			}
 
 			return result;
@@ -305,9 +316,14 @@
 				}
 				catch (Exception ex)
 				{
-					result = false;
+					this.Initialized = false;
+					this._logger.LogError(ex, "Identity Initializer Error: {message}", ex.Message);
 					await mediator.Publish(new CreateRoleFailedAuditEvent(
 							role!.Id, "Identity Initializer: add role '{roleName}'. Error: " + ex.Message, true, null, JsonConvert.SerializeObject(role)));
+
+					throw new InitializerException(
+						InitializerConstants.SomethingWentWrong,
+						$"Identity Initializer Error: {ex.Message}", ex);
 				}
 			}
 

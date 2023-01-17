@@ -78,6 +78,9 @@
 				}
 				catch (Exception ex)
 				{
+					this.Initialized = false;
+					this._logger.LogError(ex, "Database Initializer Error: {message}", ex.Message);
+
 					throw new InitializerException(
 						"Database Initializer Error!",
 						$"Database Initializer Error: {ex.Message}", ex);
