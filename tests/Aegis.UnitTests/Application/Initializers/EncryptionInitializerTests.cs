@@ -62,7 +62,7 @@
 		[Fact]
 		public void Initialize_ShouldBeFalse_OnException()
 		{
-			// Arrange 
+			// Arrange
 			_scf.Setup(x => x.CreateScope()).Throws(new Exception());
 
 			EncryptionInitializer initializer = new EncryptionInitializer(_logger.Object, _scf.Object);
@@ -80,7 +80,7 @@
 		[Fact]
 		public void Initialize_ShouldBeFalse_OnSaveChangesException()
 		{
-			// Arrange 
+			// Arrange
 			_pdpkRepo.Setup(x => x.GetEntities()).Returns(new List<PersonalDataProtectionKey>());
 			_ac.Setup(x => x.SaveChangesAsync()).Throws(new Exception());
 
