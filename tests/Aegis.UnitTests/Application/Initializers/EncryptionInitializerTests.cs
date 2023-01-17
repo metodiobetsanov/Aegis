@@ -43,6 +43,23 @@
 		}
 
 		[Fact]
+		public void Initialize_ShouldBeTrue_OnExistingKeys()
+		{
+			// Arrange
+			_pdpkRepo.Setup(x => x.GetEntities()).Returns(new List<PersonalDataProtectionKey> {
+				new PersonalDataProtectionKey { Id = Guid.NewGuid(), Key = "test", KeyHash = "test", ExpiresOn = DateTime.UtcNow, } });
+
+			EncryptionInitializer initializer = new EncryptionInitializer(_logger.Object, _scf.Object);
+			initializer.Initialized.ShouldBeFalse();
+
+			// Act
+			initializer.Initialize().GetAwaiter().GetResult();
+
+			// Assert
+			initializer.Initialized.ShouldBeTrue();
+		}
+
+		[Fact]
 		public void Initialize_ShouldBeFalse_OnFailedSave()
 		{
 			// Arrange
