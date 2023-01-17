@@ -29,9 +29,12 @@
 		private readonly IServiceScopeFactory _scopeFactory;
 
 		/// <summary>
-		/// The initialized
+		/// Gets a value indicating whether this <see cref="IInitializer" /> is initialized.
 		/// </summary>
-		private bool _initialized = false;
+		/// <value>
+		///   <c>true</c> if initialized; otherwise, <c>false</c>.
+		/// </value>
+		public bool Initialized { get; private set; } = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DatabaseInitializer"/> class.
@@ -49,7 +52,7 @@
 		/// </summary>
 		public async Task Initialize()
 		{
-			if (!_initialized)
+			if (!this.Initialized)
 			{
 				try
 				{
@@ -69,8 +72,8 @@
 						_logger.LogInformation("Database Initializer: Migrating PersistedGrantDbContext.");
 						await scope.ServiceProvider.GetService<PersistedGrantDbContext>()!.Database.MigrateAsync();
 
-						_initialized = true;
-						_logger.LogInformation("{ApplicationName} Database Initializer was successful: {_initialized}.", ApplicationConstants.ApplicationName, _initialized);
+						this.Initialized = true;
+						_logger.LogInformation("{ApplicationName} Database Initializer was successful: {Initialized}.", ApplicationConstants.ApplicationName, this.Initialized);
 					}
 				}
 				catch (Exception ex)

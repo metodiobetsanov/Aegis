@@ -46,8 +46,8 @@
 						options.ConfigureDbContext = b =>
 									b.UseNpgsql(
 										builder.Configuration.GetConnectionString("IdentityServerDatabase"),
-										builder =>
-											builder.MigrationsAssembly(migrationAssembly));
+										npq =>
+											npq.MigrationsAssembly(migrationAssembly));
 					})
 				.AddOperationalStore(
 					options =>
@@ -56,8 +56,8 @@
 						options.ConfigureDbContext = b =>
 							b.UseNpgsql(
 								builder.Configuration.GetConnectionString("IdentityServerDatabase"),
-								builder =>
-									builder.MigrationsAssembly(migrationAssembly));
+								npq =>
+									npq.MigrationsAssembly(migrationAssembly));
 					})
 				.AddAspNetIdentity<AegisUser>();
 
