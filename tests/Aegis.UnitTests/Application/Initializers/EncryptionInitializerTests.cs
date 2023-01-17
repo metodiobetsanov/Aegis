@@ -76,5 +76,24 @@
 			exception.ShouldNotBeNull();
 			exception.ShouldBeOfType<InitializerException>();
 		}
+
+		[Fact]
+		public void Initialize_ShouldBeFalse_OnSaveChangesException()
+		{
+			// Arrange 
+			_pdpkRepo.Setup(x => x.GetEntities()).Returns(new List<PersonalDataProtectionKey>());
+			_ac.Setup(x => x.SaveChangesAsync()).Throws(new Exception());
+
+			EncryptionInitializer initializer = new EncryptionInitializer(_logger.Object, _scf.Object);
+			initializer.Initialized.ShouldBeFalse();
+
+			// Act
+			Exception exception = Record.Exception(() => initializer.Initialize().GetAwaiter().GetResult());
+
+			// Assert
+			initializer.Initialized.ShouldBeFalse();
+			exception.ShouldNotBeNull();
+			exception.ShouldBeOfType<InitializerException>();
+		}
 	}
 }

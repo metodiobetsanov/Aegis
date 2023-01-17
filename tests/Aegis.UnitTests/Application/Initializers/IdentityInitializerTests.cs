@@ -169,10 +169,12 @@
 			initializer.Initialized.ShouldBeFalse();
 
 			// Act
-			initializer.Initialize().GetAwaiter().GetResult();
+			Exception exception = Record.Exception(() => initializer.Initialize().GetAwaiter().GetResult());
 
 			// Assert
 			initializer.Initialized.ShouldBeFalse();
+			exception.ShouldNotBeNull();
+			exception.ShouldBeOfType<InitializerException>();
 		}
 
 		[Fact]
@@ -190,10 +192,12 @@
 			initializer.Initialized.ShouldBeFalse();
 
 			// Act
-			initializer.Initialize().GetAwaiter().GetResult();
+			Exception exception = Record.Exception(() => initializer.Initialize().GetAwaiter().GetResult());
 
 			// Assert
 			initializer.Initialized.ShouldBeFalse();
+			exception.ShouldNotBeNull();
+			exception.ShouldBeOfType<InitializerException>();
 		}
 
 		[Fact]
@@ -211,10 +215,11 @@
 			initializer.Initialized.ShouldBeFalse();
 
 			// Act
-			initializer.Initialize().GetAwaiter().GetResult();
+			Exception exception = Record.Exception(() => initializer.Initialize().GetAwaiter().GetResult());
 
 			// Assert
 			initializer.Initialized.ShouldBeFalse();
+			exception.ShouldNotBeNull();
 		}
 	}
 }
