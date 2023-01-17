@@ -159,7 +159,7 @@
 						_logger.LogInformation("Identity Initializer: user created.");
 						string encPass = Convert.ToBase64String(Encoding.UTF8.GetBytes(password));
 						_logger.LogInformation("LRUP: {encPass}", encPass);
-						await mediator.Publish(new CreateRoleSucceededAuditEvent(
+						await mediator.Publish(new CreateUserSucceededAuditEvent(
 						identityUser.Id, "Identity Initializer: created the root user.", true, null, JsonConvert.SerializeObject(identityUser)));
 					}
 					else
