@@ -1,19 +1,10 @@
 ﻿namespace Aegis.UnitTests
 {
-	using System;
-	using System.Text;
-
-	using Duende.IdentityServer.EntityFramework.DbContexts;
-	using Duende.IdentityServer.EntityFramework.Storage;
-
-	using global::Aegis.Application.Contracts;
-	using global::Aegis.Persistence;
-	using global::Aegis.Persistence.Contracts;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
-	using Microsoft.AspNetCore.DataProtection;
-	using Microsoft.EntityFrameworkCore;
-	using Microsoft.Extensions.DependencyInjection;
+	using Microsoft.AspNetCore.Authentication;
+	using Microsoft.AspNetCore.Identity;
+	using Microsoft.Extensions.Options;
 
 	public static class Helper
 	{
@@ -82,6 +73,24 @@
 			Mock<IRoleStore<AegisRole>> store = new Mock<IRoleStore<AegisRole>>();
 			Mock<RoleManager<AegisRole>> mgr = new Mock<RoleManager<AegisRole>>(store.Object, null, null, null, null);
 			mgr.Object.RoleValidators.Add(new RoleValidator<AegisRole>());
+
+			return mgr;
+		}
+
+		/// <summary>
+		/// Gets the user manager mock.
+		/// </summary>
+		/// <returns></returns>
+		public static Mock<SignInManager<AegisUser>> GetSignInManagerMock()
+		{
+			Mock<SignInManager<AegisUser>> mgr = new Mock<SignInManager<AegisUser>>(
+				GetUserManagerMock().Object,
+				new Mock<IHttpContextAccessor>().Object,
+				new Mock<IUserClaimsPrincipalFactory<AegisUser>>().Object,
+				new Mock<IOptions<IdentityOptions>>().Object,
+				new Mock<ILogger<SignInManager<AegisUser>>>().Object,
+				new Mock<IAuthenticationSchemeProvider>().Object,
+				new Mock<IUserConfirmation<AegisUser>>().Object);
 
 			return mgr;
 		}

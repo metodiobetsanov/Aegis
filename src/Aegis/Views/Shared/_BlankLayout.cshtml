@@ -12,11 +12,50 @@
 </head>
 
 <body>
-    @RenderBody()
+    <div style="min-height: 100vh;" class="d-flex align-items-center">
+        <div class="container mb-5 mt-5">
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center">
+                    <div class="text-center">
+                        <a href=@Url.Action("Index", "Home") class="d-block auth-logo">
+                            <img src="~/assets/images/logo/png/logo-no-background.png" alt="Aegis Identity Server" height="50" class="mx-auto">
+                        </a>
+                        <div class="row mt-3">
+                            <p class="text-muted">Powered by <a href="https://duendesoftware.com/" target="_blank" rel="noopener">Duende IdentityServer 6.</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3 mt-3">
+                    @RenderBody()
+            </div>
+    </div>
 
+    </div>
+    <footer>
+        <div class="row m-0 p-0 d-sm-none d-md-block w-100">
+            <ul class="nav m-0 p-0 justify-content-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/MNB-Software/Aegis" target="_blank" rel="noopener">GitHub</a>
+                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Cookie Policy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Privacy Policy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Terms & Conditions</a>
+                </li>
+            </ul>
+        </div>
+        <div class="row mb-2 mt-2 w-100">
+            <p class="text-muted text-center m-0 p-0"> @DateTime.Now.Year MNB Software </p>
+        </div>
+    </footer>
     <!-- JS section -->
     <partial name="_JsPartial" />
-    @RenderSection("scripts", required: false)
+    @await RenderSectionAsync("scripts", required: false)
 
 </body>
 </html>

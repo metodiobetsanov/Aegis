@@ -40,9 +40,13 @@
     "datatables.net-responsive-bs5": "^2.4.0",
     "datatables.net-select": "^1.5.0",
     "datatables.net-select-bs5": "^1.5.0",
+    "install": "^0.13.0",
     "jquery": "^3.5.1",
+    "jquery-validation": "^1.19.5",
+    "jquery-validation-unobtrusive": "^4.0.0",
     "metismenu": "^3.0.7",
     "node-waves": "^0.7.6",
+    "parsleyjs": "^2.9.2",
     "sweetalert2": "^10.10.4",
     "toastr": "^2.1.4"
   }

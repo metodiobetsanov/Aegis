@@ -6,6 +6,11 @@
 	public static class IdentityProviderConstants
 	{
 		/// <summary>
+		/// Something went wrong
+		/// </summary>
+		public static readonly string SomethingWentWrongWithAuthentication = "Something went wrong. Unable to Authenticate!";
+
+		/// <summary>
 		/// The Identity cookie
 		/// </summary>
 		public const string IdentityCookie = "AegisIdentityCookie";

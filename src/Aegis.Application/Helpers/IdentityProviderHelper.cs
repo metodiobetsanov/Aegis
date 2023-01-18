@@ -4,6 +4,7 @@
 	using System.Text;
 
 	using Aegis.Application.Constants;
+	using Aegis.Persistence.Entities.IdentityProvider;
 
 	using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
@@ -14,6 +15,16 @@
 	/// </summary>
 	public static class IdentityProviderHelper
 	{
+		/// <summary>
+		/// Gets the full name.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <returns></returns>
+		public static string GetFullName(this AegisUser user)
+		{
+			return $"{user.FirstName} {user.LastName}";
+		}
+
 		/// <summary>
 		/// Generates a random password.
 		/// </summary>

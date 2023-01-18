@@ -6,6 +6,7 @@ global using System.Security.Cryptography;
 global using System.Text;
 
 global using Microsoft.AspNetCore.DataProtection;
+global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
