@@ -56,28 +56,35 @@
 		/// <exception cref="System.NotImplementedException"></exception>
 		public Task Handle(TEvent notification, CancellationToken cancellationToken)
 		{
-			_logger.LogDebug("Received Audit Event '{Name}'.", typeof(TEvent).Name);
-			LoggedUser user = this.GetAuditEventUser(notification);
-
-			AuditLog log = new AuditLog
+			try
 			{
-				EventName = notification.GetType().Name.Replace("AuditEvent", ""),
-				Succeeded = notification.Succeeded,
-				Module = (int)notification.Module,
-				Action = (int)notification.Action,
-				Subject = (int)notification.Subject,
-				SubjectId = notification.SubjectId,
-				UserId = user.UserId,
-				UserName = user.UserName,
-				UserIp = user.UserIp,
-				UserAgent = user.UserAgent,
-				Summary = notification.Summary,
-				OldValues = notification.OldValues,
-				NewValues = notification.NewValues
-			};
+				_logger.LogDebug("Received Audit Event '{Name}'.", typeof(TEvent).Name);
+				LoggedUser user = this.GetAuditEventUser(notification);
 
-			_context.AuditLogs.Create(log);
-			_context.SaveChanges();
+				AuditLog log = new AuditLog
+				{
+					EventName = notification.GetType().Name.Replace("AuditEvent", ""),
+					Succeeded = notification.Succeeded,
+					Module = (int)notification.Module,
+					Action = (int)notification.Action,
+					Subject = (int)notification.Subject,
+					SubjectId = notification.SubjectId,
+					UserId = user.UserId,
+					UserName = user.UserName,
+					UserIp = user.UserIp,
+					UserAgent = user.UserAgent,
+					Summary = notification.Summary,
+					OldValues = notification.OldValues,
+					NewValues = notification.NewValues
+				};
+
+				_context.AuditLogs.Create(log);
+				_context.SaveChanges();
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "AuditEvent handler Error: {Message}", ex.Message);
+			}
 
 			return Task.CompletedTask;
 		}
