@@ -93,7 +93,7 @@
 
 				if (string.IsNullOrEmpty(logoutId))
 				{
-					authenticationResult = new AuthenticationResult("~/");
+					authenticationResult = new AuthenticationResult(returnUrl: "~/");
 				}
 				else
 				{

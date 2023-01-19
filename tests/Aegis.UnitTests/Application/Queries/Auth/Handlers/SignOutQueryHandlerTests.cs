@@ -63,7 +63,6 @@
 			result.Succeeded.ShouldBeFalse();
 		}
 
-
 		[Fact]
 		public void Handle_Exceptions()
 		{
