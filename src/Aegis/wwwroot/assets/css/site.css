@@ -1,7 +1,10 @@
-﻿.landing-page {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    /* bring your own prefixes */
-    transform: translate(-50%, -50%);
+﻿footer {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+}
+
+.blank > .card {
+    background: rgb(248, 248, 251);
+    box-shadow: none;
 }
