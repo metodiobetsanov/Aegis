@@ -2,7 +2,7 @@
 {
 	using Aegis.Application.Contracts;
 	using Aegis.Application.Services.DataProtection;
-	using Aegis.Application.Validators.Application.Settings;
+	using Aegis.Application.Validators.Settings;
 	using Aegis.Exceptions;
 	using Aegis.Models.Settings;
 	using Aegis.Persistence;

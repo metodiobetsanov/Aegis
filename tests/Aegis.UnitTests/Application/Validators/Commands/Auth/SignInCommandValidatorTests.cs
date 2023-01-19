@@ -1,17 +1,9 @@
-﻿namespace Aegis.UnitTests.Application.Validators.Application.Commands.Auth
+﻿namespace Aegis.UnitTests.Application.Validators.Commands.Auth
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using System.Threading.Tasks;
-
 	using FluentValidation.Results;
 
 	using global::Aegis.Application.Commands.Auth;
-	using global::Aegis.Application.Validators.Application.Commands.Auth;
-	using global::Aegis.Application.Validators.Application.Settings;
-	using global::Aegis.Models.Settings;
+	using global::Aegis.Application.Validators.Commands.Auth;
 
 	public class SignInCommandValidatorTests
 	{

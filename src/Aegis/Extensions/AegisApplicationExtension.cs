@@ -4,8 +4,8 @@
 
 	using Aegis.Application.Constants;
 	using Aegis.Application.Contracts;
-	using Aegis.Application.Contracts.Application;
-	using Aegis.Application.Validators.Application.Settings;
+	using Aegis.Application.Contracts.IInitializers;
+	using Aegis.Application.Validators.Settings;
 	using Aegis.Exceptions;
 	using Aegis.Models.Settings;
 	using Aegis.Persistence;
@@ -46,12 +46,32 @@
 				throw new HostException($"Missing Configuration Section: {AppSettings.Section}");
 			}
 
-			AppSettingsValidator validator = new AppSettingsValidator();
-			ValidationResult validatioNresults = validator.Validate(appSettings);
+			AppSettingsValidator appSettingsValidator = new AppSettingsValidator();
+			ValidationResult appSettingsValidationResults = appSettingsValidator.Validate(appSettings);
 
-			if (!validatioNresults.IsValid)
+			if (!appSettingsValidationResults.IsValid)
 			{
-				foreach (ValidationFailure error in validatioNresults.Errors)
+				foreach (ValidationFailure error in appSettingsValidationResults.Errors)
+				{
+					logger.Error(error.ErrorMessage);
+				}
+
+				throw new HostException($"Validation of Configuration Section {AppSettings.Section} failed!");
+			}
+
+			SendGridSettings? sendGridSettings = builder.Configuration.GetSection(SendGridSettings.Section).Get<SendGridSettings>();
+
+			if (sendGridSettings is null)
+			{
+				throw new HostException($"Missing Configuration Section: {SendGridSettings.Section}");
+			}
+
+			SendGridSettingsValidator sendGridSettingsValidator = new SendGridSettingsValidator();
+			ValidationResult sendGridSettingsValidationResults = sendGridSettingsValidator.Validate(sendGridSettings);
+
+			if (!sendGridSettingsValidationResults.IsValid)
+			{
+				foreach (ValidationFailure error in sendGridSettingsValidationResults.Errors)
 				{
 					logger.Error(error.ErrorMessage);
 				}
@@ -60,7 +80,8 @@
 			}
 
 			builder.Services
-				.AddSingleton<AppSettings>(appSettings);
+				.AddSingleton<AppSettings>(appSettings)
+				.AddSingleton<SendGridSettings>(sendGridSettings);
 
 			logger.Information("Aegis Core: adding DB context.");
 			string migrationAssembly = typeof(IAegisPersistenceAssembly).Assembly.GetName().Name!.ToString();

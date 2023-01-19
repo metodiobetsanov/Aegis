@@ -3,7 +3,7 @@
 	using System.Text;
 
 	using Aegis.Application.Constants;
-	using Aegis.Application.Contracts.Application;
+	using Aegis.Application.Contracts.IInitializers;
 	using Aegis.Application.Events.Audit.DataProtection;
 	using Aegis.Application.Exceptions;
 	using Aegis.Application.Helpers;

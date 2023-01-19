@@ -1,8 +1,8 @@
-﻿namespace Aegis.UnitTests.Application.Validators.Application.Settings
+﻿namespace Aegis.UnitTests.Application.Validators.Settings
 {
 	using FluentValidation.Results;
 
-	using global::Aegis.Application.Validators.Application.Settings;
+	using global::Aegis.Application.Validators.Settings;
 	using global::Aegis.Models.Settings;
 
 	public class AppSettingsValidatorTests
@@ -24,7 +24,6 @@
 			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = new string('0', 32) } },
 			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = new string('@', 32) } },
 		};
-
 
 		[Fact]
 		public void Validate_ShouldBeTrue()

@@ -2,7 +2,7 @@
 {
 	using Aegis.Application.Commands.Auth;
 	using Aegis.Application.Queries.Auth;
-	using Aegis.Application.Validators.Application.Commands.Auth;
+	using Aegis.Application.Validators.Commands.Auth;
 	using Aegis.Models.Shared;
 
 	using Duende.IdentityServer.Extensions;
