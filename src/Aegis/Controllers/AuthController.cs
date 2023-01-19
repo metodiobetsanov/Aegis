@@ -105,5 +105,45 @@
 			_logger.LogDebug("Executed POST@{name}.", nameof(this.SignIn));
 			return this.View(command);
 		}
+
+		/// <summary>
+		/// Sign out.
+		/// </summary>
+		/// <param name="query">The query.</param>
+		/// <returns></returns>
+		[HttpGet]
+		[Authorize]
+		public async Task<IActionResult> SignOut([FromQuery] SignOutQuery query)
+		{
+			_logger.LogDebug("Executing GET@{name}.", nameof(this.SignOut));
+			SignOutCommand command = new SignOutCommand { LogoutId = query.LogoutId };
+
+			AuthenticationResult result = await _mediator.Send(query);
+
+			if (!result.Succeeded)
+			{
+				return await this.SignOut(command);
+			}
+
+			_logger.LogDebug("Executed GET@{name}.", nameof(this.SignOut));
+			return this.View(command);
+		}
+
+		/// <summary>
+		/// Sign out.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
+		[HttpPost]
+		[Authorize]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> SignOut([FromForm] SignOutCommand command)
+		{
+			_logger.LogDebug("Executing POST@{name}.", nameof(this.SignOut));
+			AuthenticationResult result = await _mediator.Send(command);
+
+			_logger.LogDebug("Executed POST@{name}.", nameof(this.SignOut));
+			return this.Redirect(result.ReturnUrl!);
+		}
 	}
 }

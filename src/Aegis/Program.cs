@@ -70,6 +70,16 @@ try
 		ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 	});
 
+	app.MapAreaControllerRoute(
+		name: ApplicationConstants.AdminArea + "Route",
+		areaName: ApplicationConstants.AdminArea,
+		pattern: ApplicationConstants.AdminArea + "/{controller=Dashboard}/{action=Index}/{id?}");
+
+	app.MapAreaControllerRoute(
+			name: ApplicationConstants.UserArea + "Route",
+			areaName: ApplicationConstants.UserArea,
+			pattern: ApplicationConstants.UserArea + "/{controller=Profile}/{action=Index}/{id?}");
+
 	app.MapControllerRoute(
 		name: "default",
 		pattern: "{controller=Home}/{action=Index}/{id?}");

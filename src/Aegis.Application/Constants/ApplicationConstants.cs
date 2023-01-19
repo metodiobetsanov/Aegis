@@ -21,5 +21,20 @@
 		/// Initializer Something went wrong message
 		/// </summary>
 		public static readonly string InitializerSomethingWentWrong = "Something went wrong. Unable to execute Initializer!";
+
+		/// <summary>
+		/// The application name
+		/// </summary>
+		public const string ApplicationEmail = "no-replay@mnb.software";
+
+		/// <summary>
+		/// The Admin area
+		/// </summary>
+		public const string AdminArea = "Admin";
+
+		/// <summary>
+		/// The User area
+		/// </summary>
+		public const string UserArea = "User";
 	}
 }
