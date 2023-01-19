@@ -109,7 +109,7 @@ namespace Aegis.UnitTests.Application.Events.AuditEvents
 			Guid key = Guid.NewGuid();
 			Guid subId = Guid.NewGuid();
 			_hccp.Setup(x => x.Claims).Returns(new List<Claim> { new Claim("sub", subId.ToString()), new Claim(type: "name", "Test") });
-			_hcci.Setup(x => x.RemoteIpAddress).Returns((IPAddress)null);
+			_hcci.Setup(x => x.RemoteIpAddress).Returns((IPAddress?)null);
 			CreateLookupProtectionKeyFailedAuditEvent @event = new CreateLookupProtectionKeyFailedAuditEvent(key, "Test");
 			AuditEventHandler<IAuditEvent> handler = new AuditEventHandler<IAuditEvent>(_logger.Object, _hca.Object, _ac.Object);
 

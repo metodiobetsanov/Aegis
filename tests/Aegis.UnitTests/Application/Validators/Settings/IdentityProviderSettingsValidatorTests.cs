@@ -1,8 +1,8 @@
-﻿namespace Aegis.UnitTests.Application.Validators.Application.Settings
+﻿namespace Aegis.UnitTests.Application.Validators.Settings
 {
 	using FluentValidation.Results;
 
-	using global::Aegis.Application.Validators.Application.Settings;
+	using global::Aegis.Application.Validators.Settings;
 	using global::Aegis.Models.Settings;
 
 	public class IdentityProviderSettingsValidatorTests

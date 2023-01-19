@@ -1,4 +1,4 @@
-﻿namespace Aegis.Application.Contracts.Application
+﻿namespace Aegis.Application.Contracts.IInitializers
 {
 	/// <summary>
 	/// Initializer interface

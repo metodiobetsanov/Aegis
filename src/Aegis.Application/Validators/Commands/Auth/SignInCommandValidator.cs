@@ -1,4 +1,4 @@
-﻿namespace Aegis.Application.Validators.Application.Commands.Auth
+﻿namespace Aegis.Application.Validators.Commands.Auth
 {
 	using Aegis.Application.Commands.Auth;
 
@@ -7,7 +7,7 @@
 	/// <summary>
 	/// SignIn Command Validator
 	/// </summary>
-	/// <seealso cref="FluentValidation.AbstractValidator&lt;Aegis.Application.Commands.Auth.SignInCommand&gt;" />
+	/// <seealso cref="AbstractValidator&lt;SignInCommand&gt;" />
 	public sealed class SignInCommandValidator : AbstractValidator<SignInCommand>
 	{
 		/// <summary>

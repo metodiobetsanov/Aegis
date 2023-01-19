@@ -1,7 +1,7 @@
 ﻿namespace Aegis.Application.Initializers
 {
 	using Aegis.Application.Constants;
-	using Aegis.Application.Contracts.Application;
+	using Aegis.Application.Contracts.IInitializers;
 	using Aegis.Application.Exceptions;
 	using Aegis.Persistence;
 
@@ -15,7 +15,7 @@
 	/// <summary>
 	/// Database Initializer
 	/// </summary>
-	/// <seealso cref="Contracts.Application.IInitializer" />
+	/// <seealso cref="Contracts.IInitializers.IInitializer" />
 	public class DatabaseInitializer : IInitializer
 	{
 		/// <summary>

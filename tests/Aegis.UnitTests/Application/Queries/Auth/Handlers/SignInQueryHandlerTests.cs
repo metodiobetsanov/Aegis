@@ -57,7 +57,6 @@
 			{
 				result.ReturnUrl.ShouldBe(returnUrl);
 			}
-
 		}
 
 		[Fact]

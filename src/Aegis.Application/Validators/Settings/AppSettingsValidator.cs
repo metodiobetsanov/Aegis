@@ -1,4 +1,4 @@
-﻿namespace Aegis.Application.Validators.Application.Settings
+﻿namespace Aegis.Application.Validators.Settings
 {
 	using Aegis.Models.Settings;
 
@@ -7,7 +7,7 @@
 	/// <summary>
 	/// App Settings Validator
 	/// </summary>
-	/// <seealso cref="FluentValidation.AbstractValidator&lt;Aegis.Models.Settings.AppSettings&gt;" />
+	/// <seealso cref="AbstractValidator&lt;AppSettings&gt;" />
 	public sealed class AppSettingsValidator : AbstractValidator<AppSettings>
 	{
 		/// <summary>
