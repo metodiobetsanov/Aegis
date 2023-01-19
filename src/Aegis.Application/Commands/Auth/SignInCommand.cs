@@ -10,7 +10,6 @@
 	/// <summary>
 	/// SignIn Query
 	/// </summary>
-	/// <seealso cref="IQuery&lt;string&gt;" />
 	[DataContract]
 	public sealed record SignInCommand : ICommand<AuthenticationResult>
 	{

@@ -11,6 +11,11 @@
 		public static readonly string SomethingWentWrongWithAuthentication = "Something went wrong. Unable to Authenticate!";
 
 		/// <summary>
+		/// Something went wrong
+		/// </summary>
+		public static readonly string SomethingWentWrongWithSignOut = "Something went wrong. Unable to SignOut!";
+
+		/// <summary>
 		/// The Identity cookie
 		/// </summary>
 		public const string IdentityCookie = "AegisIdentityCookie";
