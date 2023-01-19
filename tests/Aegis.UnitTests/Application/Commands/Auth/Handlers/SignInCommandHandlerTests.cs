@@ -65,8 +65,10 @@
 			}
 		}
 
-		[Fact]
-		public void Handle_ShouldReturnFalse_OnRequiresTwoFactor()
+		[Theory]
+		[InlineData("/")]
+		[InlineData("/test")]
+		public void Handle_ShouldReturnFalse_OnRequiresTwoFactor(string returnUrl)
 		{
 			// Arrange
 			AegisUser? user = new AegisUser();
@@ -79,7 +81,7 @@
 			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.TwoFactorRequired);
 
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = "/" };
+			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -93,8 +95,10 @@
 			result.ReturnUrl.ShouldBeNull();
 		}
 
-		[Fact]
-		public void Handle_ShouldReturnFalse_OnIsLockedOut()
+		[Theory]
+		[InlineData("/")]
+		[InlineData("/test")]
+		public void Handle_ShouldReturnFalse_OnIsLockedOut(string returnUrl)
 		{
 			// Arrange
 			AegisUser? user = new AegisUser();
@@ -107,7 +111,7 @@
 			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.LockedOut);
 
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = "/" };
+			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -121,8 +125,10 @@
 			result.ReturnUrl.ShouldBeNull();
 		}
 
-		[Fact]
-		public void Handle_ShouldReturnFalse_OnIsNotAllowed()
+		[Theory]
+		[InlineData("/")]
+		[InlineData("/test")]
+		public void Handle_ShouldReturnFalse_OnIsNotAllowed(string returnUrl)
 		{
 			// Arrange
 			AegisUser? user = new AegisUser();
@@ -134,7 +140,7 @@
 
 			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.NotAllowed);
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = "/" };
+			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -148,8 +154,10 @@
 			result.ReturnUrl.ShouldBeNull();
 		}
 
-		[Fact]
-		public void Handle_ShouldReturnFalse_OnFailure()
+		[Theory]
+		[InlineData("/")]
+		[InlineData("/test")]
+		public void Handle_ShouldReturnFalse_OnFailure(string returnUrl)
 		{
 			// Arrange
 			AegisUser? user = new AegisUser();
@@ -162,7 +170,7 @@
 			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.Failed);
 
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = "/" };
+			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -176,11 +184,16 @@
 			result.Errors.Count.ShouldBe(1);
 		}
 
-		[Fact]
-		public void Handle_ShouldReturnFalse_OnNotExistingUser()
+		[Theory]
+		[InlineData("/")]
+		[InlineData("/test")]
+		public void Handle_ShouldReturnFalse_OnNotExistingUser(string returnUrl)
 		{
 			// Arrange
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = "/" };
+			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+
+			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 

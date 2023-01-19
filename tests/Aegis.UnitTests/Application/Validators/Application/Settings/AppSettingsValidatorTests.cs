@@ -13,11 +13,18 @@
 			{ new AppSettings { PublicDomain = "test.test.test" } },
 			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place" } },
 			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = "AAAaaa000@@@" } },
+			{ new AppSettings { PublicDomain = "", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = "AAAaaa000@@@" + new string('a', 20)} },
+			{ new AppSettings { PublicDomain = "   ", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = "AAAaaa000@@@" + new string('a', 20)} },
+			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "", DataProtectionCertificatePassword = "AAAaaa000@@@" + new string('a', 20)} },
+			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "   ", DataProtectionCertificatePassword = "AAAaaa000@@@" + new string('a', 20)} },
+			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = "" } },
+			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = "   " } },
 			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = new string('a', 32) } },
 			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = new string('A', 32) } },
 			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = new string('0', 32) } },
 			{ new AppSettings { PublicDomain = "test.test.test", DataProtectionCertificateLocation = "c:\\some\\place", DataProtectionCertificatePassword = new string('@', 32) } },
 		};
+
 
 		[Fact]
 		public void Validate_ShouldBeTrue()
@@ -30,6 +37,7 @@
 			ValidationResult result = validator.Validate(settings);
 
 			// Assert
+			AppSettings.Section.ShouldBe(nameof(AppSettings));
 			result.IsValid.ShouldBeTrue();
 		}
 

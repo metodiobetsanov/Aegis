@@ -101,7 +101,37 @@ namespace Aegis.UnitTests.Application.Events.AuditEvents
 			log.UserIp.ShouldBe("127.0.0.1");
 			log.UserAgent.ShouldBe("Test");
 		}
+		[Fact]
+		public void Handle_ShouldWork_UserInitiated_NoRemoteIp()
+		{
+			// Arrange
+			_audotLogs.Clear();
+			Guid key = Guid.NewGuid();
+			Guid subId = Guid.NewGuid();
+			_hccp.Setup(x => x.Claims).Returns(new List<Claim> { new Claim("sub", subId.ToString()), new Claim(type: "name", "Test") });
+			_hcci.Setup(x => x.RemoteIpAddress).Returns((IPAddress)null);
+			CreateLookupProtectionKeyFailedAuditEvent @event = new CreateLookupProtectionKeyFailedAuditEvent(key, "Test");
+			AuditEventHandler<IAuditEvent> handler = new AuditEventHandler<IAuditEvent>(_logger.Object, _hca.Object, _ac.Object);
 
+			// Act 
+			Exception exception = Record.Exception(() => handler.Handle(@event, new CancellationToken()).GetAwaiter().GetResult());
+
+			// Assert
+			exception.ShouldBeNull();
+			_audotLogs.Count.ShouldBe(1);
+			AuditLog log = _audotLogs.First();
+			log.ShouldNotBeNull();
+			log.Module.ShouldBe((int)AuditModule.Application);
+			log.Action.ShouldBe((int)AuditAction.Create);
+			log.Subject.ShouldBe((int)AuditSubject.ProtectionKey);
+			log.SubjectId.ShouldBe(key);
+			log.Summary.ShouldBe("Test");
+			log.EventName.ShouldBe(nameof(CreateLookupProtectionKeyFailedAuditEvent).Replace("AuditEvent", ""));
+			log.UserId.ShouldBe(subId);
+			log.UserName.ShouldBe("Test");
+			log.UserIp.ShouldBeNull();
+			log.UserAgent.ShouldBe("Test");
+		}
 		[Fact]
 		public void Handle_ShouldNotStop_OnException()
 		{

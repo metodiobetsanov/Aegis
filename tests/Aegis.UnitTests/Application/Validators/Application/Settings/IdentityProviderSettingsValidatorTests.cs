@@ -12,6 +12,10 @@
 			{ new IdentityProviderSettings { } },
 			{ new IdentityProviderSettings { LookupProtectorSigningDerivationPassword = "AAAaaa000@@@" + new string('a', 20) } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = "AAAaaa000@@@" + new string('a', 20) } },
+			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = "" ,LookupProtectorSigningDerivationPassword = "AAAaaa000@@@" + new string('a', 20) } },
+			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = "  " ,LookupProtectorSigningDerivationPassword = "AAAaaa000@@@" + new string('a', 20) } },
+			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = "AAAaaa000@@@" + new string('a', 20) ,LookupProtectorSigningDerivationPassword = "" } },
+			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = "AAAaaa000@@@" + new string('a', 20) ,LookupProtectorSigningDerivationPassword = "   " } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = new string('a', 32) ,LookupProtectorSigningDerivationPassword = "AAAaaa000@@@" + new string('a', 20) } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = new string('A', 32) ,LookupProtectorSigningDerivationPassword = "AAAaaa000@@@" + new string('a', 20) } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = new string('0', 32) ,LookupProtectorSigningDerivationPassword = "AAAaaa000@@@" + new string('a', 20) } },
@@ -33,6 +37,7 @@
 			ValidationResult result = validator.Validate(settings);
 
 			// Assert
+			IdentityProviderSettings.Section.ShouldBe(nameof(IdentityProviderSettings));
 			result.IsValid.ShouldBeTrue();
 		}
 
