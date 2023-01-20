@@ -133,7 +133,7 @@
 							.Where(r => r.AssignByDefault)
 							.Select(r => r.Name);
 
-						if (roles is not null && roles.Any())
+						if (roles.Any())
 						{
 							IdentityResult rolesResult = await _userManager.AddToRolesAsync(user, roles!);
 
@@ -164,6 +164,10 @@
 									signUpCommandResult.Errors.Add(new KeyValuePair<string, string>("", error.Description));
 								}
 							}
+						}
+						else
+						{
+							signUpCommandResult = SignUpCommandResult.Succeeded(user.Id, returnUrl!);
 						}
 					}
 					else

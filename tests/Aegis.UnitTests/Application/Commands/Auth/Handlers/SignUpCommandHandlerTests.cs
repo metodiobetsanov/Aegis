@@ -76,6 +76,36 @@
 		}
 
 		[Fact]
+		public void Handle_ShouldReturnTrue_OnValidUserNoRoles()
+		{
+			// Arrange
+			List<AegisRole> roles = new List<AegisRole>();
+
+			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+				.ReturnsAsync((AegisUser?)null);
+
+			_userManager.Setup(x => x.CreateAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
+				.ReturnsAsync(IdentityResult.Success);
+
+			_userManager.Setup(x => x.AddToRolesAsync(It.IsAny<AegisUser>(), It.IsAny<IEnumerable<string>>()))
+				.ReturnsAsync(IdentityResult.Success);
+
+			_roleManager.Setup(x => x.Roles)
+				.Returns(roles.AsQueryable());
+
+			SignUpCommand command = new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true };
+			SignUpCommandHandler handler = new SignUpCommandHandler(_logger.Object, _m.Object, _isis.Object, _userManager.Object, _roleManager.Object);
+
+			// Act 
+			SignUpCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.Success.ShouldBeTrue();
+			result.ReturnUrl.ShouldBe("~/");
+		}
+
+		[Fact]
 		public void Handle_ShouldReturnFalse_OnExistingUser()
 		{
 			// Arrange
