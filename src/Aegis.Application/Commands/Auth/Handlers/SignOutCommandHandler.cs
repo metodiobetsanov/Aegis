@@ -1,8 +1,10 @@
 ﻿namespace Aegis.Application.Commands.Auth.Handlers
 {
 	using Aegis.Application.Constants;
+	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.CQRS;
 	using Aegis.Application.Exceptions;
+	using Aegis.Models.Auth;
 	using Aegis.Models.Shared;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
@@ -18,8 +20,8 @@
 	/// <summary>
 	/// SignOut Command Handler
 	/// </summary>
-	/// <seealso cref="ICommandHandler&lt;Aegis.Application.Commands.Auth.SignOutCommand, AuthenticationResult&gt;" />
-	public sealed class SignOutCommandHandler : ICommandHandler<SignOutCommand, AuthenticationResult>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommandHandler&lt;Aegis.Application.Commands.Auth.SignOutCommand, Aegis.Models.Auth.SignOutCommandResult&gt;" />
+	public sealed class SignOutCommandHandler : ICommandHandler<SignOutCommand, SignOutCommandResult>
 	{
 		/// <summary>
 		/// The logger
@@ -71,14 +73,16 @@
 		/// <summary>
 		/// Handles the specified query.
 		/// </summary>
-		/// <param name="query">The query.</param>
+		/// <param name="command">The command.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <returns></returns>
-		/// <exception cref="Exceptions.InvalidValueException"></exception>
-		public async Task<AuthenticationResult> Handle(SignOutCommand command, CancellationToken cancellationToken)
+		/// <returns>
+		///   <see cref="SignOutCommandResult" />
+		/// </returns>
+		/// <exception cref="Aegis.Application.Exceptions.IdentityProviderException"></exception>
+		public async Task<SignOutCommandResult> Handle(SignOutCommand command, CancellationToken cancellationToken)
 		{
 			_logger.LogDebug("Handling {name}", nameof(SignOutCommand));
-			AuthenticationResult authenticationResult = new AuthenticationResult(false);
+			SignOutCommandResult signOutCommandResult = SignOutCommandResult.Failed();
 
 			try
 			{
@@ -93,7 +97,7 @@
 
 				if (string.IsNullOrEmpty(logoutId))
 				{
-					authenticationResult = new AuthenticationResult(returnUrl: "~/");
+					signOutCommandResult = SignOutCommandResult.Succeeded("~/");
 				}
 				else
 				{
@@ -102,22 +106,22 @@
 
 					if (logoutRequest is null)
 					{
-						authenticationResult = new AuthenticationResult("~/");
+						signOutCommandResult = SignOutCommandResult.Succeeded("~/");
 					}
 					else
 					{
-						authenticationResult = new AuthenticationResult(logoutRequest.PostLogoutRedirectUri);
+						signOutCommandResult = SignOutCommandResult.Succeeded(logoutRequest.PostLogoutRedirectUri);
 					}
 				}
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex is not IAegisException)
 			{
 				_logger.LogError(ex, "SignOutCommandHandler Error: {Message}", ex.Message);
-				throw new AuthenticationException(IdentityProviderConstants.SomethingWentWrongWithSignOut, ex.Message, ex);
+				throw new IdentityProviderException(IdentityProviderConstants.SomethingWentWrongWithSignOut, ex.Message, ex);
 			}
 
 			_logger.LogDebug("Handled {name}", nameof(SignOutCommand));
-			return authenticationResult;
+			return signOutCommandResult;
 		}
 	}
 }

@@ -9,6 +9,7 @@
 	using global::Aegis.Application.Commands.Auth.Handlers;
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Exceptions;
+	using global::Aegis.Models.Auth;
 	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
@@ -49,11 +50,11 @@
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeTrue();
+			result.Success.ShouldBeTrue();
 
 			if (string.IsNullOrWhiteSpace(returnUrl))
 			{
@@ -85,13 +86,12 @@
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeFalse();
-			result.RedirectToAction.ShouldBeTrue();
-			result.Action.ShouldBe("SignInTwoStep");
+			result.Success.ShouldBeFalse();
+			result.RequiresTwoStep.ShouldBeTrue();
 			result.ReturnUrl.ShouldBeNull();
 		}
 
@@ -115,13 +115,12 @@
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeFalse();
-			result.RedirectToAction.ShouldBeTrue();
-			result.Action.ShouldBe("LockedOut");
+			result.Success.ShouldBeFalse();
+			result.AccounLocked.ShouldBeTrue();
 			result.ReturnUrl.ShouldBeNull();
 		}
 
@@ -144,13 +143,12 @@
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeFalse();
-			result.RedirectToAction.ShouldBeTrue();
-			result.Action.ShouldBe("EmailNotConfimed");
+			result.Success.ShouldBeFalse();
+			result.AccounNotActive.ShouldBeTrue();
 			result.ReturnUrl.ShouldBeNull();
 		}
 
@@ -174,13 +172,11 @@
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeFalse();
-			result.RedirectToAction.ShouldBeFalse();
-			result.ReturnUrl.ShouldBeNull();
+			result.Success.ShouldBeFalse();
 			result.Errors.Count.ShouldBe(1);
 		}
 
@@ -197,13 +193,27 @@
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeFalse();
-			result.RedirectToAction.ShouldBeFalse();
-			result.ReturnUrl.ShouldBeNull();
+			result.Success.ShouldBeFalse();
+		}
+
+		[Fact]
+		public void Handle_ShouldThrowExceptions_ReturnUrl()
+		{
+			// Arrange
+			SignInCommand command = new SignInCommand { ReturnUrl = "https://test.test" };
+			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+
+			// Act 
+			Exception exception = Record.Exception(() => handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult());
+
+			// Assert
+			exception.ShouldNotBeNull();
+			exception.ShouldBeOfType<IdentityServerException>();
+			((IdentityServerException)exception).Message.ShouldBe("Invalid return URL!");
 		}
 
 		[Fact]
@@ -220,10 +230,10 @@
 
 			// Assert
 			exception.ShouldNotBeNull();
-			exception.ShouldBeOfType<AuthenticationException>();
-			((AuthenticationException)exception).Message.ShouldBe(IdentityProviderConstants.SomethingWentWrongWithAuthentication);
-			((AuthenticationException)exception).InnerException.ShouldNotBeNull();
-			((AuthenticationException)exception).InnerException!.Message.ShouldBe(nameof(Exception));
+			exception.ShouldBeOfType<IdentityProviderException>();
+			((IdentityProviderException)exception).Message.ShouldBe(IdentityProviderConstants.SomethingWentWrongWithSignIn);
+			((IdentityProviderException)exception).InnerException.ShouldNotBeNull();
+			((IdentityProviderException)exception).InnerException!.Message.ShouldBe(nameof(Exception));
 		}
 	}
 }

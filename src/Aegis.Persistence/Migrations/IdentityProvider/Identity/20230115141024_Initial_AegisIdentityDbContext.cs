@@ -1,13 +1,13 @@
-﻿using System;
-
-using Microsoft.EntityFrameworkCore.Migrations;
-
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-
-#nullable disable
+﻿#nullable disable
 
 namespace Aegis.Persistence.Migrations.IdentityProvider.Identity
 {
+	using System;
+
+	using Microsoft.EntityFrameworkCore.Migrations;
+
+	using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+
 	/// <inheritdoc />
 	public partial class InitialAegisIdentityDbContext : Migration
 	{

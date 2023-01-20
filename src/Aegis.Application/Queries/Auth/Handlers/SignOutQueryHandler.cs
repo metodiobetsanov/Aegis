@@ -1,8 +1,10 @@
 ﻿namespace Aegis.Application.Queries.Auth.Handlers
 {
 	using Aegis.Application.Constants;
+	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.CQRS;
 	using Aegis.Application.Exceptions;
+	using Aegis.Models.Auth;
 	using Aegis.Models.Shared;
 
 	using Duende.IdentityServer.Models;
@@ -13,8 +15,8 @@
 	/// <summary>
 	/// SignOut Query Handler
 	/// </summary>
-	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQueryHandler&lt;Aegis.Application.Queries.Auth.SignOutQuery, Aegis.Models.Shared.AuthenticationResult&gt;" />
-	public sealed class SignOutQueryHandler : IQueryHandler<SignOutQuery, AuthenticationResult>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQueryHandler&lt;Aegis.Application.Queries.Auth.SignOutQuery, Aegis.Models.Auth.SignOutQueryResult&gt;" />
+	public sealed class SignOutQueryHandler : IQueryHandler<SignOutQuery, SignOutQueryResult>
 	{
 		/// <summary>
 		/// The logger
@@ -44,11 +46,12 @@
 		/// </summary>
 		/// <param name="query">The query.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <returns></returns>
-		public async Task<AuthenticationResult> Handle(SignOutQuery query, CancellationToken cancellationToken)
+		/// <returns><see cref="SignOutQueryResult"/></returns>
+		/// <exception cref="Aegis.Application.Exceptions.IdentityProviderException"></exception>
+		public async Task<SignOutQueryResult> Handle(SignOutQuery query, CancellationToken cancellationToken)
 		{
 			_logger.LogDebug("Handling {name}", nameof(SignOutQuery));
-			AuthenticationResult authenticationResult = new AuthenticationResult(false);
+			SignOutQueryResult signOutQueryResult = SignOutQueryResult.Show(true);
 
 			try
 			{
@@ -57,17 +60,17 @@
 
 				if (context is not null)
 				{
-					authenticationResult = new AuthenticationResult(context.ShowSignoutPrompt);
+					signOutQueryResult = SignOutQueryResult.Show(context.ShowSignoutPrompt);
 				}
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex is not IAegisException)
 			{
 				_logger.LogError(ex, "SignOutQueryHandler Error: {Message}", ex.Message);
-				throw new AuthenticationException(IdentityProviderConstants.SomethingWentWrongWithSignOut, ex.Message, ex);
+				throw new IdentityProviderException(IdentityProviderConstants.SomethingWentWrongWithSignOut, ex.Message, ex);
 			}
 
 			_logger.LogDebug("Handled {name}", nameof(SignOutQuery));
-			return authenticationResult;
+			return signOutQueryResult;
 		}
 	}
 }

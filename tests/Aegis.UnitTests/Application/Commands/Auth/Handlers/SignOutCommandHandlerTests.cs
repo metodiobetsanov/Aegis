@@ -10,6 +10,9 @@
 	using global::Aegis.Application.Commands.Auth.Handlers;
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Exceptions;
+	using global::Aegis.Application.Queries.Auth;
+	using global::Aegis.Application.Queries.Auth.Handlers;
+	using global::Aegis.Models.Auth;
 	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
@@ -60,11 +63,11 @@
 			SignOutCommandHandler handler = new SignOutCommandHandler(_logger.Object, _hca.Object, _isis.Object, _es.Object, _signInManager.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+			SignOutCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeTrue();
+			result.Success.ShouldBeTrue();
 		}
 
 		[Fact]
@@ -81,10 +84,10 @@
 
 			// Assert
 			exception.ShouldNotBeNull();
-			exception.ShouldBeOfType<AuthenticationException>();
-			((AuthenticationException)exception).Message.ShouldBe(IdentityProviderConstants.SomethingWentWrongWithSignOut);
-			((AuthenticationException)exception).InnerException.ShouldNotBeNull();
-			((AuthenticationException)exception).InnerException!.Message.ShouldBe(nameof(Exception));
+			exception.ShouldBeOfType<IdentityProviderException>();
+			((IdentityProviderException)exception).Message.ShouldBe(IdentityProviderConstants.SomethingWentWrongWithSignOut);
+			((IdentityProviderException)exception).InnerException.ShouldNotBeNull();
+			((IdentityProviderException)exception).InnerException!.Message.ShouldBe(nameof(Exception));
 		}
 	}
 }

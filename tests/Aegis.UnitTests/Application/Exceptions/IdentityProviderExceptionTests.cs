@@ -3,9 +3,9 @@
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Exceptions;
 
-	public class AuthenticationExceptionTests
+	public class IdentityProviderExceptionTests
 	{
-		public static readonly string DefaultMessage = IdentityProviderConstants.SomethingWentWrongWithAuthentication;
+		public static readonly string DefaultMessage = IdentityProviderConstants.SomethingWentWrong;
 		public static readonly string TestMessage = nameof(TestMessage);
 		public static readonly string TestDebugMessage = nameof(TestDebugMessage);
 
@@ -13,7 +13,7 @@
 		public void Test_Constructor_One()
 		{
 			/// Act
-			AuthenticationException ex = new AuthenticationException();
+			IdentityProviderException ex = new IdentityProviderException();
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -27,7 +27,7 @@
 		public void Test_Constructor_Two()
 		{
 			/// Act
-			AuthenticationException ex = new AuthenticationException(TestMessage);
+			IdentityProviderException ex = new IdentityProviderException(TestMessage);
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -41,7 +41,7 @@
 		public void Test_Constructor_Tree()
 		{
 			/// Act
-			AuthenticationException ex = new AuthenticationException(TestMessage, TestDebugMessage);
+			IdentityProviderException ex = new IdentityProviderException(TestMessage, TestDebugMessage);
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -58,7 +58,7 @@
 			InvalidOperationException inner = new InvalidOperationException();
 
 			/// Act
-			AuthenticationException ex = new AuthenticationException(TestMessage, inner);
+			IdentityProviderException ex = new IdentityProviderException(TestMessage, inner);
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -77,7 +77,7 @@
 			InvalidOperationException inner = new InvalidOperationException();
 
 			/// Act
-			AuthenticationException ex = new AuthenticationException(TestMessage, TestDebugMessage, inner);
+			IdentityProviderException ex = new IdentityProviderException(TestMessage, TestDebugMessage, inner);
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -93,10 +93,10 @@
 		public void Test_Serialization()
 		{
 			/// Act
-			AuthenticationException ex = new AuthenticationException(TestMessage, TestDebugMessage);
+			IdentityProviderException ex = new IdentityProviderException(TestMessage, TestDebugMessage);
 
 			string exAsString = JsonConvert.SerializeObject(ex);
-			AuthenticationException newEx = JsonConvert.DeserializeObject<AuthenticationException>(exAsString)!;
+			IdentityProviderException newEx = JsonConvert.DeserializeObject<IdentityProviderException>(exAsString)!;
 
 			// Assert
 			ex.ShouldNotBeNull();

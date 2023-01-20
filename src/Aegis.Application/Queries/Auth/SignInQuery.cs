@@ -3,14 +3,17 @@
 	using System.Runtime.Serialization;
 
 	using Aegis.Application.Contracts.CQRS;
-	using Aegis.Models.Shared;
+	using Aegis.Models.Auth;
 
 	/// <summary>
 	/// SignIn Query
 	/// </summary>
-	/// <seealso cref="Chimera.Application.Contracts.CQRS.IQuery&lt;Chimera.Models.Authentication.AuthenticationResult&gt;" />
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQuery&lt;Aegis.Models.Auth.SignInQueryResult&gt;" />
+	/// <seealso cref="MediatR.IRequest&lt;Aegis.Models.Auth.SignInQueryResult&gt;" />
+	/// <seealso cref="MediatR.IBaseRequest" />
+	/// <seealso cref="System.IEquatable&lt;Aegis.Application.Queries.Auth.SignInQuery&gt;" />
 	[DataContract]
-	public sealed record SignInQuery : IQuery<AuthenticationResult>
+	public sealed record SignInQuery : IQuery<SignInQueryResult>
 	{
 		/// <summary>
 		/// Gets or sets the return URL.

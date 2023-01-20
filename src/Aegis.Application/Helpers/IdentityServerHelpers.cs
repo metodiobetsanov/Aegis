@@ -3,6 +3,8 @@
 	using System.Diagnostics.CodeAnalysis;
 	using System.Security.Authentication;
 
+	using Aegis.Application.Exceptions;
+
 	/// <summary>
 	/// Identity Server Helpers
 	/// </summary>
@@ -61,7 +63,7 @@
 			static bool HasControlCharacter(ReadOnlySpan<char> readOnlySpan)
 			{
 				// URLs may not contain ASCII control characters.
-				for (var i = 0; i < readOnlySpan.Length; i++)
+				for (int i = 0; i < readOnlySpan.Length; i++)
 				{
 					if (char.IsControl(readOnlySpan[i]))
 					{
@@ -91,7 +93,7 @@
 			}
 			else
 			{
-				throw new AuthenticationException("Invalid return URL!");
+				throw new IdentityServerException("Invalid return URL!");
 			}
 		}
 	}

@@ -1,9 +1,11 @@
 ﻿namespace Aegis.Application.Queries.Auth.Handlers
 {
 	using Aegis.Application.Constants;
+	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.CQRS;
 	using Aegis.Application.Exceptions;
 	using Aegis.Application.Helpers;
+	using Aegis.Models.Auth;
 	using Aegis.Models.Shared;
 
 	using Duende.IdentityServer.Models;
@@ -14,8 +16,8 @@
 	/// <summary>
 	/// SignInp Query Handler
 	/// </summary>
-	/// <seealso cref="Chimera.Application.Contracts.CQRS.IQueryHandler&lt;Chimera.Application.Queries.Authentication.SignInQuery, Chimera.Models.Authentication.AuthenticationResult&gt;" />
-	public sealed class SignInQueryHandler : IQueryHandler<SignInQuery, AuthenticationResult>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQueryHandler&lt;Aegis.Application.Queries.Auth.SignInQuery, Aegis.Models.Auth.SignInQueryResult&gt;" />
+	public sealed class SignInQueryHandler : IQueryHandler<SignInQuery, SignInQueryResult>
 	{
 		/// <summary>
 		/// The logger
@@ -44,11 +46,12 @@
 		/// </summary>
 		/// <param name="query">The query.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <returns></returns>
-		public async Task<AuthenticationResult> Handle(SignInQuery query, CancellationToken cancellationToken)
+		/// <returns><see cref="Aegis.Models.Auth.SignInQueryResult"/></returns>
+		/// <exception cref="Aegis.Application.Exceptions.IdentityProviderException"></exception>
+		public async Task<SignInQueryResult> Handle(SignInQuery query, CancellationToken cancellationToken)
 		{
 			_logger.LogDebug("Handling {name}", nameof(SignInQuery));
-			AuthenticationResult authenticationResult = new AuthenticationResult(false);
+			SignInQueryResult signInResult = SignInQueryResult.Failed();
 
 			try
 			{
@@ -66,16 +69,16 @@
 				}
 
 				_logger.LogDebug("SignInQueryHandler: create result.");
-				authenticationResult = new AuthenticationResult(returnUrl!);
+				signInResult = SignInQueryResult.Succeeded(returnUrl!);
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex is not IAegisException)
 			{
 				_logger.LogError(ex, "SignInQueryHandler Error: {Message}", ex.Message);
-				throw new AuthenticationException(IdentityProviderConstants.SomethingWentWrongWithAuthentication, ex.Message, ex);
+				throw new IdentityProviderException(IdentityProviderConstants.SomethingWentWrongWithSignIn, ex.Message, ex);
 			}
 
 			_logger.LogDebug("Handled {name}", nameof(SignInQuery));
-			return authenticationResult;
+			return signInResult;
 		}
 	}
 }

@@ -3,15 +3,19 @@
 	using System.Runtime.Serialization;
 
 	using Aegis.Application.Contracts.CQRS;
-	using Aegis.Models.Shared;
+	using Aegis.Models.Auth;
 
 	using Newtonsoft.Json;
 
 	/// <summary>
-	/// SignIn Query
+	/// SignIn Command
 	/// </summary>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQuery&lt;Aegis.Models.Auth.SignInCommandResult&gt;" />
+	/// <seealso cref="MediatR.IRequest&lt;Aegis.Models.Auth.SignInCommandResult&gt;" />
+	/// <seealso cref="MediatR.IBaseRequest" />
+	/// <seealso cref="System.IEquatable&lt;Aegis.Application.Commands.Auth.SignInCommand&gt;" />
 	[DataContract]
-	public sealed record SignInCommand : ICommand<AuthenticationResult>
+	public sealed record SignInCommand : ICommand<SignInCommandResult>
 	{
 		/// <summary>
 		/// Gets or sets the email.
