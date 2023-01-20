@@ -10,7 +10,6 @@
 		public static TheoryData<EmailConfirmationQuery> EmailConfirmationQueryValues => new TheoryData<EmailConfirmationQuery>()
 		{
 			{ new EmailConfirmationQuery() },
-			{ new EmailConfirmationQuery { UserId = "test" } },
 			{ new EmailConfirmationQuery { UserId = "" } },
 			{ new EmailConfirmationQuery { UserId = "   "} }
 		};

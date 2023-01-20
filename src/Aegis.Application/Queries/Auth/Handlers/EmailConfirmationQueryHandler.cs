@@ -26,7 +26,7 @@
 		/// <summary>
 		/// The logger
 		/// </summary>
-		private readonly ILogger<SignInCommandHandler> _logger;
+		private readonly ILogger<EmailConfirmationQueryHandler> _logger;
 
 		/// <summary>
 		/// The mail sender service
@@ -51,7 +51,7 @@
 		/// <param name="appSettings">The application settings.</param>
 		/// <param name="userManager">The user manager.</param>
 		public EmailConfirmationQueryHandler(
-			ILogger<SignInCommandHandler> logger,
+			ILogger<EmailConfirmationQueryHandler> logger,
 			IMailSenderService mailSenderService,
 			AppSettings appSettings,
 			UserManager<AegisUser> userManager)

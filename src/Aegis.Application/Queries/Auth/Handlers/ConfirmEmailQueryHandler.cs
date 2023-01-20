@@ -22,7 +22,7 @@
 		/// <summary>
 		/// The logger
 		/// </summary>
-		private readonly ILogger<SignInCommandHandler> _logger;
+		private readonly ILogger<ConfirmEmailQueryHandler> _logger;
 
 		/// <summary>
 		/// The user manager
@@ -35,7 +35,7 @@
 		/// <param name="logger">The logger.</param>
 		/// <param name="userManager">The user manager.</param>
 		public ConfirmEmailQueryHandler(
-			ILogger<SignInCommandHandler> logger,
+			ILogger<ConfirmEmailQueryHandler> logger,
 			UserManager<AegisUser> userManager)
 		{
 			_logger = logger;
@@ -69,13 +69,15 @@
 				{
 					IdentityResult emailResult = await _userManager.ConfirmEmailAsync(user, query.Token!);
 
-					if (!emailResult.Succeeded)
+					if (emailResult.Succeeded)
+					{
+						sendConfirmationEmailCommandResult = EmailConfirmationQueryResult.Succeeded();
+					}
+					else
 					{
 						sendConfirmationEmailCommandResult.Errors.AddRange(
 							emailResult.Errors.Select(e => new KeyValuePair<string, string>(e.Code, e.Description)));
 					}
-
-					sendConfirmationEmailCommandResult = EmailConfirmationQueryResult.Succeeded();
 				}
 			}
 			catch (Exception ex) when (ex is not IAegisException)
