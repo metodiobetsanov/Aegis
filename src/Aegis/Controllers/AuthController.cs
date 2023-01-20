@@ -1,6 +1,7 @@
 ﻿namespace Aegis.Controllers
 {
 	using Aegis.Application.Commands.Auth;
+	using Aegis.Application.Commands.Auth.Handlers;
 	using Aegis.Application.Queries.Auth;
 	using Aegis.Application.Validators.Commands.Auth;
 	using Aegis.Models.Auth;
@@ -8,6 +9,7 @@
 
 	using Duende.IdentityServer.Extensions;
 
+	using FluentValidation;
 	using FluentValidation.AspNetCore;
 	using FluentValidation.Results;
 
@@ -15,6 +17,8 @@
 
 	using Microsoft.AspNetCore.Authorization;
 	using Microsoft.AspNetCore.Mvc;
+
+	using NuGet.Packaging;
 
 	/// <summary>
 	/// Authentication Controller
@@ -103,7 +107,7 @@
 				}
 				else if (result.AccounNotActive)
 				{
-
+					return this.RedirectToAction("EmailConfirmation", "Auth", new { result.UserId });
 				}
 				else if (result.AccounLocked)
 				{
@@ -178,7 +182,7 @@
 
 				if (result.Success)
 				{
-					return this.Redirect(result.ReturnUrl!);
+					return this.RedirectToAction(nameof(this.EmailConfirmation), new {result.UserId });
 				}
 				else
 				{
@@ -247,6 +251,68 @@
 
 			_logger.LogDebug("Executed POST@{name}.", nameof(this.SignOut));
 			return this.View(command);
+		}
+
+		/// <summary>
+		/// Emails the confirmation token.
+		/// </summary>
+		/// <param name="query">The query.</param>
+		/// <returns></returns>
+		[HttpGet]
+		[AllowAnonymous]
+		public async Task<IActionResult> EmailConfirmation([FromQuery] EmailConfirmationQuery query)
+		{
+			_logger.LogDebug("Executing GET@{name}.", nameof(this.EmailConfirmation));
+			_logger.LogDebug("GET@{name}: validate query.", nameof(this.EmailConfirmation));
+			EmailConfirmationQueryValidator validator = new EmailConfirmationQueryValidator();
+			ValidationResult validationresult = validator.Validate(query);
+
+			EmailConfirmationQueryResult result = EmailConfirmationQueryResult.Failed();
+
+			if (validationresult.IsValid)
+			{
+				_logger.LogDebug("GET@{name}: send query to handler.", nameof(this.EmailConfirmation));
+				result = await _mediator.Send(query);
+			}
+			else
+			{
+				result.Errors.AddRange(
+					validationresult.Errors.Select(e => new KeyValuePair<string, string>(e.ErrorCode, e.ErrorMessage)));
+			}
+
+			_logger.LogDebug("Executed GET@{name}.", nameof(this.EmailConfirmation));
+			return this.View(result);
+		}
+
+		/// <summary>
+		/// Confirms the email.
+		/// </summary>
+		/// <param name="query">The query.</param>
+		/// <returns></returns>
+		[HttpGet]
+		[AllowAnonymous]
+		public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailQuery query)
+		{
+			_logger.LogDebug("Executing GET@{name}.", nameof(this.ConfirmEmail));
+			_logger.LogDebug("GET@{name}: validate query.", nameof(this.ConfirmEmail));
+			ConfirmEmailQueryValidator validator = new ConfirmEmailQueryValidator();
+			ValidationResult validationresult = validator.Validate(query);
+
+			EmailConfirmationQueryResult result = EmailConfirmationQueryResult.Failed();
+
+			if (validationresult.IsValid)
+			{
+				_logger.LogDebug("GET@{name}: send query to handler.", nameof(this.ConfirmEmail));
+				result = await _mediator.Send(query);
+			}
+			else
+			{
+				result.Errors.AddRange(
+					validationresult.Errors.Select(e => new KeyValuePair<string, string>(e.ErrorCode, e.ErrorMessage)));
+			}
+
+			_logger.LogDebug("Executed GET@{name}.", nameof(this.ConfirmEmail));
+			return this.View(result);
 		}
 	}
 }

@@ -129,13 +129,14 @@
 							cancellationToken);
 
 						_logger.LogDebug("SignUpCommandHandler: get all default roles and assign them to the user.");
-						IQueryable<string?> roles = _roleManager.Roles
+						IEnumerable<string> roles = _roleManager.Roles
 							.Where(r => r.AssignByDefault)
-							.Select(r => r.Name);
+							.Select(r => r.Name ?? string.Empty)
+							.ToList();
 
 						if (roles.Any())
 						{
-							IdentityResult rolesResult = await _userManager.AddToRolesAsync(user, roles!);
+							IdentityResult rolesResult = await _userManager.AddToRolesAsync(user, roles);
 
 							if (rolesResult.Succeeded)
 							{
@@ -147,7 +148,7 @@
 										string.Join(",", roles)),
 									cancellationToken);
 
-								signUpCommandResult = SignUpCommandResult.Succeeded(user.Id, returnUrl!);
+								signUpCommandResult = SignUpCommandResult.Succeeded(user.Id.ToString(), returnUrl!);
 							}
 							else
 							{
@@ -167,7 +168,7 @@
 						}
 						else
 						{
-							signUpCommandResult = SignUpCommandResult.Succeeded(user.Id, returnUrl!);
+							signUpCommandResult = SignUpCommandResult.Succeeded(user.Id.ToString(), returnUrl!);
 						}
 					}
 					else

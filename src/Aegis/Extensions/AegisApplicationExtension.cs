@@ -3,8 +3,10 @@
 	using System.Security.Cryptography.X509Certificates;
 
 	using Aegis.Application.Constants;
+	using Aegis.Application.Constants.Services;
 	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.IInitializers;
+	using Aegis.Application.Services;
 	using Aegis.Application.Validators.Settings;
 	using Aegis.Exceptions;
 	using Aegis.Models.Settings;
@@ -131,6 +133,7 @@
 
 			logger.Information("Aegis Core: adding Services.");
 			builder.Services
+				.AddSingleton<IMailSenderService, MailSenderService>()
 				.AddScoped<IAegisContext, AegisContext>();
 
 			return builder;
@@ -162,9 +165,10 @@
 			{
 				app.UseDeveloperExceptionPage();
 
+				// simulate a proxy headers
 				app.Use(async (ctx, next) =>
 				{
-					ctx.Request.Scheme = "https";
+					ctx.Request.Headers.Add("X-Forwarded-Proto", "https");
 					await next();
 				});
 			}

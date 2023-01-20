@@ -123,19 +123,19 @@
 					else if (result.RequiresTwoFactor)
 					{
 						_logger.LogDebug("SignInCommandHandler: requires two factor.");
-						signInCommandResult = SignInCommandResult.TwoStepRequired(user.Id);
+						signInCommandResult = SignInCommandResult.TwoStepRequired(user.Id.ToString());
 					}
 					else if (result.IsLockedOut)
 					{
 						_logger.LogDebug("SignInCommandHandler: locked out.");
-						signInCommandResult = SignInCommandResult.LockedAccount(user.Id);
+						signInCommandResult = SignInCommandResult.LockedAccount(user.Id.ToString());
 
 						await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Locked Out", clientId: context?.Client.ClientId));
 					}
 					else if (result.IsNotAllowed)
 					{
 						_logger.LogDebug("SignInCommandHandler: email not confirmed.");
-						signInCommandResult = SignInCommandResult.NotActiveAccount(user.Id);
+						signInCommandResult = SignInCommandResult.NotActiveAccount(user.Id.ToString());
 
 						await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Email not confirmed", clientId: context?.Client.ClientId));
 					}
