@@ -3,13 +3,17 @@
 	using System.Runtime.Serialization;
 
 	using Aegis.Application.Contracts.CQRS;
-	using Aegis.Models.Shared;
+	using Aegis.Models.Auth;
 
 	/// <summary>
 	/// SignOut Query
 	/// </summary>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQuery&lt;Aegis.Models.Auth.SignOutQueryResult&gt;" />
+	/// <seealso cref="MediatR.IRequest&lt;Aegis.Models.Auth.SignOutQueryResult&gt;" />
+	/// <seealso cref="MediatR.IBaseRequest" />
+	/// <seealso cref="System.IEquatable&lt;Aegis.Application.Queries.Auth.SignOutQuery&gt;" />
 	[DataContract]
-	public sealed record SignOutQuery : IQuery<AuthenticationResult>
+	public sealed record SignOutQuery : IQuery<SignOutQueryResult>
 	{
 		/// <summary>
 		/// Gets or sets the logout identifier.

@@ -8,12 +8,22 @@
 		/// <summary>
 		/// Something went wrong
 		/// </summary>
-		public static readonly string SomethingWentWrongWithAuthentication = "Something went wrong. Unable to Authenticate!";
+		public static readonly string SomethingWentWrong = "Something went wrong with the identity provider. Please try again later!";
 
 		/// <summary>
 		/// Something went wrong
 		/// </summary>
-		public static readonly string SomethingWentWrongWithSignOut = "Something went wrong. Unable to SignOut!";
+		public static readonly string SomethingWentWrongWithSignIn = "Something went wrong. Unable to SignIn, please try again later!";
+
+		/// <summary>
+		/// Something went wrong
+		/// </summary>
+		public static readonly string SomethingWentWrongWithSignOut = "Something went wrong. Unable to SignOut, please try again later!";
+
+		/// <summary>
+		/// Something went wrong
+		/// </summary>
+		public static readonly string SomethingWentWrongWithSignUp = "Something went wrong. Unable to SignUp, please try again later!";
 
 		/// <summary>
 		/// The Identity cookie

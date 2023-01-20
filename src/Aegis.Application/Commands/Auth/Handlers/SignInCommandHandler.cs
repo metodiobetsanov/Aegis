@@ -1,9 +1,11 @@
 ﻿namespace Aegis.Application.Commands.Auth.Handlers
 {
 	using Aegis.Application.Constants;
+	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.CQRS;
 	using Aegis.Application.Exceptions;
 	using Aegis.Application.Helpers;
+	using Aegis.Models.Auth;
 	using Aegis.Models.Shared;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
@@ -17,8 +19,8 @@
 	/// <summary>
 	/// SignIn Command Handler
 	/// </summary>
-	/// <seealso cref="Chimera.Application.Contracts.CQRS.ICommandHandler&lt;Chimera.Application.Commands.Authentication.SignInCommand, Chimera.Models.Authentication.AuthenticationResult&gt;" />
-	public sealed class SignInCommandHandler : ICommandHandler<SignInCommand, AuthenticationResult>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommandHandler&lt;Aegis.Application.Commands.Auth.SignInCommand, Aegis.Models.Auth.SignInCommandResult&gt;" />
+	public sealed class SignInCommandHandler : ICommandHandler<SignInCommand, SignInCommandResult>
 	{
 		/// <summary>
 		/// The logger
@@ -72,12 +74,14 @@
 		/// </summary>
 		/// <param name="command">The command.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <returns></returns>
-		/// <exception cref="InvalidValueException"></exception>
-		public async Task<AuthenticationResult> Handle(SignInCommand command, CancellationToken cancellationToken)
+		/// <returns>
+		///   <see cref="Aegis.Models.Auth.SignInCommandResult" />
+		/// </returns>
+		/// <exception cref="Aegis.Application.Exceptions.IdentityProviderException"></exception>
+		public async Task<SignInCommandResult> Handle(SignInCommand command, CancellationToken cancellationToken)
 		{
 			_logger.LogDebug("Handling {name}", nameof(SignInCommand));
-			AuthenticationResult authenticationResult = new AuthenticationResult(false);
+			SignInCommandResult signInCommandResult = SignInCommandResult.Failed();
 
 			try
 			{
@@ -100,7 +104,9 @@
 				if (user is null)
 				{
 					_logger.LogDebug("SignInCommandHandler: user does not exists.");
-					await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Invalid credentials", clientId: context?.Client.ClientId));
+					signInCommandResult.Errors.Add(new KeyValuePair<string, string>("", "Wrong Email and/or Password!"));
+
+					await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Wrong Email and/or Password!", clientId: context?.Client.ClientId));
 				}
 				else
 				{
@@ -110,46 +116,46 @@
 					if (result.Succeeded)
 					{
 						_logger.LogDebug("SignInCommandHandler: user signed in.");
-						authenticationResult = new AuthenticationResult(returnUrl!);
+						signInCommandResult = SignInCommandResult.Succeeded(returnUrl!);
 
 						await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id.ToString(), user.GetFullName(), clientId: context?.Client.ClientId));
 					}
 					else if (result.RequiresTwoFactor)
 					{
 						_logger.LogDebug("SignInCommandHandler: requires two factor.");
-						authenticationResult = new AuthenticationResult("SignInTwoStep", new { command.RememberMe, ReturnUrl = returnUrl });
+						signInCommandResult = SignInCommandResult.TwoStepRequired(user.Id);
 					}
 					else if (result.IsLockedOut)
 					{
 						_logger.LogDebug("SignInCommandHandler: locked out.");
-						authenticationResult = new AuthenticationResult("LockedOut", null);
+						signInCommandResult = SignInCommandResult.LockedAccount(user.Id);
 
 						await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Locked Out", clientId: context?.Client.ClientId));
 					}
 					else if (result.IsNotAllowed)
 					{
 						_logger.LogDebug("SignInCommandHandler: email not confirmed.");
-						authenticationResult = new AuthenticationResult("EmailNotConfimed", new { UserId = user.Id, command.ReturnUrl });
+						signInCommandResult = SignInCommandResult.NotActiveAccount(user.Id);
 
 						await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Email not confirmed", clientId: context?.Client.ClientId));
 					}
 					else
 					{
 						_logger.LogDebug("SignInCommandHandler: email not confirmed.");
-						authenticationResult.Errors.Add(new KeyValuePair<string, string>("", "Invalid credentials"));
+						signInCommandResult.Errors.Add(new KeyValuePair<string, string>("", "Wrong Email and/or Password!"));
 
-						await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Invalid credentials", clientId: context?.Client.ClientId));
+						await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Wrong Email and/or Password!", clientId: context?.Client.ClientId));
 					}
 				}
 			}
-			catch (Exception ex)
+			catch (Exception ex) when (ex is not IAegisException)
 			{
 				_logger.LogError(ex, "SignInCommandHandler Error: {Message}", ex.Message);
-				throw new AuthenticationException(IdentityProviderConstants.SomethingWentWrongWithAuthentication, ex.Message, ex);
+				throw new IdentityProviderException(IdentityProviderConstants.SomethingWentWrongWithSignIn, ex.Message, ex);
 			}
 
 			_logger.LogDebug("Handled {name}", nameof(SignInCommand));
-			return authenticationResult;
+			return signInCommandResult;
 		}
 	}
 }

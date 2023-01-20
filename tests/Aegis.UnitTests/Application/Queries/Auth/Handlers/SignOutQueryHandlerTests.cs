@@ -11,6 +11,7 @@
 	using global::Aegis.Application.Exceptions;
 	using global::Aegis.Application.Queries.Auth;
 	using global::Aegis.Application.Queries.Auth.Handlers;
+	using global::Aegis.Models.Auth;
 	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
@@ -38,11 +39,11 @@
 			SignOutQueryHandler handler = new SignOutQueryHandler(_logger.Object, _isis.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			SignOutQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeTrue();
+			result.ShowSignoutPrompt.ShouldBeTrue();
 		}
 
 		[Fact]
@@ -50,17 +51,17 @@
 		{
 			// Arrange
 			_isis.Setup(x => x.GetLogoutContextAsync(It.Is<string>(s => s == "test")))
-				.ReturnsAsync(new LogoutRequest("test", null));
+				.ReturnsAsync(new LogoutRequest("test", new LogoutMessage { ClientId = "test" }));
 
-			SignOutQuery query = new SignOutQuery();
+			SignOutQuery query = new SignOutQuery { LogoutId = "test" };
 			SignOutQueryHandler handler = new SignOutQueryHandler(_logger.Object, _isis.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			SignOutQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeFalse();
+			result.ShowSignoutPrompt.ShouldBeFalse();
 		}
 
 		[Fact]
@@ -78,10 +79,10 @@
 
 			// Assert
 			exception.ShouldNotBeNull();
-			exception.ShouldBeOfType<AuthenticationException>();
-			((AuthenticationException)exception).Message.ShouldBe(IdentityProviderConstants.SomethingWentWrongWithSignOut);
-			((AuthenticationException)exception).InnerException.ShouldNotBeNull();
-			((AuthenticationException)exception).InnerException!.Message.ShouldBe(nameof(Exception));
+			exception.ShouldBeOfType<IdentityProviderException>();
+			((IdentityProviderException)exception).Message.ShouldBe(IdentityProviderConstants.SomethingWentWrongWithSignOut);
+			((IdentityProviderException)exception).InnerException.ShouldNotBeNull();
+			((IdentityProviderException)exception).InnerException!.Message.ShouldBe(nameof(Exception));
 		}
 	}
 }

@@ -4,13 +4,14 @@
 	using System.Runtime.Serialization;
 
 	using Aegis.Application.Constants;
+	using Aegis.Application.Contracts;
 
 	/// <summary>
 	/// Service Exception
 	/// </summary>
 	/// <seealso cref="System.Exception" />
 	[Serializable]
-	public class ServiceException : Exception
+	public class ServiceException : Exception, IAegisException
 	{
 		/// <summary>
 		/// Gets the debug message.

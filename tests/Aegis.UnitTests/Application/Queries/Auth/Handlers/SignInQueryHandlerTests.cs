@@ -11,6 +11,7 @@
 	using global::Aegis.Application.Exceptions;
 	using global::Aegis.Application.Queries.Auth;
 	using global::Aegis.Application.Queries.Auth.Handlers;
+	using global::Aegis.Models.Auth;
 	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
@@ -43,11 +44,11 @@
 			SignInQueryHandler handler = new SignInQueryHandler(_logger.Object, _isis.Object);
 
 			// Act 
-			AuthenticationResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			SignInQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Succeeded.ShouldBeTrue();
+			result.Success.ShouldBeTrue();
 
 			if (string.IsNullOrWhiteSpace(returnUrl))
 			{
@@ -57,6 +58,22 @@
 			{
 				result.ReturnUrl.ShouldBe(returnUrl);
 			}
+		}
+
+		[Fact]
+		public void Handle_ShouldThrowExceptions_ReturnUrl()
+		{
+			// Arrange
+			SignInQuery query = new SignInQuery { ReturnUrl = "https://test.test" };
+			SignInQueryHandler handler = new SignInQueryHandler(_logger.Object, _isis.Object);
+
+			// Act 
+			Exception exception = Record.Exception(() => handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult());
+
+			// Assert
+			exception.ShouldNotBeNull();
+			exception.ShouldBeOfType<IdentityServerException>();
+			((IdentityServerException)exception).Message.ShouldBe("Invalid return URL!");
 		}
 
 		[Fact]
@@ -74,10 +91,10 @@
 
 			// Assert
 			exception.ShouldNotBeNull();
-			exception.ShouldBeOfType<AuthenticationException>();
-			((AuthenticationException)exception).Message.ShouldBe(IdentityProviderConstants.SomethingWentWrongWithAuthentication);
-			((AuthenticationException)exception).InnerException.ShouldNotBeNull();
-			((AuthenticationException)exception).InnerException!.Message.ShouldBe(nameof(Exception));
+			exception.ShouldBeOfType<IdentityProviderException>();
+			((IdentityProviderException)exception).Message.ShouldBe(IdentityProviderConstants.SomethingWentWrongWithSignIn);
+			((IdentityProviderException)exception).InnerException.ShouldNotBeNull();
+			((IdentityProviderException)exception).InnerException!.Message.ShouldBe(nameof(Exception));
 		}
 	}
 }
