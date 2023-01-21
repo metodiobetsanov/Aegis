@@ -88,6 +88,7 @@
 		{
 			_logger.LogDebug("Handling {name}", nameof(SignUpCommand));
 			SignUpCommandResult signUpCommandResult = SignUpCommandResult.Failed();
+
 			try
 			{
 

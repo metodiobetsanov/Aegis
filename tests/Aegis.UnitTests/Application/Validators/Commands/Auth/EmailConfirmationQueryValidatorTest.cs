@@ -1,12 +1,12 @@
 ﻿namespace Aegis.UnitTests.Application.Validators.Commands.Auth
 {
-	using FluentValidation.Results;
-
 	using global::Aegis.Application.Queries.Auth;
 	using global::Aegis.Application.Validators.Commands.Auth;
 
 	public class EmailConfirmationQueryValidatorTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+
 		public static TheoryData<EmailConfirmationQuery> EmailConfirmationQueryValues => new TheoryData<EmailConfirmationQuery>()
 		{
 			{ new EmailConfirmationQuery() },
@@ -18,11 +18,11 @@
 		public void Validate_ShouldBeTrue()
 		{
 			// Arrange
-			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = "test" };
+			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = _faker.Random.Guid().ToString() };
 			EmailConfirmationQueryValidator validator = new EmailConfirmationQueryValidator();
 
 			// Act
-			ValidationResult result = validator.Validate(query);
+			FluentValidation.Results.ValidationResult result = validator.Validate(query);
 
 			// Assert
 			result.IsValid.ShouldBeTrue();
@@ -36,7 +36,7 @@
 			EmailConfirmationQueryValidator validator = new EmailConfirmationQueryValidator();
 
 			// Act
-			ValidationResult result = validator.Validate(query);
+			FluentValidation.Results.ValidationResult result = validator.Validate(query);
 
 			// Assert
 			result.IsValid.ShouldBeFalse();

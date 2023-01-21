@@ -5,26 +5,16 @@
 	using Duende.IdentityServer.Services;
 	using Duende.IdentityServer.Validation;
 
-	using global::Aegis.Application.Commands.Auth;
-	using global::Aegis.Application.Commands.Auth.Handlers;
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Exceptions;
 	using global::Aegis.Application.Queries.Auth;
 	using global::Aegis.Application.Queries.Auth.Handlers;
 	using global::Aegis.Models.Auth;
-	using global::Aegis.Models.Shared;
-	using global::Aegis.Persistence.Entities.IdentityProvider;
-
-	using Microsoft.AspNetCore.Identity;
-
-	using Moq;
-
-	using Shouldly;
-
-	using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 	public class SignInQueryHandlerTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+
 		private readonly Mock<ILogger<SignInQueryHandler>> _logger = new Mock<ILogger<SignInQueryHandler>>();
 		private readonly Mock<IIdentityServerInteractionService> _isis = new Mock<IIdentityServerInteractionService>();
 
@@ -38,7 +28,7 @@
 		{
 			// Arrange
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			SignInQuery query = new SignInQuery { ReturnUrl = returnUrl };
 			SignInQueryHandler handler = new SignInQueryHandler(_logger.Object, _isis.Object);
@@ -64,7 +54,7 @@
 		public void Handle_ShouldThrowExceptions_ReturnUrl()
 		{
 			// Arrange
-			SignInQuery query = new SignInQuery { ReturnUrl = "https://test.test" };
+			SignInQuery query = new SignInQuery { ReturnUrl = _faker.Internet.Url() };
 			SignInQueryHandler handler = new SignInQueryHandler(_logger.Object, _isis.Object);
 
 			// Act 

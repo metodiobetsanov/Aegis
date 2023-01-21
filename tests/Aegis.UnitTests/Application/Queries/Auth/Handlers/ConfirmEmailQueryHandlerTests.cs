@@ -7,14 +7,10 @@
 	using global::Aegis.Models.Auth;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
-	using Microsoft.AspNetCore.Identity;
-
-	using Moq;
-
-	using Shouldly;
-
 	public class ConfirmEmailQueryHandlerTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+
 		private readonly Mock<ILogger<ConfirmEmailQueryHandler>> _logger = new Mock<ILogger<ConfirmEmailQueryHandler>>();
 		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
 
@@ -29,7 +25,7 @@
 			_userManager.Setup(x => x.ConfirmEmailAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Success);
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = "test", Token = "test" };
+			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
 			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
 
 			// Act 
@@ -47,7 +43,7 @@
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = "test", Token = "test" };
+			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
 			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
 
 			// Act 
@@ -67,9 +63,9 @@
 				.ReturnsAsync(user);
 
 			_userManager.Setup(x => x.ConfirmEmailAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
-				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "test", Description = "test" }));
+				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String(12), Description = _faker.Random.String(36) }));
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = "test", Token = "test" };
+			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
 			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
 
 			// Act 
@@ -88,7 +84,7 @@
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = "test", Token = "test" };
+			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
 			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
 
 			// Act 

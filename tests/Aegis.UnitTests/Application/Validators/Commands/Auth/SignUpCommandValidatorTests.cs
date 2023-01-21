@@ -1,33 +1,33 @@
 ﻿namespace Aegis.UnitTests.Application.Validators.Commands.Auth
 {
-	using FluentValidation.Results;
-
 	using global::Aegis.Application.Commands.Auth;
 	using global::Aegis.Application.Validators.Commands.Auth;
 
 	public class SignUpCommandValidatorTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+
 		public static TheoryData<SignUpCommand> SignUpCommandValues => new TheoryData<SignUpCommand>()
 		{
 			{ new SignUpCommand { } },
-			{ new SignUpCommand { Email = "test@test.test" } },
-			{ new SignUpCommand { Password = "AAAaaa000@@@"  } },
-			{ new SignUpCommand { ConfirmPassword = "AAAaaa000@@@"  } },
+			{ new SignUpCommand { Email = _faker.Internet.Email() } },
+			{ new SignUpCommand { Password = _faker.Internet.Password(8, false, "\\w", "!Aa0")  } },
+			{ new SignUpCommand { ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0")  } },
 			{ new SignUpCommand { AcceptTerms =  true } },
-			{ new SignUpCommand { Email = "", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true } },
-			{ new SignUpCommand { Email = "   ", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true } },
-			{ new SignUpCommand { Email = "test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true } },
-			{ new SignUpCommand { Email = "test", Password = "test@test.test", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true } },
-			{ new SignUpCommand { Email = "test@test.test", Password = "", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = false } },
-			{ new SignUpCommand { Email = "test@test.test", Password = "   ", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = false } },
-			{ new SignUpCommand { Email = "test@test.test", Password = new string('A', 9), ConfirmPassword = "AAAaaa000@@@", AcceptTerms = false } },
-			{ new SignUpCommand { Email = "test@test.test", Password = new string('a', 9), ConfirmPassword = "AAAaaa000@@@", AcceptTerms = false } },
-			{ new SignUpCommand { Email = "test@test.test", Password = new string('0', 9), ConfirmPassword = "AAAaaa000@@@", AcceptTerms = false } },
-			{ new SignUpCommand { Email = "test@test.test", Password = new string('@', 9), ConfirmPassword = "AAAaaa000@@@", AcceptTerms = false } },
-			{ new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "", AcceptTerms = false } },
-			{ new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "   ", AcceptTerms = false } },
-			{ new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "test", AcceptTerms = false } },
-			{ new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = false } },
+			{ new SignUpCommand { Email = "", Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = true } },
+			{ new SignUpCommand { Email = "   ", Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = true } },
+			{ new SignUpCommand { Email = "test", Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = true } },
+			{ new SignUpCommand { Email = "test", Password = _faker.Internet.Email(), ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = true } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = "", ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = false } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = "   ", ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = false } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = new string('A', 8), ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = false } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = new string('a', 8), ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = false } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = new string('0', 8), ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = false } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = new string('@', 8), ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = false } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ConfirmPassword = "", AcceptTerms = false } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ConfirmPassword = "   ", AcceptTerms = false } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ConfirmPassword = "test", AcceptTerms = false } },
+			{ new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ConfirmPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0"), AcceptTerms = false } },
 
 		};
 
@@ -35,11 +35,12 @@
 		public void Validate_ShouldBeTrue()
 		{
 			// Arrange
-			SignUpCommand command = new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true };
+			string password = _faker.Internet.Password(8, false, "\\w+", "!Aa0");
+			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = password, ConfirmPassword = password, AcceptTerms = true };
 			SignUpCommandValidator validator = new SignUpCommandValidator();
 
 			// Act
-			ValidationResult result = validator.Validate(command);
+			FluentValidation.Results.ValidationResult result = validator.Validate(command);
 
 			// Assert
 			result.IsValid.ShouldBeTrue();
@@ -53,7 +54,7 @@
 			SignUpCommandValidator validator = new SignUpCommandValidator();
 
 			// Act
-			ValidationResult result = validator.Validate(command);
+			FluentValidation.Results.ValidationResult result = validator.Validate(command);
 
 			// Assert
 			result.IsValid.ShouldBeFalse();

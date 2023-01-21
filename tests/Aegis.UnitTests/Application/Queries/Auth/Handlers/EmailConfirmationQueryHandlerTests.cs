@@ -9,19 +9,15 @@
 	using global::Aegis.Models.Settings;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
-	using Microsoft.AspNetCore.Identity;
-
-	using Moq;
-
-	using Shouldly;
-
 	public class EmailConfirmationQueryHandlerTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+
 		private readonly Mock<ILogger<EmailConfirmationQueryHandler>> _logger = new Mock<ILogger<EmailConfirmationQueryHandler>>();
 		private readonly Mock<IMailSenderService> _mss = new Mock<IMailSenderService>();
 		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
 
-		private readonly AppSettings _ap = new AppSettings { PublicDomain = "test" };
+		private readonly AppSettings _ap = new AppSettings { PublicDomain = _faker.Internet.DomainName() };
 
 		[Fact]
 		public void Handle_ShouldReturnTrue()
@@ -32,9 +28,9 @@
 				.ReturnsAsync(user);
 
 			_userManager.Setup(x => x.GenerateEmailConfirmationTokenAsync(It.IsAny<AegisUser>()))
-				.ReturnsAsync("test");
+				.ReturnsAsync(_faker.Random.String(36));
 
-			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = "test" };
+			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = _faker.Random.Guid().ToString() };
 			EmailConfirmationQueryHandler handler = new EmailConfirmationQueryHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
@@ -52,7 +48,7 @@
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
 
-			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = "test" };
+			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = _faker.Random.Guid().ToString() };
 			EmailConfirmationQueryHandler handler = new EmailConfirmationQueryHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
@@ -71,7 +67,7 @@
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
 
-			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = "test" };
+			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = _faker.Random.Guid().ToString() };
 			EmailConfirmationQueryHandler handler = new EmailConfirmationQueryHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 

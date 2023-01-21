@@ -1,6 +1,5 @@
 ﻿namespace Aegis.UnitTests.Application.Commands.Auth.Handlers
 {
-
 	using Duende.IdentityServer.Models;
 	using Duende.IdentityServer.Services;
 	using Duende.IdentityServer.Validation;
@@ -10,17 +9,13 @@
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Exceptions;
 	using global::Aegis.Models.Auth;
-	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
-
-	using Microsoft.AspNetCore.Identity;
-
-	using Moq;
-
-	using Shouldly;
 
 	public class SignInCommandHandlerTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+		private static readonly Faker<AegisUser> _fakeUser = Helper.GetUserFaker();
+
 		private readonly Mock<ILogger<SignInCommandHandler>> _logger = new Mock<ILogger<SignInCommandHandler>>();
 		private readonly Mock<IIdentityServerInteractionService> _isis = new Mock<IIdentityServerInteractionService>();
 		private readonly Mock<IEventService> _es = new Mock<IEventService>();
@@ -32,13 +27,13 @@
 		[InlineData("")]
 		[InlineData("   ")]
 		[InlineData("/")]
-		[InlineData("/test")]
+		[InlineData("/valid")]
 		public void Handle_ShouldReturnTrue_OnValidUser(string returnUrl)
 		{
 			// Arrange
-			AegisUser? user = new AegisUser();
-			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+			AegisUser? user = _fakeUser.Generate();
+			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -68,13 +63,13 @@
 
 		[Theory]
 		[InlineData("/")]
-		[InlineData("/test")]
+		[InlineData("/valid")]
 		public void Handle_ShouldReturnFalse_OnRequiresTwoFactor(string returnUrl)
 		{
 			// Arrange
-			AegisUser? user = new AegisUser();
-			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+			AegisUser? user = _fakeUser.Generate();
+			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -82,7 +77,7 @@
 			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.TwoFactorRequired);
 
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
+			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -97,13 +92,13 @@
 
 		[Theory]
 		[InlineData("/")]
-		[InlineData("/test")]
+		[InlineData("/valid")]
 		public void Handle_ShouldReturnFalse_OnIsLockedOut(string returnUrl)
 		{
 			// Arrange
-			AegisUser? user = new AegisUser();
-			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+			AegisUser? user = _fakeUser.Generate();
+			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -111,7 +106,7 @@
 			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.LockedOut);
 
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
+			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -126,20 +121,20 @@
 
 		[Theory]
 		[InlineData("/")]
-		[InlineData("/test")]
+		[InlineData("/valid")]
 		public void Handle_ShouldReturnFalse_OnIsNotAllowed(string returnUrl)
 		{
 			// Arrange
-			AegisUser? user = new AegisUser();
-			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+			AegisUser? user = _fakeUser.Generate();
+			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
 
 			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.NotAllowed);
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
+			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -154,13 +149,13 @@
 
 		[Theory]
 		[InlineData("/")]
-		[InlineData("/test")]
+		[InlineData("/valid")]
 		public void Handle_ShouldReturnFalse_OnFailure(string returnUrl)
 		{
 			// Arrange
-			AegisUser? user = new AegisUser();
-			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+			AegisUser? user = _fakeUser.Generate();
+			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -168,7 +163,7 @@
 			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.Failed);
 
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
+			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -182,14 +177,14 @@
 
 		[Theory]
 		[InlineData("/")]
-		[InlineData("/test")]
+		[InlineData("/valid")]
 		public void Handle_ShouldReturnFalse_OnNotExistingUser(string returnUrl)
 		{
 			// Arrange
-			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = returnUrl };
+			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -204,7 +199,7 @@
 		public void Handle_ShouldThrowExceptions_ReturnUrl()
 		{
 			// Arrange
-			SignInCommand command = new SignInCommand { ReturnUrl = "https://test.test" };
+			SignInCommand command = new SignInCommand { ReturnUrl = _faker.Internet.Url() };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
@@ -222,7 +217,7 @@
 			// Arrange
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
-			SignInCommand command = new SignInCommand { Email = "test", Password = "test", RememberMe = true, ReturnUrl = "/" };
+			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
