@@ -31,10 +31,14 @@
 			SignInCommandResult.LockedAccount(_faker.Random.Guid().ToString())
 		};
 
-		public AuthControllerTests()
+		public static TheoryData<SignInCommandResult> SignInTwoStepCommandResultValues => new TheoryData<SignInCommandResult>()
 		{
-			_hc.Setup(x => x.User).Returns(_cp.Object);
-		}
+			SignInCommandResult.NotActiveAccount(_faker.Random.Guid().ToString()),
+			SignInCommandResult.LockedAccount(_faker.Random.Guid().ToString())
+		};
+
+		public AuthControllerTests()
+			=> _hc.Setup(x => x.User).Returns(_cp.Object);
 
 		#region SignIn
 		[Theory]
@@ -237,7 +241,7 @@
 		{
 			// Arrange 
 			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepCommand>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(SignInTwoStepCommandResult.Succeeded("~/"));
+				.ReturnsAsync(SignInCommandResult.Succeeded("~/"));
 
 			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6) };
 			AuthController controller = new AuthController(_logger.Object, _m.Object);
@@ -276,10 +280,10 @@
 		public void PostSignInTwoStep_ShouldReturnView_OnFailedSignIn()
 		{
 			// Arrange
-			SignInTwoStepCommandResult signInTwoStepCommand = SignInTwoStepCommandResult.Failed();
-			signInTwoStepCommand.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
+			SignInCommandResult signInCommandResult = SignInCommandResult.Failed();
+			signInCommandResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
 			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepCommand>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(signInTwoStepCommand);
+				.ReturnsAsync(signInCommandResult);
 
 			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6) };
 			AuthController controller = new AuthController(_logger.Object, _m.Object);
@@ -295,6 +299,35 @@
 			((ViewResult)result).ViewData.ModelState.ShouldNotBeNull();
 			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(1);
 			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(1);
+		}
+
+		[Theory]
+		[MemberData(nameof(SignInTwoStepCommandResultValues))]
+		public void PostSignInTwoStep_ShouldReturnRedirectToAction(SignInCommandResult signInCommandResult)
+		{
+			// Arrange
+			_m.Setup(x => x.Send(It.IsAny<SignInCommand>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(signInCommandResult);
+
+			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
+			AuthController controller = new AuthController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.SignIn(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<RedirectToActionResult>();
+
+			if (signInCommandResult.AccounNotActive)
+			{
+				((RedirectToActionResult)result).ActionName.ShouldBe("EmailConfirmation");
+			}
+			else if (signInCommandResult.AccounLocked)
+			{
+				((RedirectToActionResult)result).ActionName.ShouldBe("Locked");
+			}
 		}
 		#endregion SignInTwoStep
 

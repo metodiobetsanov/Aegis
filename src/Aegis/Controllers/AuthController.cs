@@ -167,11 +167,19 @@
 
 			if (validationresult.IsValid)
 			{
-				SignInTwoStepCommandResult result = await _mediator.Send(command);
+				SignInCommandResult result = await _mediator.Send(command);
 
 				if (result.Success)
 				{
 					return this.Redirect(result.ReturnUrl!);
+				}
+				else if (result.AccounNotActive)
+				{
+					return this.RedirectToAction(nameof(this.EmailConfirmation), new { result.UserId });
+				}
+				else if (result.AccounLocked)
+				{
+					return this.RedirectToAction("Locked", new { result.UserId });
 				}
 				else
 				{

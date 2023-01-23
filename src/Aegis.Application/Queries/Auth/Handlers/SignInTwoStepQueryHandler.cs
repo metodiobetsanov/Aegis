@@ -95,16 +95,7 @@
 			{
 				_logger.LogDebug("SignInQueryHandler: get authorization context and validate return URL.");
 				AuthorizationRequest? context = await _interaction.GetAuthorizationContextAsync(query.ReturnUrl);
-				string? returnUrl;
-
-				if (context == null)
-				{
-					returnUrl = IdentityServerHelpers.GetReturnUrl(query.ReturnUrl);
-				}
-				else
-				{
-					returnUrl = query.ReturnUrl;
-				}
+				string returnUrl = context.GetReturnUrl(query.ReturnUrl!);
 
 				_logger.LogDebug("SignInTwoStepCommandHandler: check if user has gone via sign in.");
 				AegisUser? user = await _signInManager.GetTwoFactorAuthenticationUserAsync();

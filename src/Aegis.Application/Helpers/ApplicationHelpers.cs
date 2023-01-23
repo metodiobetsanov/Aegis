@@ -4,7 +4,11 @@
 
 	using Aegis.Models.Shared;
 
+	using Duende.IdentityServer.Models;
+
 	using Microsoft.AspNetCore.Mvc.ModelBinding;
+
+	using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 	/// <summary>
 	/// Application Helpers
@@ -25,6 +29,28 @@
 					modelState.AddModelError(error.Key, error.Value);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Gets the return URL.
+		/// </summary>
+		/// <param name="context">The context.</param>
+		/// <param name="returnUrl">The return URL.</param>
+		/// <returns></returns>
+		public static string GetReturnUrl(this AuthorizationRequest context, string returnUrl)
+		{
+			string url;
+
+			if (context == null)
+			{
+				url = IdentityServerHelpers.GetReturnUrl(returnUrl);
+			}
+			else
+			{
+				url = returnUrl;
+			}
+
+			return url;
 		}
 	}
 }

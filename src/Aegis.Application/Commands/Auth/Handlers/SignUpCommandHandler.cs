@@ -93,17 +93,8 @@
 			{
 
 				_logger.LogDebug("SignUpCommandHandler: get authorization context and validate return URL.");
-				string? returnUrl;
 				AuthorizationRequest? context = await _interaction.GetAuthorizationContextAsync(command.ReturnUrl);
-
-				if (context == null)
-				{
-					returnUrl = IdentityServerHelpers.GetReturnUrl(command.ReturnUrl);
-				}
-				else
-				{
-					returnUrl = command.ReturnUrl;
-				}
+				string returnUrl = context.GetReturnUrl(command.ReturnUrl!);
 
 				_logger.LogDebug("SignUpCommandHandler: check if email/ exists.");
 				AegisUser? user = await _userManager.FindByEmailAsync(command.Email!);

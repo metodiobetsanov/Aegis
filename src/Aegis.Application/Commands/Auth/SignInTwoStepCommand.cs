@@ -8,13 +8,12 @@
 	/// <summary>
 	/// SignIn Two Step Command
 	/// </summary>
-	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommand&lt;Aegis.Models.Auth.SignInTwoStepCommandResult&gt;" />
-	/// <seealso cref="MediatR.IRequest&lt;Aegis.Models.Auth.SignInTwoStepCommandResult&gt;" />
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommand&lt;Aegis.Models.Auth.SignInCommandResult&gt;" />
+	/// <seealso cref="MediatR.IRequest&lt;Aegis.Models.Auth.SignInCommandResult&gt;" />
 	/// <seealso cref="MediatR.IBaseRequest" />
 	/// <seealso cref="System.IEquatable&lt;Aegis.Application.Commands.Auth.SignInTwoStepCommand&gt;" />
-	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommand&lt;SignInTwoStepCommandResult&gt;" />
 	[DataContract]
-	public sealed record SignInTwoStepCommand : ICommand<SignInTwoStepCommandResult>
+	public sealed record SignInTwoStepCommand : ICommand<SignInCommandResult>
 	{
 		/// <summary>
 		/// Gets the code.
