@@ -99,15 +99,15 @@
 				}
 				else if (result.RequiresTwoStep)
 				{
-					return this.RedirectToAction("SignInTwoStep", "Auth", new { command.RememberMe, command.ReturnUrl });
+					return this.RedirectToAction(nameof(this.SignInTwoStep), new { command.RememberMe, command.ReturnUrl });
 				}
 				else if (result.AccounNotActive)
 				{
-					return this.RedirectToAction("EmailConfirmation", "Auth", new { result.UserId });
+					return this.RedirectToAction(nameof(this.EmailConfirmation), new { result.UserId });
 				}
 				else if (result.AccounLocked)
 				{
-					return this.RedirectToAction("Locked", "Auth", new { result.UserId });
+					return this.RedirectToAction("Locked", new { result.UserId });
 				}
 				else
 				{
@@ -318,20 +318,23 @@
 			EmailConfirmationQueryValidator validator = new EmailConfirmationQueryValidator();
 			ValidationResult validationresult = validator.Validate(query);
 
-			EmailConfirmationQueryResult result = EmailConfirmationQueryResult.Failed();
-
 			if (validationresult.IsValid)
 			{
 				_logger.LogDebug("GET@{name}: send query to handler.", nameof(this.EmailConfirmation));
-				result = await _mediator.Send(query);
+				EmailConfirmationQueryResult result = await _mediator.Send(query);
+
+				if (!result.Success)
+				{
+					result.AddToModelState(this.ModelState);
+				}
 			}
 			else
 			{
-				result.AddToModelState(this.ModelState);
+				validationresult.AddToModelState(this.ModelState);
 			}
 
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.EmailConfirmation));
-			return this.View(result);
+			return this.View();
 		}
 
 		/// <summary>
@@ -348,20 +351,23 @@
 			ConfirmEmailQueryValidator validator = new ConfirmEmailQueryValidator();
 			ValidationResult validationresult = validator.Validate(query);
 
-			EmailConfirmationQueryResult result = EmailConfirmationQueryResult.Failed();
-
 			if (validationresult.IsValid)
 			{
 				_logger.LogDebug("GET@{name}: send query to handler.", nameof(this.ConfirmEmail));
-				result = await _mediator.Send(query);
+				EmailConfirmationQueryResult result = await _mediator.Send(query);
+
+				if (!result.Success)
+				{
+					result.AddToModelState(this.ModelState);
+				}
 			}
 			else
 			{
-				result.AddToModelState(this.ModelState);
+				validationresult.AddToModelState(this.ModelState);
 			}
 
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.ConfirmEmail));
-			return this.View(result);
+			return this.View();
 		}
 	}
 }
