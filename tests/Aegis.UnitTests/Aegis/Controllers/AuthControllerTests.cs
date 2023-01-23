@@ -306,15 +306,15 @@
 		public void PostSignInTwoStep_ShouldReturnRedirectToAction(SignInCommandResult signInCommandResult)
 		{
 			// Arrange
-			_m.Setup(x => x.Send(It.IsAny<SignInCommand>(), It.IsAny<CancellationToken>()))
+			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepCommand>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(signInCommandResult);
 
-			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6) };
 			AuthController controller = new AuthController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.SignIn(command).GetAwaiter().GetResult();
+			IActionResult result = controller.SignInTwoStep(command).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
