@@ -1,6 +1,6 @@
-﻿namespace Aegis.Application.Validators.Commands.Auth
+﻿namespace Aegis.Application.Validators.Commands.Authentication
 {
-	using Aegis.Application.Commands.Auth;
+	using Aegis.Application.Commands.Authentication;
 
 	using FluentValidation;
 

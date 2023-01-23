@@ -1,0 +1,101 @@
+﻿namespace Aegis.UnitTests.Application.Commands.Authentication.Handlers
+{
+	using global::Aegis.Application.Constants;
+	using global::Aegis.Application.Exceptions;
+	using global::Aegis.Application.Queries.Authentication;
+	using global::Aegis.Application.Queries.Authentication.Handlers;
+	using global::Aegis.Models.Authentication;
+	using global::Aegis.Persistence.Entities.IdentityProvider;
+
+	public class ConfirmEmailQueryHandlerTests
+	{
+		private static readonly Faker _faker = new Faker("en");
+
+		private readonly Mock<ILogger<ConfirmEmailQueryHandler>> _logger = new Mock<ILogger<ConfirmEmailQueryHandler>>();
+		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
+
+		[Fact]
+		public void Handle_ShouldReturnTrue()
+		{
+			// Arrange
+			AegisUser? user = new AegisUser();
+			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+				.ReturnsAsync(user);
+
+			_userManager.Setup(x => x.ConfirmEmailAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
+				.ReturnsAsync(IdentityResult.Success);
+
+			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
+
+			// Act 
+			EmailConfirmationQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.Success.ShouldBeTrue();
+		}
+
+		[Fact]
+		public void Handle_ShouldReturnFalse_NotExistingUser()
+		{
+			// Arrange
+			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+				.ReturnsAsync((AegisUser?)null);
+
+			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
+
+			// Act 
+			EmailConfirmationQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.Success.ShouldBeFalse();
+			result.Errors.Count.ShouldBe(1);
+		}
+
+		[Fact]
+		public void Handle_ShouldReturnFalse_OnFailedToConfirmEmail()
+		{
+			AegisUser? user = new AegisUser();
+			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+				.ReturnsAsync(user);
+
+			_userManager.Setup(x => x.ConfirmEmailAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
+				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String(12), Description = _faker.Random.String(36) }));
+
+			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
+
+			// Act 
+			EmailConfirmationQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.Success.ShouldBeFalse();
+			result.Errors.Count.ShouldBe(1);
+		}
+
+		[Fact]
+		public void Handle_Exceptions()
+		{
+			// Arrange
+			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+				.Throws(new Exception(nameof(Exception)));
+
+			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
+
+			// Act 
+			Exception exception = Record.Exception(() => handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult());
+
+			// Assert
+			exception.ShouldNotBeNull();
+			exception.ShouldBeOfType<IdentityProviderException>();
+			((IdentityProviderException)exception).Message.ShouldBe(IdentityProviderConstants.SomethingWentWrong);
+			((IdentityProviderException)exception).InnerException.ShouldNotBeNull();
+			((IdentityProviderException)exception).InnerException!.Message.ShouldBe(nameof(Exception));
+		}
+	}
+}

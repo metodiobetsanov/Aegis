@@ -1,0 +1,54 @@
+﻿@model SignInTwoStepCommand
+
+@{
+	ViewData["Title"] = "Sign In Two Step";
+}
+
+
+<div class="row">
+
+	<div class="col-12 d-flex justify-content-center">
+		<div class="blank col-md-8 col-lg-6 col-xl-5">
+			<div class="card overflow-hidden">
+				<div class="card-body">
+					<div class="p-2">
+
+						<form asp-controller="Authentication" asp-action="SignInTwoStep" method="@FormMethod.Post" class="form-horizontal" data-parsley-validate>
+								@Html.AntiForgeryToken()
+								<input type="hidden" asp-for="@Model.ReturnUrl" />
+								<input type="hidden" asp-for="@Model.RememberMe" />
+
+								<div class="row">
+									<div class="mb-3">
+										<label asp-for="@Model.Code" class="form-label visually-hidden">Code</label>
+											<input asp-for="@Model.Code" type="text" class="form-control" placeholder="Enter the code"
+											   required data-parsley-type="digits">
+										</div>
+									</div>
+
+								<div class="form-check">
+									<input asp-for="@Model.RememberClient" class="form-check-input" type="checkbox" id="remember-check">
+									<label asp-for="@Model.RememberClient" class="form-check-label" for="remember-check">
+										Remember this browser
+									</label>
+								</div>
+
+								<div class="mt-3 d-grid">
+									<button class="btn btn-primary waves-effect waves-light" type="submit">Confirm</button>
+								</div>
+
+							</form>
+
+					</div>
+				</div>
+			</div>
+			<div class="text-center">
+
+				<div>
+					<p>Don't have an account ? <a href="@Url.Action("SignUp", "Authentication")" class="fw-medium text-primary"> SignUp </a> </p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>

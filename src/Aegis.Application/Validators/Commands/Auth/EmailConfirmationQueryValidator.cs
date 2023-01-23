@@ -1,13 +1,13 @@
-﻿namespace Aegis.Application.Validators.Commands.Auth
+﻿namespace Aegis.Application.Validators.Commands.Authentication
 {
-	using Aegis.Application.Queries.Auth;
+	using Aegis.Application.Queries.Authentication;
 
 	using FluentValidation;
 
 	/// <summary>
 	/// Email Confirmation Query Validator
 	/// </summary>
-	/// <seealso cref="FluentValidation.AbstractValidator&lt;Aegis.Application.Queries.Auth.EmailConfirmationQuery&gt;" />
+	/// <seealso cref="FluentValidation.AbstractValidator&lt;Aegis.Application.Queries.Authentication.EmailConfirmationQuery&gt;" />
 	public sealed class EmailConfirmationQueryValidator : AbstractValidator<EmailConfirmationQuery>
 	{
 		/// <summary>

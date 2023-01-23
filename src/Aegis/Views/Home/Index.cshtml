@@ -29,25 +29,25 @@
 
 						<div class="mb-3 d-flex justify-content-center">
 							<div class="btn-group btn-group-example auth-options" role="group">
-									<a href="@Url.Action("Index", "Profile", new { Area = ApplicationConstants.UserArea })" class="btn btn-outline-primary w-lg">My Profile</a>
+								<a href="@Url.Action("Index", "Profile", new { Area = ApplicationConstants.UserArea })" class="btn btn-outline-primary w-lg">My Profile</a>
 
 								@if (this.User.IsInRole(IdentityProviderConstants.OperatorRole))
 								{
-										<a href="@Url.Action("Index", "Dashboards", new { Area = ApplicationConstants.AdminArea })" class="btn btn-outline-primary w-lg">Control Panel</a>
+									<a href="@Url.Action("Index", "Dashboards", new { Area = ApplicationConstants.AdminArea })" class="btn btn-outline-primary w-lg">Control Panel</a>
 								}
 
-								<a href="@Url.Action("SignOut", "Auth")" class="btn btn-outline-danger w-lg">Sign Out</a>
+								<a href="@Url.Action("SignOut", "Authentication")" class="btn btn-outline-danger w-lg">Sign Out</a>
 							</div>
 						</div>
 					}
 					else
 						{
-						<div class="mb-3 d-flex justify-content-center">
-							<div class="btn-group btn-group-example" role="group">
-								<a href="@Url.Action("SignIn", "Auth")" class="btn btn-outline-primary w-md">Sign In</a>
-								<a href="@Url.Action("SignUp", "Auth")" class="btn btn-outline-primary w-md">Sign Up</a>
+							<div class="mb-3 d-flex justify-content-center">
+								<div class="btn-group btn-group-example" role="group">
+									<a href="@Url.Action("SignIn", "Authentication")" class="btn btn-outline-primary w-md">Sign In</a>
+									<a href="@Url.Action("SignUp", "Authentication")" class="btn btn-outline-primary w-md">Sign Up</a>
+								</div>
 							</div>
-						</div>
 					}
 
 					</div>

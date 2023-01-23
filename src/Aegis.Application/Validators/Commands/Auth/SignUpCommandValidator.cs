@@ -1,4 +1,4 @@
-﻿namespace Aegis.Application.Validators.Commands.Auth
+﻿namespace Aegis.Application.Validators.Commands.Authentication
 {
 	using System;
 	using System.Collections.Generic;
@@ -6,7 +6,7 @@
 	using System.Text;
 	using System.Threading.Tasks;
 
-	using Aegis.Application.Commands.Auth;
+	using Aegis.Application.Commands.Authentication;
 
 	using FluentValidation;
 

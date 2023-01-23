@@ -1,13 +1,13 @@
-﻿namespace Aegis.Application.Validators.Commands.Auth
+﻿namespace Aegis.Application.Validators.Commands.Authentication
 {
-	using Aegis.Application.Commands.Auth;
+	using Aegis.Application.Commands.Authentication;
 
 	using FluentValidation;
 
 	/// <summary>
 	/// Sign In Two Step Command Validator
 	/// </summary>
-	/// <seealso cref="FluentValidation.AbstractValidator&lt;Aegis.Application.Commands.Auth.SignInTwoStepCommand&gt;" />
+	/// <seealso cref="FluentValidation.AbstractValidator&lt;Aegis.Application.Commands.Authentication.SignInTwoStepCommand&gt;" />
 	public sealed class SignInTwoStepCommandValidator : AbstractValidator<SignInTwoStepCommand>
 	{
 		/// <summary>
