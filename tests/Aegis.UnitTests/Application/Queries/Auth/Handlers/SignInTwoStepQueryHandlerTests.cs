@@ -6,17 +6,24 @@
 	using Duende.IdentityServer.Validation;
 
 	using global::Aegis.Application.Constants;
+	using global::Aegis.Application.Constants.Services;
 	using global::Aegis.Application.Exceptions;
 	using global::Aegis.Application.Queries.Auth;
 	using global::Aegis.Application.Queries.Auth.Handlers;
 	using global::Aegis.Models.Auth;
+	using global::Aegis.Persistence.Entities.IdentityProvider;
 
-	public class SignInQueryHandlerTests
+	public class SignInTwoStepQueryHandlerTests
 	{
 		private static readonly Faker _faker = new Faker("en");
+		private static readonly Faker<AegisUser> _fakeUser = Helper.GetUserFaker();
 
-		private readonly Mock<ILogger<SignInQueryHandler>> _logger = new Mock<ILogger<SignInQueryHandler>>();
+		private readonly Mock<ILogger<SignInTwoStepQueryHandler>> _logger = new Mock<ILogger<SignInTwoStepQueryHandler>>();
 		private readonly Mock<IIdentityServerInteractionService> _isis = new Mock<IIdentityServerInteractionService>();
+		private readonly Mock<IEventService> _es = new Mock<IEventService>();
+		private readonly Mock<IMailSenderService> _mss = new Mock<IMailSenderService>();
+		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
+		private readonly Mock<SignInManager<AegisUser>> _signInManager = Helper.GetSignInManagerMock();
 
 		[Theory]
 		[InlineData(null)]
@@ -27,11 +34,15 @@
 		public void Handle_ShouldReturnTrue_OnValidUser(string returnUrl)
 		{
 			// Arrange
-			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
+			AegisUser? user = _fakeUser.Generate();
+			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
 				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
-			SignInQuery query = new SignInQuery { ReturnUrl = returnUrl };
-			SignInQueryHandler handler = new SignInQueryHandler(_logger.Object, _isis.Object);
+			_signInManager.Setup(x => x.GetTwoFactorAuthenticationUserAsync())
+				.ReturnsAsync(user);
+
+			SignInTwoStepQuery query = new SignInTwoStepQuery { RememberMe = true, ReturnUrl = returnUrl };
+			SignInTwoStepQueryHandler handler = new SignInTwoStepQueryHandler(_logger.Object, _isis.Object, _es.Object, _mss.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
 			SignInQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
@@ -51,11 +62,26 @@
 		}
 
 		[Fact]
+		public void Handle_ShouldReturnFalse_OnNotExistingUser()
+		{
+			// Arrange
+			SignInTwoStepQuery query = new SignInTwoStepQuery();
+			SignInTwoStepQueryHandler handler = new SignInTwoStepQueryHandler(_logger.Object, _isis.Object, _es.Object, _mss.Object, _userManager.Object, _signInManager.Object);
+
+			// Act 
+			SignInQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.Success.ShouldBeFalse();
+		}
+
+		[Fact]
 		public void Handle_ShouldThrowExceptions_ReturnUrl()
 		{
 			// Arrange
-			SignInQuery query = new SignInQuery { ReturnUrl = _faker.Internet.Url() };
-			SignInQueryHandler handler = new SignInQueryHandler(_logger.Object, _isis.Object);
+			SignInTwoStepQuery query = new SignInTwoStepQuery { RememberMe = true, ReturnUrl = _faker.Internet.Url() };
+			SignInTwoStepQueryHandler handler = new SignInTwoStepQueryHandler(_logger.Object, _isis.Object, _es.Object, _mss.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
 			Exception exception = Record.Exception(() => handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult());
@@ -73,8 +99,8 @@
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
 
-			SignInQuery query = new SignInQuery();
-			SignInQueryHandler handler = new SignInQueryHandler(_logger.Object, _isis.Object);
+			SignInTwoStepQuery query = new SignInTwoStepQuery { RememberMe = true, ReturnUrl = "/" };
+			SignInTwoStepQueryHandler handler = new SignInTwoStepQueryHandler(_logger.Object, _isis.Object, _es.Object, _mss.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
 			Exception exception = Record.Exception(() => handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult());

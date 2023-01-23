@@ -1,6 +1,5 @@
 ﻿namespace Aegis.UnitTests.Application.Commands.Auth.Handlers
 {
-
 	using Duende.IdentityServer.Models;
 	using Duende.IdentityServer.Services;
 	using Duende.IdentityServer.Validation;
@@ -9,22 +8,16 @@
 	using global::Aegis.Application.Commands.Auth.Handlers;
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Exceptions;
-	using global::Aegis.Application.Queries.Auth;
-	using global::Aegis.Application.Queries.Auth.Handlers;
 	using global::Aegis.Models.Auth;
-	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
 	using MediatR;
-
-	using Microsoft.AspNetCore.Identity;
-
-	using Moq;
-
-	using Shouldly;
-
 	public class SignUpCommandHandlerTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+		private static readonly Faker<AegisUser> _fakeUser = Helper.GetUserFaker();
+		private static readonly Faker<AegisRole> _fakeRole = Helper.GetRoleFaker();
+
 		private readonly Mock<ILogger<SignUpCommandHandler>> _logger = new Mock<ILogger<SignUpCommandHandler>>();
 		private readonly Mock<IMediator> _m = new Mock<IMediator>();
 		private readonly Mock<IIdentityServerInteractionService> _isis = new Mock<IIdentityServerInteractionService>();
@@ -38,10 +31,10 @@
 		public void Handle_ShouldReturnTrue_OnValidUser(string? returnUrl)
 		{
 			// Arrange
-			List<AegisRole> roles = new List<AegisRole> { new AegisRole("test", "test", true, true, true) };
+			List<AegisRole> roles = _fakeRole.Generate(10);
 
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
@@ -55,7 +48,7 @@
 			_roleManager.Setup(x => x.Roles)
 				.Returns(roles.AsQueryable());
 
-			SignUpCommand command = new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true, ReturnUrl = returnUrl };
+			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
 			SignUpCommandHandler handler = new SignUpCommandHandler(_logger.Object, _m.Object, _isis.Object, _userManager.Object, _roleManager.Object);
 
 			// Act 
@@ -93,7 +86,7 @@
 			_roleManager.Setup(x => x.Roles)
 				.Returns(roles.AsQueryable());
 
-			SignUpCommand command = new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true };
+			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
 			SignUpCommandHandler handler = new SignUpCommandHandler(_logger.Object, _m.Object, _isis.Object, _userManager.Object, _roleManager.Object);
 
 			// Act 
@@ -109,15 +102,15 @@
 		public void Handle_ShouldReturnFalse_OnExistingUser()
 		{
 			// Arrange
-			AegisUser user = new AegisUser();
+			AegisUser user = _fakeUser.Generate();
 
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
 
-			SignUpCommand command = new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true };
+			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
 			SignUpCommandHandler handler = new SignUpCommandHandler(_logger.Object, _m.Object, _isis.Object, _userManager.Object, _roleManager.Object);
 
 			// Act 
@@ -135,18 +128,18 @@
 			List<AegisRole> roles = new List<AegisRole> { new AegisRole("test", "test", true, true, true) };
 
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
 
 			_userManager.Setup(x => x.CreateAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
-				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "test", Description = "test" }));
+				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String(12), Description = _faker.Random.String(36) }));
 
 			_roleManager.Setup(x => x.Roles)
 				.Returns(roles.AsQueryable());
 
-			SignUpCommand command = new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true };
+			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
 			SignUpCommandHandler handler = new SignUpCommandHandler(_logger.Object, _m.Object, _isis.Object, _userManager.Object, _roleManager.Object);
 
 			// Act 
@@ -161,10 +154,10 @@
 		[Fact]
 		public void Handle_ShouldReturnFalse_OnFailedToAssignRoles()
 		{
-			List<AegisRole> roles = new List<AegisRole> { new AegisRole("test", "test", true, true, true) };
+			List<AegisRole> roles = _fakeRole.Generate(10);
 
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = "test" } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
@@ -173,12 +166,12 @@
 				.ReturnsAsync(IdentityResult.Success);
 
 			_userManager.Setup(x => x.AddToRolesAsync(It.IsAny<AegisUser>(), It.IsAny<IEnumerable<string>>()))
-				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = "test", Description = "test" }));
+				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String(12), Description = _faker.Random.String(36) }));
 
 			_roleManager.Setup(x => x.Roles)
 				.Returns(roles.AsQueryable());
 
-			SignUpCommand command = new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true };
+			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
 			SignUpCommandHandler handler = new SignUpCommandHandler(_logger.Object, _m.Object, _isis.Object, _userManager.Object, _roleManager.Object);
 
 			// Act 
@@ -194,7 +187,7 @@
 		public void Handle_ShouldThrowExceptions_ReturnUrl()
 		{
 			// Arrange
-			SignUpCommand command = new SignUpCommand { ReturnUrl = "https://test.test" };
+			SignUpCommand command = new SignUpCommand { ReturnUrl = _faker.Internet.Url() };
 			SignUpCommandHandler handler = new SignUpCommandHandler(_logger.Object, _m.Object, _isis.Object, _userManager.Object, _roleManager.Object);
 
 			// Act 
@@ -213,7 +206,7 @@
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
 
-			SignUpCommand command = new SignUpCommand { Email = "test@test.test", Password = "AAAaaa000@@@", ConfirmPassword = "AAAaaa000@@@", AcceptTerms = true };
+			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
 			SignUpCommandHandler handler = new SignUpCommandHandler(_logger.Object, _m.Object, _isis.Object, _userManager.Object, _roleManager.Object);
 
 			// Act 

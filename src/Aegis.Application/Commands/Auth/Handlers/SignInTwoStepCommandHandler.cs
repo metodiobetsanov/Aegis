@@ -6,7 +6,6 @@
 	using Aegis.Application.Exceptions;
 	using Aegis.Application.Helpers;
 	using Aegis.Models.Auth;
-	using Aegis.Models.Shared;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
 	using Duende.IdentityServer.Events;
@@ -17,15 +16,15 @@
 	using Microsoft.Extensions.Logging;
 
 	/// <summary>
-	/// SignIn Command Handler
+	/// SignIn Two Step Command Handler
 	/// </summary>
-	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommandHandler&lt;Aegis.Application.Commands.Auth.SignInCommand, Aegis.Models.Auth.SignInCommandResult&gt;" />
-	public sealed class SignInCommandHandler : ICommandHandler<SignInCommand, SignInCommandResult>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommandHandler&lt;Aegis.Application.Commands.Auth.SignInTwoStepCommand, Aegis.Models.Auth.SignInCommandResult&gt;" />
+	public sealed class SignInTwoStepCommandHandler : ICommandHandler<SignInTwoStepCommand, SignInCommandResult>
 	{
 		/// <summary>
 		/// The logger
 		/// </summary>
-		private readonly ILogger<SignInCommandHandler> _logger;
+		private readonly ILogger<SignInTwoStepCommandHandler> _logger;
 
 		/// <summary>
 		/// The interaction.
@@ -38,34 +37,26 @@
 		private readonly IEventService _events;
 
 		/// <summary>
-		/// The user manager.
-		/// </summary>
-		private readonly UserManager<AegisUser> _userManager;
-
-		/// <summary>
 		/// The sign in manager.
 		/// </summary>
 		private readonly SignInManager<AegisUser> _signInManager;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SignInCommandHandler"/> class.
+		/// Initializes a new instance of the <see cref="SignInTwoStepCommandHandler"/> class.
 		/// </summary>
 		/// <param name="logger">The logger.</param>
 		/// <param name="interaction">The interaction.</param>
 		/// <param name="events">The events.</param>
-		/// <param name="userManager">The user manager.</param>
 		/// <param name="signInManager">The sign in manager.</param>
-		public SignInCommandHandler(
-			ILogger<SignInCommandHandler> logger,
+		public SignInTwoStepCommandHandler(
+			ILogger<SignInTwoStepCommandHandler> logger,
 			IIdentityServerInteractionService interaction,
 			IEventService events,
-			UserManager<AegisUser> userManager,
 			SignInManager<AegisUser> signInManager)
 		{
 			_logger = logger;
 			_interaction = interaction;
 			_events = events;
-			_userManager = userManager;
 			_signInManager = signInManager;
 		}
 
@@ -75,77 +66,70 @@
 		/// <param name="command">The command.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>
-		///   <see cref="Aegis.Models.Auth.SignInCommandResult" />
+		///   <see cref="Aegis.Models.Auth.SignInTwoStepCommand" />
 		/// </returns>
 		/// <exception cref="Aegis.Application.Exceptions.IdentityProviderException"></exception>
-		public async Task<SignInCommandResult> Handle(SignInCommand command, CancellationToken cancellationToken)
+		public async Task<SignInCommandResult> Handle(SignInTwoStepCommand command, CancellationToken cancellationToken)
 		{
-			_logger.LogDebug("Handling {name}", nameof(SignInCommand));
+			_logger.LogDebug("Handling {name}", nameof(SignInTwoStepCommand));
 			SignInCommandResult signInCommandResult = SignInCommandResult.Failed();
 
 			try
 			{
-				_logger.LogDebug("SignInCommandHandler: get authorization context and validate return URL.");
+				_logger.LogDebug("SignInTwoStepCommandHandler: get authorization context and validate return URL.");
 				AuthorizationRequest? context = await _interaction.GetAuthorizationContextAsync(command.ReturnUrl);
 				string returnUrl = context.GetReturnUrl(command.ReturnUrl!);
 
-				_logger.LogDebug("SignInCommandHandler: check if user exists.");
-				AegisUser? user = await _userManager.FindByEmailAsync(command.Email!);
+				_logger.LogDebug("SignInTwoStepCommandHandler: check if user has gone via sign in.");
+				AegisUser? user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
 				if (user is null)
 				{
-					_logger.LogDebug("SignInCommandHandler: user does not exists.");
-					signInCommandResult.Errors.Add(new KeyValuePair<string, string>("", "Wrong Email and/or Password!"));
-
-					await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Wrong Email and/or Password!", clientId: context?.Client.ClientId));
+					_logger.LogDebug("SignInTwoStepCommandHandler: user did not signed in.");
+					await _events.RaiseAsync(new UserLoginFailureEvent("", "Invalid credentials", clientId: context?.Client.ClientId));
+					signInCommandResult.Errors.Add(new KeyValuePair<string, string>("", "Invalid credentials"));
 				}
 				else
 				{
-					_logger.LogDebug("SignInCommandHandler:  user exists.");
-					SignInResult result = await _signInManager.PasswordSignInAsync(user, command.Password!, command.RememberMe, lockoutOnFailure: true);
+					SignInResult result = await _signInManager.TwoFactorSignInAsync("Email", command.Code!, command.RememberMe, command.RememberClient);
 
 					if (result.Succeeded)
 					{
-						_logger.LogDebug("SignInCommandHandler: user signed in.");
+						_logger.LogDebug("SignInTwoStepCommandHandler: user signed in.");
 						signInCommandResult = SignInCommandResult.Succeeded(returnUrl!);
 
 						await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id.ToString(), user.GetFullName(), clientId: context?.Client.ClientId));
 					}
-					else if (result.RequiresTwoFactor)
-					{
-						_logger.LogDebug("SignInCommandHandler: requires two factor.");
-						signInCommandResult = SignInCommandResult.TwoStepRequired(user.Id.ToString());
-					}
 					else if (result.IsLockedOut)
 					{
-						_logger.LogDebug("SignInCommandHandler: locked out.");
+						_logger.LogDebug("SignInTwoStepCommandHandler: locked out.");
 						signInCommandResult = SignInCommandResult.LockedAccount(user.Id.ToString());
 
-						await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Locked Out", clientId: context?.Client.ClientId));
+						await _events.RaiseAsync(new UserLoginFailureEvent(user.Email, "Locked Out", clientId: context?.Client.ClientId));
 					}
 					else if (result.IsNotAllowed)
 					{
-						_logger.LogDebug("SignInCommandHandler: email not confirmed.");
+						_logger.LogDebug("SignInTwoStepCommandHandler: email not confirmed.");
 						signInCommandResult = SignInCommandResult.NotActiveAccount(user.Id.ToString());
 
-						await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Email not confirmed", clientId: context?.Client.ClientId));
+						await _events.RaiseAsync(new UserLoginFailureEvent(user.Email, "Email not confirmed", clientId: context?.Client.ClientId));
 					}
 					else
 					{
-						_logger.LogDebug("SignInCommandHandler: email not confirmed.");
+						_logger.LogDebug("SignInTwoStepCommandHandler: email not confirmed.");
 						signInCommandResult.Errors.Add(new KeyValuePair<string, string>("", "Wrong Email and/or Password!"));
 
-						await _events.RaiseAsync(new UserLoginFailureEvent(command.Email, "Wrong Email and/or Password!", clientId: context?.Client.ClientId));
+						await _events.RaiseAsync(new UserLoginFailureEvent(user.Email, "Wrong Email and/or Password!", clientId: context?.Client.ClientId));
 					}
 				}
 			}
 			catch (Exception ex) when (ex is not IAegisException)
 			{
-				_logger.LogError(ex, "SignInCommandHandler Error: {Message}", ex.Message);
+				_logger.LogError(ex, "SignInTwoStepCommandHandler Error: {Message}", ex.Message);
 				throw new IdentityProviderException(IdentityProviderConstants.SomethingWentWrongWithSignIn, ex.Message, ex);
 			}
 
-			_logger.LogDebug("Handled {name}", nameof(SignInCommand));
+			_logger.LogDebug("Handled {name}", nameof(SignInTwoStepCommand));
 			return signInCommandResult;
 		}
 	}

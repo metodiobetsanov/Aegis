@@ -1,10 +1,14 @@
 ﻿namespace Aegis.Models.Auth
 {
+	using Aegis.Models.Shared;
+
 	/// <summary>
 	/// SignOut Command Result
 	/// </summary>
+	/// <seealso cref="Aegis.Models.Shared.BaseResult" />
+	/// <seealso cref="System.IEquatable&lt;Aegis.Models.Shared.BaseResult&gt;" />
 	/// <seealso cref="System.IEquatable&lt;Aegis.Models.Auth.SignOutCommandResult&gt;" />
-	public sealed record SignOutCommandResult
+	public sealed record SignOutCommandResult : BaseResult
 	{
 		/// <summary>
 		/// Creates the success result.
@@ -19,14 +23,6 @@
 			=> new SignOutCommandResult();
 
 		/// <summary>
-		/// Gets a value indicating whether this <see cref="SignOutCommandResult"/> is success.
-		/// </summary>
-		/// <value>
-		///   <c>true</c> if success; otherwise, <c>false</c>.
-		/// </value>
-		public bool Success { get; init; }
-
-		/// <summary>
 		/// Gets or sets the return URL.
 		/// </summary>
 		/// <value>
@@ -35,18 +31,9 @@
 		public string? ReturnUrl { get; init; }
 
 		/// <summary>
-		/// Gets or sets the errors.
-		/// </summary>
-		/// <value>
-		/// The errors.
-		/// </value>
-		public List<KeyValuePair<string, string>> Errors { get; init; }
-
-		/// <summary>
 		/// Initializes a new instance of the <see cref="SignOutCommandResult"/> class.
 		/// </summary>
 		/// <param name="success">if set to <c>true</c> [succeeded].</param>
-		public SignOutCommandResult()
-			=> this.Errors = new List<KeyValuePair<string, string>>();
+		public SignOutCommandResult() : base() { }
 	}
 }

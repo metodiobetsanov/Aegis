@@ -1,10 +1,14 @@
 ﻿namespace Aegis.Models.Auth
 {
+	using Aegis.Models.Shared;
+
 	/// <summary>
 	/// SignOut Query Result
 	/// </summary>
+	/// <seealso cref="Aegis.Models.Shared.BaseResult" />
+	/// <seealso cref="System.IEquatable&lt;Aegis.Models.Shared.BaseResult&gt;" />
 	/// <seealso cref="System.IEquatable&lt;Aegis.Models.Auth.SignOutQueryResult&gt;" />
-	public sealed record SignOutQueryResult
+	public sealed record SignOutQueryResult : BaseResult
 	{
 		/// <summary>
 		/// Creates the success result.
@@ -23,6 +27,6 @@
 		/// <summary>
 		/// Initializes a new instance of the <see cref="SignOutQueryResult"/> class.
 		/// </summary>
-		public SignOutQueryResult() { }
+		public SignOutQueryResult() : base() { }
 	}
 }

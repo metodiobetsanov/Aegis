@@ -88,21 +88,13 @@
 		{
 			_logger.LogDebug("Handling {name}", nameof(SignUpCommand));
 			SignUpCommandResult signUpCommandResult = SignUpCommandResult.Failed();
+
 			try
 			{
 
 				_logger.LogDebug("SignUpCommandHandler: get authorization context and validate return URL.");
-				string? returnUrl;
 				AuthorizationRequest? context = await _interaction.GetAuthorizationContextAsync(command.ReturnUrl);
-
-				if (context == null)
-				{
-					returnUrl = IdentityServerHelpers.GetReturnUrl(command.ReturnUrl);
-				}
-				else
-				{
-					returnUrl = command.ReturnUrl;
-				}
+				string returnUrl = context.GetReturnUrl(command.ReturnUrl!);
 
 				_logger.LogDebug("SignUpCommandHandler: check if email/ exists.");
 				AegisUser? user = await _userManager.FindByEmailAsync(command.Email!);
@@ -129,13 +121,14 @@
 							cancellationToken);
 
 						_logger.LogDebug("SignUpCommandHandler: get all default roles and assign them to the user.");
-						IQueryable<string?> roles = _roleManager.Roles
+						IEnumerable<string> roles = _roleManager.Roles
 							.Where(r => r.AssignByDefault)
-							.Select(r => r.Name);
+							.Select(r => r.Name ?? string.Empty)
+							.ToList();
 
 						if (roles.Any())
 						{
-							IdentityResult rolesResult = await _userManager.AddToRolesAsync(user, roles!);
+							IdentityResult rolesResult = await _userManager.AddToRolesAsync(user, roles);
 
 							if (rolesResult.Succeeded)
 							{
@@ -147,7 +140,7 @@
 										string.Join(",", roles)),
 									cancellationToken);
 
-								signUpCommandResult = SignUpCommandResult.Succeeded(user.Id, returnUrl!);
+								signUpCommandResult = SignUpCommandResult.Succeeded(user.Id.ToString(), returnUrl!);
 							}
 							else
 							{
@@ -167,7 +160,7 @@
 						}
 						else
 						{
-							signUpCommandResult = SignUpCommandResult.Succeeded(user.Id, returnUrl!);
+							signUpCommandResult = SignUpCommandResult.Succeeded(user.Id.ToString(), returnUrl!);
 						}
 					}
 					else

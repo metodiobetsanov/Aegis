@@ -1,10 +1,14 @@
 ﻿namespace Aegis.Models.Auth
 {
+	using Aegis.Models.Shared;
+
 	/// <summary>
 	/// SignIn Command Result
 	/// </summary>
+	/// <seealso cref="Aegis.Models.Shared.BaseResult" />
+	/// <seealso cref="System.IEquatable&lt;Aegis.Models.Shared.BaseResult&gt;" />
 	/// <seealso cref="System.IEquatable&lt;Aegis.Models.Auth.SignInCommandResult&gt;" />
-	public sealed record SignInCommandResult
+	public sealed record SignInCommandResult : BaseResult
 	{
 		/// <summary>
 		/// Creates the success result.
@@ -21,28 +25,20 @@
 		/// <summary>
 		/// Creates the two step is required result.
 		/// </summary>
-		public static SignInCommandResult TwoStepRequired(Guid userid)
+		public static SignInCommandResult TwoStepRequired(string userid)
 			=> new SignInCommandResult { RequiresTwoStep = true, UserId = userid };
 
 		/// <summary>
 		/// Creates the account not active result.
 		/// </summary>
-		public static SignInCommandResult NotActiveAccount(Guid userid)
+		public static SignInCommandResult NotActiveAccount(string userid)
 			=> new SignInCommandResult { AccounNotActive = true, UserId = userid };
 
 		/// <summary>
 		/// Creates the account is locked result.
 		/// </summary>
-		public static SignInCommandResult LockedAccount(Guid userid)
+		public static SignInCommandResult LockedAccount(string userid)
 			=> new SignInCommandResult { AccounLocked = true, UserId = userid };
-
-		/// <summary>
-		/// Gets a value indicating whether this <see cref="SignInQueryResult"/> is success.
-		/// </summary>
-		/// <value>
-		///   <c>true</c> if success; otherwise, <c>false</c>.
-		/// </value>
-		public bool Success { get; init; }
 
 		/// <summary>
 		/// Gets a value indicating whether [requires two step].
@@ -74,7 +70,7 @@
 		/// <value>
 		/// The user identifier.
 		/// </value>
-		public Guid UserId { get; init; }
+		public string? UserId { get; init; }
 
 		/// <summary>
 		/// Gets or sets the return URL.
@@ -85,17 +81,8 @@
 		public string? ReturnUrl { get; init; }
 
 		/// <summary>
-		/// Gets or sets the errors.
-		/// </summary>
-		/// <value>
-		/// The errors.
-		/// </value>
-		public List<KeyValuePair<string, string>> Errors { get; init; }
-
-		/// <summary>
 		/// Initializes a new instance of the <see cref="SignInCommandResult"/> class.
 		/// </summary>
-		public SignInCommandResult()
-			=> this.Errors = new List<KeyValuePair<string, string>>();
+		public SignInCommandResult() : base() { }
 	}
 }

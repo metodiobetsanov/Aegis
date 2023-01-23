@@ -9,6 +9,8 @@
 
 	public class EncryptionInitializerTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+
 		private readonly Mock<IServiceScopeFactory> _scf;
 		private readonly Mock<ILogger<EncryptionInitializer>> _logger = new Mock<ILogger<EncryptionInitializer>>();
 		private readonly Mock<IRepository<PersonalDataProtectionKey>> _pdpkRepo = new Mock<IRepository<PersonalDataProtectionKey>>();
@@ -47,7 +49,7 @@
 		{
 			// Arrange
 			_pdpkRepo.Setup(x => x.GetEntities()).Returns(new List<PersonalDataProtectionKey> {
-				new PersonalDataProtectionKey { Id = Guid.NewGuid(), Key = "test", KeyHash = "test", ExpiresOn = DateTime.UtcNow, } });
+				new PersonalDataProtectionKey { Id = Guid.NewGuid(), Key = _faker.Random.String(12), KeyHash = _faker.Random.String(36), ExpiresOn = DateTime.UtcNow, } });
 
 			EncryptionInitializer initializer = new EncryptionInitializer(_logger.Object, _scf.Object);
 			initializer.Initialized.ShouldBeFalse();

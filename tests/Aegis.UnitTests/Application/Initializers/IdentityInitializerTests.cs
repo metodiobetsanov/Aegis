@@ -1,20 +1,15 @@
 ﻿namespace Aegis.UnitTests.Application.Initializers
 {
-	using System.Collections.Generic;
-	using System.Threading.Tasks;
-
 	using global::Aegis.Application.Exceptions;
 	using global::Aegis.Application.Initializers;
-	using global::Aegis.Persistence.Contracts;
-	using global::Aegis.Persistence.Entities.Application;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
 	using MediatR;
 
-	using Microsoft.AspNetCore.Identity;
-
 	public class IdentityInitializerTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+
 		private readonly Mock<IServiceScopeFactory> _scf;
 		private readonly Mock<ILogger<IdentityInitializer>> _logger = new Mock<ILogger<IdentityInitializer>>();
 		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();

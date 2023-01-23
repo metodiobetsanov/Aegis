@@ -13,6 +13,8 @@
 
 	using Microsoft.Extensions.Logging;
 
+	using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
 	/// <summary>
 	/// SignInp Query Handler
 	/// </summary>
@@ -57,16 +59,7 @@
 			{
 				_logger.LogDebug("SignInQueryHandler: get authorization context and validate return URL.");
 				AuthorizationRequest? context = await _interaction.GetAuthorizationContextAsync(query.ReturnUrl);
-				string? returnUrl;
-
-				if (context == null)
-				{
-					returnUrl = IdentityServerHelpers.GetReturnUrl(query.ReturnUrl);
-				}
-				else
-				{
-					returnUrl = query.ReturnUrl;
-				}
+				string returnUrl = context.GetReturnUrl(query.ReturnUrl!);
 
 				_logger.LogDebug("SignInQueryHandler: create result.");
 				signInResult = SignInQueryResult.Succeeded(returnUrl!);

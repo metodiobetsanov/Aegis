@@ -94,5 +94,42 @@
 
 			return mgr;
 		}
+
+		/// <summary>
+		/// Gets the user faker.
+		/// </summary>
+		/// <returns></returns>
+		public static Faker<AegisUser> GetUserFaker()
+			=> new Faker<AegisUser>("en")
+			.RuleFor(r => r.Id, f => f.Random.Guid())
+			.RuleFor(r => r.Email, f => f.Internet.Email())
+			.RuleFor(r => r.EmailConfirmed, f => f.Random.Bool())
+			.RuleFor(r => r.PhoneNumber, f => f.Phone.PhoneNumber())
+			.RuleFor(r => r.PhoneNumberConfirmed, f => f.Random.Bool())
+			.RuleFor(r => r.FirstName, f => f.Name.FirstName())
+			.RuleFor(r => r.LastName, f => f.Name.LastName())
+			.RuleFor(r => r.ProfilePictureURL, f => f.Image.LoremFlickrUrl())
+			.RuleFor(r => r.SystemUser, f => f.Random.Bool())
+			.RuleFor(r => r.ProtectedUser, f => f.Random.Bool())
+			.RuleFor(r => r.ActiveProfile, f => f.Random.Bool())
+			.RuleFor(r => r.CompletedProfile, f => f.Random.Bool())
+			.RuleFor(r => r.SoftDelete, f => f.Random.Bool())
+			.RuleFor(r => r.CreatedOn, f => f.Date.Past(1))
+			.RuleFor(r => r.UpdatedOn, f => f.Date.Past(1));
+
+		/// <summary>
+		/// Gets the role faker.
+		/// </summary>
+		/// <returns></returns>
+		public static Faker<AegisRole> GetRoleFaker()
+			=> new Faker<AegisRole>("en")
+			.RuleFor(r => r.Id, f => f.Random.Guid())
+			.RuleFor(r => r.Name, f => f.Name.FirstName())
+			.RuleFor(r => r.Description, f => f.Lorem.Sentence())
+			.RuleFor(r => r.SystemRole, f => f.Random.Bool())
+			.RuleFor(r => r.ProtectedRole, f => f.Random.Bool())
+			.RuleFor(r => r.AssignByDefault, f => f.Random.Bool())
+			.RuleFor(r => r.CreatedOn, f => f.Date.Past(1))
+			.RuleFor(r => r.UpdatedOn, f => f.Date.Past(1));
 	}
 }

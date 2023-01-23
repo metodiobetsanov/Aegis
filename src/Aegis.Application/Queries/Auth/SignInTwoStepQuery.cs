@@ -6,15 +6,24 @@
 	using Aegis.Models.Auth;
 
 	/// <summary>
-	/// SignIn Query
+	/// Sign In Two Step Query
 	/// </summary>
 	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQuery&lt;Aegis.Models.Auth.SignInQueryResult&gt;" />
 	/// <seealso cref="MediatR.IRequest&lt;Aegis.Models.Auth.SignInQueryResult&gt;" />
 	/// <seealso cref="MediatR.IBaseRequest" />
-	/// <seealso cref="System.IEquatable&lt;Aegis.Application.Queries.Auth.SignInQuery&gt;" />
+	/// <seealso cref="System.IEquatable&lt;Aegis.Application.Queries.Auth.SignInTwoStepQuery&gt;" />
 	[DataContract]
-	public sealed record SignInQuery : IQuery<SignInQueryResult>
+	public sealed record SignInTwoStepQuery : IQuery<SignInQueryResult>
 	{
+		/// <summary>
+		/// Gets or sets a value indicating whether [remember me].
+		/// </summary>
+		/// <value>
+		///   <c>true</c> if [remember me]; otherwise, <c>false</c>.
+		/// </value>
+		[DataMember]
+		public bool RememberMe { get; init; }
+
 		/// <summary>
 		/// Gets or sets the return URL.
 		/// </summary>
@@ -25,8 +34,8 @@
 		public string? ReturnUrl { get; init; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SignInQuery"/> class.
+		/// Initializes a new instance of the <see cref="SignInTwoStepQuery"/> class.
 		/// </summary>
-		public SignInQuery() { }
+		public SignInTwoStepQuery() { }
 	}
 }

@@ -1,7 +1,7 @@
 ﻿namespace Aegis.Application.Constants.Services
 {
 	/// <summary>
-	/// Mail Sender Service Abstraction
+	/// Mail Sender Service interface
 	/// </summary>
 	public interface IMailSenderService
 	{

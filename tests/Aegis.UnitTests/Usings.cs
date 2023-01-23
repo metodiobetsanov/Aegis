@@ -2,8 +2,12 @@
 global using System;
 global using System.Collections.Generic;
 global using System.Linq;
+global using System.Net;
+global using System.Security.Claims;
 global using System.Security.Cryptography;
 global using System.Text;
+
+global using Bogus;
 
 global using Microsoft.AspNetCore.DataProtection;
 global using Microsoft.AspNetCore.Http;

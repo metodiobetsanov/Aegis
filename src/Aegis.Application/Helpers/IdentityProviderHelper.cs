@@ -8,6 +8,7 @@
 
 	using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
+	using static System.Runtime.InteropServices.JavaScript.JSType;
 	using static IdentityModel.OidcConstants;
 
 	/// <summary>
@@ -24,6 +25,22 @@
 		{
 			return $"{user.FirstName} {user.LastName}";
 		}
+
+		/// <summary>
+		/// Converts to base64 string.
+		/// </summary>
+		/// <param name="data">The data.</param>
+		/// <returns></returns>
+		public static string ToBase64String(this string data)
+			=> Convert.ToBase64String(Encoding.UTF8.GetBytes(data));
+
+		/// <summary>
+		/// Converts from base64 string.
+		/// </summary>
+		/// <param name="data">The data.</param>
+		/// <returns></returns>
+		public static string FromBase64String(this string data)
+			=> Encoding.UTF8.GetString(Convert.FromBase64String(data));
 
 		/// <summary>
 		/// Generates a random password.

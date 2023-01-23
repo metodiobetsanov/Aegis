@@ -4,28 +4,21 @@
 
 	using Duende.IdentityServer.Models;
 	using Duende.IdentityServer.Services;
-	using Duende.IdentityServer.Validation;
 
 	using global::Aegis.Application.Commands.Auth;
 	using global::Aegis.Application.Commands.Auth.Handlers;
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Exceptions;
-	using global::Aegis.Application.Queries.Auth;
-	using global::Aegis.Application.Queries.Auth.Handlers;
 	using global::Aegis.Models.Auth;
-	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
 	using IdentityModel;
 
-	using Microsoft.AspNetCore.Identity;
-
-	using Moq;
-
-	using Shouldly;
-
 	public class SignOutCommandHandlerTests
 	{
+		private static readonly Faker _faker = new Faker("en");
+		private static readonly Guid _subId = _faker.Random.Guid();
+
 		private readonly Mock<ILogger<SignOutCommandHandler>> _logger = new Mock<ILogger<SignOutCommandHandler>>();
 		private readonly Mock<IIdentityServerInteractionService> _isis = new Mock<IIdentityServerInteractionService>();
 		private readonly Mock<IEventService> _es = new Mock<IEventService>();
@@ -40,7 +33,7 @@
 				.Returns(new ClaimsIdentity(
 					 new List<Claim>
 						{
-							new Claim(JwtClaimTypes.Subject, "test")
+							new Claim(JwtClaimTypes.Subject, _subId.ToString())
 						}));
 			_hc.Setup(x => x.User).Returns(_hccp.Object);
 			_hca.Setup(x => x.HttpContext).Returns(_hc.Object);
@@ -49,15 +42,15 @@
 		[Theory]
 		[InlineData(null)]
 		[InlineData("")]
-		[InlineData("test")]
-		[InlineData("something")]
+		[InlineData("valid")]
+		[InlineData("invalid")]
 		public void Handle_ShouldReturnTrue(string logoutId)
 		{
 			// Arrange
 			_isis.Setup(x => x.CreateLogoutContextAsync())
 				.ReturnsAsync(logoutId);
-			_isis.Setup(x => x.GetLogoutContextAsync(It.Is<string>(s => s == "test")))
-				.ReturnsAsync(new LogoutRequest("test", new LogoutMessage { PostLogoutRedirectUri = "test" }));
+			_isis.Setup(x => x.GetLogoutContextAsync(It.Is<string>(s => s == "valid")))
+				.ReturnsAsync(new LogoutRequest(_faker.Internet.Url(), new LogoutMessage { PostLogoutRedirectUri = _faker.Internet.Url() }));
 
 			SignOutCommand command = new SignOutCommand { LogoutId = logoutId };
 			SignOutCommandHandler handler = new SignOutCommandHandler(_logger.Object, _hca.Object, _isis.Object, _es.Object, _signInManager.Object);
