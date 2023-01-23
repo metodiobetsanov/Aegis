@@ -11,15 +11,14 @@
 	using global::Aegis.Models.Auth;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
-	public class SignInCommandHandlerTests
+	public class SignInTwoStepCommandHandlerTests
 	{
 		private static readonly Faker _faker = new Faker("en");
 		private static readonly Faker<AegisUser> _fakeUser = Helper.GetUserFaker();
 
-		private readonly Mock<ILogger<SignInCommandHandler>> _logger = new Mock<ILogger<SignInCommandHandler>>();
+		private readonly Mock<ILogger<SignInTwoStepCommandHandler>> _logger = new Mock<ILogger<SignInTwoStepCommandHandler>>();
 		private readonly Mock<IIdentityServerInteractionService> _isis = new Mock<IIdentityServerInteractionService>();
 		private readonly Mock<IEventService> _es = new Mock<IEventService>();
-		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
 		private readonly Mock<SignInManager<AegisUser>> _signInManager = Helper.GetSignInManagerMock();
 
 		[Theory]
@@ -35,14 +34,14 @@
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
 				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
-			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+			_signInManager.Setup(x => x.GetTwoFactorAuthenticationUserAsync())
 				.ReturnsAsync(user);
 
-			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			_signInManager.Setup(x => x.TwoFactorSignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.Success);
 
-			SignInCommand command = new SignInCommand { Email = user.Email, Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), RememberMe = true, ReturnUrl = returnUrl };
-			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6), RememberClient = true, RememberMe = true, ReturnUrl = returnUrl };
+			SignInTwoStepCommandHandler handler = new SignInTwoStepCommandHandler(_logger.Object, _isis.Object, _es.Object, _signInManager.Object);
 
 			// Act 
 			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
@@ -64,35 +63,6 @@
 		[Theory]
 		[InlineData("/")]
 		[InlineData("/valid")]
-		public void Handle_ShouldReturnFalse_OnRequiresTwoFactor(string returnUrl)
-		{
-			// Arrange
-			AegisUser? user = _fakeUser.Generate();
-			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
-
-			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
-				.ReturnsAsync(user);
-
-			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
-				.ReturnsAsync(SignInResult.TwoFactorRequired);
-
-			SignInCommand command = new SignInCommand { Email = user.Email, Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
-			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
-
-			// Act 
-			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
-
-			// Assert
-			result.ShouldNotBeNull();
-			result.Success.ShouldBeFalse();
-			result.RequiresTwoStep.ShouldBeTrue();
-			result.ReturnUrl.ShouldBeNull();
-		}
-
-		[Theory]
-		[InlineData("/")]
-		[InlineData("/valid")]
 		public void Handle_ShouldReturnFalse_OnIsLockedOut(string returnUrl)
 		{
 			// Arrange
@@ -100,14 +70,14 @@
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
 				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
-			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+			_signInManager.Setup(x => x.GetTwoFactorAuthenticationUserAsync())
 				.ReturnsAsync(user);
 
-			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			_signInManager.Setup(x => x.TwoFactorSignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.LockedOut);
 
-			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
-			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6), RememberClient = true, RememberMe = true, ReturnUrl = returnUrl };
+			SignInTwoStepCommandHandler handler = new SignInTwoStepCommandHandler(_logger.Object, _isis.Object, _es.Object, _signInManager.Object);
 
 			// Act 
 			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
@@ -129,13 +99,14 @@
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
 				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
-			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+			_signInManager.Setup(x => x.GetTwoFactorAuthenticationUserAsync())
 				.ReturnsAsync(user);
 
-			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			_signInManager.Setup(x => x.TwoFactorSignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.NotAllowed);
-			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
-			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6), RememberClient = true, RememberMe = true, ReturnUrl = returnUrl };
+			SignInTwoStepCommandHandler handler = new SignInTwoStepCommandHandler(_logger.Object, _isis.Object, _es.Object, _signInManager.Object);
 
 			// Act 
 			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
@@ -157,14 +128,14 @@
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
 				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
-			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+			_signInManager.Setup(x => x.GetTwoFactorAuthenticationUserAsync())
 				.ReturnsAsync(user);
 
-			_signInManager.Setup(x => x.PasswordSignInAsync(It.IsAny<AegisUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			_signInManager.Setup(x => x.TwoFactorSignInAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 				.ReturnsAsync(SignInResult.Failed);
 
-			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
-			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6), RememberClient = true, RememberMe = true, ReturnUrl = returnUrl };
+			SignInTwoStepCommandHandler handler = new SignInTwoStepCommandHandler(_logger.Object, _isis.Object, _es.Object, _signInManager.Object);
 
 			// Act 
 			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
@@ -184,8 +155,8 @@
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
 				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
 
-			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
-			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6), RememberClient = true, RememberMe = true, ReturnUrl = returnUrl };
+			SignInTwoStepCommandHandler handler = new SignInTwoStepCommandHandler(_logger.Object, _isis.Object, _es.Object, _signInManager.Object);
 
 			// Act 
 			SignInCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
@@ -199,8 +170,8 @@
 		public void Handle_ShouldThrowExceptions_ReturnUrl()
 		{
 			// Arrange
-			SignInCommand command = new SignInCommand { ReturnUrl = _faker.Internet.Url() };
-			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6), RememberClient = true, RememberMe = true, ReturnUrl = _faker.Internet.Url() };
+			SignInTwoStepCommandHandler handler = new SignInTwoStepCommandHandler(_logger.Object, _isis.Object, _es.Object, _signInManager.Object);
 
 			// Act 
 			Exception exception = Record.Exception(() => handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult());
@@ -217,8 +188,8 @@
 			// Arrange
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
-			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
-			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6), RememberClient = true, RememberMe = true, ReturnUrl = "/" };
+			SignInTwoStepCommandHandler handler = new SignInTwoStepCommandHandler(_logger.Object, _isis.Object, _es.Object, _signInManager.Object);
 
 			// Act 
 			Exception exception = Record.Exception(() => handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult());

@@ -91,7 +91,7 @@
 				}
 				else
 				{
-					SignInResult result = await _signInManager.TwoFactorSignInAsync("Email", command.Code, command.RememberMe, command.RememberClient);
+					SignInResult result = await _signInManager.TwoFactorSignInAsync("Email", command.Code!, command.RememberMe, command.RememberClient);
 
 					if (result.Succeeded)
 					{

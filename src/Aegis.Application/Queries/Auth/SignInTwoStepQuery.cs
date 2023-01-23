@@ -8,12 +8,12 @@
 	/// <summary>
 	/// Sign In Two Step Query
 	/// </summary>
-	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQuery&lt;Aegis.Models.Auth.SignInTwoStepQueryResult&gt;" />
-	/// <seealso cref="MediatR.IRequest&lt;Aegis.Models.Auth.SignInTwoStepQueryResult&gt;" />
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQuery&lt;Aegis.Models.Auth.SignInQueryResult&gt;" />
+	/// <seealso cref="MediatR.IRequest&lt;Aegis.Models.Auth.SignInQueryResult&gt;" />
 	/// <seealso cref="MediatR.IBaseRequest" />
 	/// <seealso cref="System.IEquatable&lt;Aegis.Application.Queries.Auth.SignInTwoStepQuery&gt;" />
 	[DataContract]
-	public sealed record SignInTwoStepQuery : IQuery<SignInTwoStepQueryResult>
+	public sealed record SignInTwoStepQuery : IQuery<SignInQueryResult>
 	{
 		/// <summary>
 		/// Gets or sets a value indicating whether [remember me].

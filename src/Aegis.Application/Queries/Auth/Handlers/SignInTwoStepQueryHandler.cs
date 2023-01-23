@@ -7,7 +7,6 @@
 	using Aegis.Application.Exceptions;
 	using Aegis.Application.Helpers;
 	using Aegis.Models.Auth;
-	using Aegis.Models.Shared;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
 	using Duende.IdentityServer.Events;
@@ -16,13 +15,12 @@
 
 	using Microsoft.AspNetCore.Identity;
 	using Microsoft.Extensions.Logging;
-	using Microsoft.VisualBasic;
 
 	/// <summary>
 	/// SignIn Two Step Query Handler
 	/// </summary>
-	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQueryHandler&lt;Aegis.Application.Queries.Auth.SignInTwoStepQuery, Aegis.Models.Auth.SignInTwoStepQueryResult&gt;" />
-	public sealed class SignInTwoStepQueryHandler : IQueryHandler<SignInTwoStepQuery, SignInTwoStepQueryResult>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQueryHandler&lt;Aegis.Application.Queries.Auth.SignInTwoStepQuery, Aegis.Models.Auth.SignInQueryResult&gt;" />
+	public sealed class SignInTwoStepQueryHandler : IQueryHandler<SignInTwoStepQuery, SignInQueryResult>
 	{
 		/// <summary>
 		/// The logger
@@ -66,15 +64,15 @@
 		public SignInTwoStepQueryHandler(
 			ILogger<SignInTwoStepQueryHandler> logger,
 			IIdentityServerInteractionService interaction,
-			IMailSenderService mailSender,
 			IEventService events,
+			IMailSenderService mailSender,
 			UserManager<AegisUser> userManager,
 			SignInManager<AegisUser> signInManager)
 		{
 			_logger = logger;
 			_interaction = interaction;
-			_mailSender = mailSender;
 			_events = events;
+			_mailSender = mailSender;
 			_userManager = userManager;
 			_signInManager = signInManager;
 		}
@@ -86,10 +84,10 @@
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns><see cref="Aegis.Models.Auth.SignInQuerySignInTwoStepQueryResultResult"/></returns>
 		/// <exception cref="Aegis.Application.Exceptions.IdentityProviderException"></exception>
-		public async Task<SignInTwoStepQueryResult> Handle(SignInTwoStepQuery query, CancellationToken cancellationToken)
+		public async Task<SignInQueryResult> Handle(SignInTwoStepQuery query, CancellationToken cancellationToken)
 		{
 			_logger.LogDebug("Handling {name}", nameof(SignInTwoStepQuery));
-			SignInTwoStepQueryResult signInResult = SignInTwoStepQueryResult.Failed();
+			SignInQueryResult signInResult = SignInQueryResult.Failed();
 
 			try
 			{
@@ -110,9 +108,8 @@
 				{
 					string token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
 					await _mailSender.SendVerificationCodeAsync(token, user.Email!);
+					signInResult = SignInQueryResult.Succeeded(returnUrl!);
 				}
-
-				signInResult = SignInTwoStepQueryResult.Succeeded(returnUrl!);
 			}
 			catch (Exception ex) when (ex is not IAegisException)
 			{

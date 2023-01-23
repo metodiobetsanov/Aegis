@@ -195,7 +195,7 @@
 		{
 			// Arrange
 			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepQuery>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(SignInTwoStepQueryResult.Succeeded("~/"));
+				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
 
 			SignInTwoStepQuery query = new SignInTwoStepQuery();
 			AuthController controller = new AuthController(_logger.Object, _m.Object);
@@ -214,11 +214,11 @@
 		public void GetSignInTwoStep_ShouldReturnView_OnFailedQuery()
 		{
 			// Arrange
-			SignInTwoStepQueryResult signInTwoStepQueryResult = SignInTwoStepQueryResult.Failed();
-			signInTwoStepQueryResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
+			SignInQueryResult signInQueryResult = SignInQueryResult.Failed();
+			signInQueryResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
 
 			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepQuery>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(signInTwoStepQueryResult);
+				.ReturnsAsync(signInQueryResult);
 
 			SignInTwoStepQuery query = new SignInTwoStepQuery();
 			AuthController controller = new AuthController(_logger.Object, _m.Object);

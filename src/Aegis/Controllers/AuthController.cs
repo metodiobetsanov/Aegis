@@ -134,7 +134,7 @@
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.SignInTwoStep));
 
-			SignInTwoStepQueryResult result = await _mediator.Send(query);
+			SignInQueryResult result = await _mediator.Send(query);
 
 			if (!result.Success)
 			{
