@@ -21,6 +21,7 @@
 		/// <value>
 		/// The return URL.
 		/// </value>
+		[DataMember]
 		public string? ReturnUrl { get; init; }
 
 		/// <summary>

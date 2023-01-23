@@ -12,6 +12,7 @@
 	/// <seealso cref="MediatR.IRequest&lt;Aegis.Models.Auth.EmailConfirmationQueryResult&gt;" />
 	/// <seealso cref="MediatR.IBaseRequest" />
 	/// <seealso cref="System.IEquatable&lt;Aegis.Application.Queries.Auth.ConfirmEmailQuery&gt;" />
+	[DataContract]
 	public sealed record ConfirmEmailQuery : IQuery<EmailConfirmationQueryResult>
 	{
 		/// <summary>

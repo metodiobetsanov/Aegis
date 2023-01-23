@@ -1,15 +1,13 @@
 ﻿namespace Aegis.Controllers
 {
 	using Aegis.Application.Commands.Auth;
-	using Aegis.Application.Commands.Auth.Handlers;
+	using Aegis.Application.Helpers;
 	using Aegis.Application.Queries.Auth;
 	using Aegis.Application.Validators.Commands.Auth;
 	using Aegis.Models.Auth;
-	using Aegis.Models.Shared;
 
 	using Duende.IdentityServer.Extensions;
 
-	using FluentValidation;
 	using FluentValidation.AspNetCore;
 	using FluentValidation.Results;
 
@@ -17,8 +15,6 @@
 
 	using Microsoft.AspNetCore.Authorization;
 	using Microsoft.AspNetCore.Mvc;
-
-	using NuGet.Packaging;
 
 	/// <summary>
 	/// Authentication Controller
@@ -52,8 +48,8 @@
 		/// </summary>
 		/// <param name="query">The query.</param>
 		/// <returns></returns>
-		[HttpGet]
 		[AllowAnonymous]
+		[HttpGet("/SignIn")]
 		public async Task<IActionResult> SignIn([FromQuery] SignInQuery query)
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.SignIn));
@@ -82,9 +78,9 @@
 		/// </summary>
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
-		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
+		[HttpPost("/SignIn")]
 		public async Task<IActionResult> SignIn([FromForm] SignInCommand command)
 		{
 			_logger.LogDebug("Executing POST@{name}.", nameof(SignIn));
@@ -103,7 +99,7 @@
 				}
 				else if (result.RequiresTwoStep)
 				{
-
+					return this.RedirectToAction("SignInTwoStep", "Auth", new { command.RememberMe, command.ReturnUrl });
 				}
 				else if (result.AccounNotActive)
 				{
@@ -111,14 +107,11 @@
 				}
 				else if (result.AccounLocked)
 				{
-
+					return this.RedirectToAction("Locked", "Auth", new { result.UserId });
 				}
 				else
 				{
-					foreach (KeyValuePair<string, string> error in result.Errors)
-					{
-						this.ModelState.AddModelError(error.Key, error.Value);
-					}
+					result.AddToModelState(this.ModelState);
 				}
 			}
 			else
@@ -131,12 +124,76 @@
 		}
 
 		/// <summary>
+		/// Sign in Two Step.
+		/// </summary>
+		/// <param name="query">The query.</param>
+		/// <returns></returns>
+		[AllowAnonymous]
+		[HttpGet("/SignInTwoStep")]
+		public async Task<IActionResult> SignInTwoStep([FromQuery] SignInTwoStepQuery query)
+		{
+			_logger.LogDebug("Executing GET@{name}.", nameof(this.SignInTwoStep));
+
+			SignInTwoStepQueryResult result = await _mediator.Send(query);
+
+			if (!result.Success)
+			{
+				result.AddToModelState(this.ModelState);
+			}
+
+			SignInTwoStepCommand command = new SignInTwoStepCommand
+			{
+				RememberMe = query.RememberMe,
+				ReturnUrl = query.ReturnUrl
+			};
+
+			_logger.LogDebug("Executed GET@{name}.", nameof(this.SignInTwoStep));
+			return this.View(command);
+		}
+
+		/// <summary>
+		/// Sign in Two Step.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
+		[AllowAnonymous]
+		[HttpPost("/SignInTwoStep")]
+		public async Task<IActionResult> SignInTwoStep([FromBody] SignInTwoStepCommand command)
+		{
+			_logger.LogDebug("Executing Post@{name}.", nameof(this.SignInTwoStep));
+
+			SignInTwoStepCommandValidator validator = new SignInTwoStepCommandValidator();
+			ValidationResult validationresult = validator.Validate(command);
+
+			if (validationresult.IsValid)
+			{
+				SignInTwoStepCommandResult result = await _mediator.Send(command);
+
+				if (result.Success)
+				{
+					return this.Redirect(result.ReturnUrl!);
+				}
+				else
+				{
+					result.AddToModelState(this.ModelState);
+				}
+			}
+			else
+			{
+				validationresult.AddToModelState(this.ModelState);
+			}
+
+			_logger.LogDebug("Executed Post@{name}.", nameof(this.SignInTwoStep));
+			return this.View(command);
+		}
+
+		/// <summary>
 		/// Signs up.
 		/// </summary>
 		/// <param name="query">The query.</param>
 		/// <returns></returns>
-		[HttpGet]
 		[AllowAnonymous]
+		[HttpGet("/SignUp")]
 		public async Task<IActionResult> SignUp([FromQuery] SignInQuery query)
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.SignUp));
@@ -165,9 +222,9 @@
 		/// </summary>
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
-		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
+		[HttpPost("/SignUp")]
 		public async Task<IActionResult> SignUp([FromForm] SignUpCommand command)
 		{
 			_logger.LogDebug("Executing POST@{name}.", nameof(SignUp));
@@ -182,14 +239,11 @@
 
 				if (result.Success)
 				{
-					return this.RedirectToAction(nameof(this.EmailConfirmation), new {result.UserId });
+					return this.RedirectToAction(nameof(this.EmailConfirmation), new { result.UserId });
 				}
 				else
 				{
-					foreach (KeyValuePair<string, string> error in result.Errors)
-					{
-						this.ModelState.AddModelError(error.Key, error.Value);
-					}
+					result.AddToModelState(this.ModelState);
 				}
 			}
 			else
@@ -206,8 +260,8 @@
 		/// </summary>
 		/// <param name="query">The query.</param>
 		/// <returns></returns>
-		[HttpGet]
 		[Authorize]
+		[HttpGet("/SignOut")]
 		public async Task<IActionResult> SignOut([FromQuery] SignOutQuery query)
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.SignOut));
@@ -229,9 +283,9 @@
 		/// </summary>
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
-		[HttpPost]
 		[Authorize]
 		[ValidateAntiForgeryToken]
+		[HttpPost("/SignOut")]
 		public async Task<IActionResult> SignOut([FromForm] SignOutCommand command)
 		{
 			_logger.LogDebug("Executing POST@{name}.", nameof(this.SignOut));
@@ -243,10 +297,7 @@
 			}
 			else
 			{
-				foreach (KeyValuePair<string, string> error in result.Errors)
-				{
-					this.ModelState.AddModelError(error.Key, error.Value);
-				}
+				result.AddToModelState(this.ModelState);
 			}
 
 			_logger.LogDebug("Executed POST@{name}.", nameof(this.SignOut));
@@ -258,8 +309,8 @@
 		/// </summary>
 		/// <param name="query">The query.</param>
 		/// <returns></returns>
-		[HttpGet]
 		[AllowAnonymous]
+		[HttpGet("/EmailConfirmation")]
 		public async Task<IActionResult> EmailConfirmation([FromQuery] EmailConfirmationQuery query)
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.EmailConfirmation));
@@ -276,8 +327,7 @@
 			}
 			else
 			{
-				result.Errors.AddRange(
-					validationresult.Errors.Select(e => new KeyValuePair<string, string>(e.ErrorCode, e.ErrorMessage)));
+				result.AddToModelState(this.ModelState);
 			}
 
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.EmailConfirmation));
@@ -289,8 +339,8 @@
 		/// </summary>
 		/// <param name="query">The query.</param>
 		/// <returns></returns>
-		[HttpGet]
 		[AllowAnonymous]
+		[HttpGet("/ConfirmEmail")]
 		public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailQuery query)
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.ConfirmEmail));
@@ -307,8 +357,7 @@
 			}
 			else
 			{
-				result.Errors.AddRange(
-					validationresult.Errors.Select(e => new KeyValuePair<string, string>(e.ErrorCode, e.ErrorMessage)));
+				result.AddToModelState(this.ModelState);
 			}
 
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.ConfirmEmail));

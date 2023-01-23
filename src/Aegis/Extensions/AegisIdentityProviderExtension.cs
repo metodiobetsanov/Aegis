@@ -109,8 +109,8 @@
 			logger.Information("Aegis Identity Provider: configure Identity Cookie.");
 			builder.Services.ConfigureApplicationCookie(options =>
 			{
-				options.LoginPath = "/auth/signin";
-				options.LogoutPath = "/auth/signout";
+				options.LoginPath = "/signin";
+				options.LogoutPath = "/signout";
 				options.AccessDeniedPath = "/access-denied";
 			});
 
