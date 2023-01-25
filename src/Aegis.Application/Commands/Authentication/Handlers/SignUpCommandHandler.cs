@@ -13,6 +13,8 @@
 	using Aegis.Models.Authentication;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
+	using Castle.Core.Logging;
+
 	using Duende.IdentityServer.Models;
 	using Duende.IdentityServer.Services;
 
@@ -121,48 +123,7 @@
 								JsonConvert.SerializeObject(user)),
 							cancellationToken);
 
-						_logger.LogDebug("SignUpCommandHandler: get all default roles and assign them to the user.");
-						IEnumerable<string> roles = _roleManager.Roles
-							.Where(r => r.AssignByDefault)
-							.Select(r => r.Name ?? string.Empty)
-							.ToList();
-
-						if (roles.Any())
-						{
-							IdentityResult rolesResult = await _userManager.AddToRolesAsync(user, roles);
-
-							if (rolesResult.Succeeded)
-							{
-								_logger.LogDebug("SignUpCommandHandler: roles assigned to user.");
-								await _mediator.Publish(new AssignRoleSucceededAuditEvent(
-										user.Id,
-										"Assign roles to user.",
-										null,
-										string.Join(",", roles)),
-									cancellationToken);
-
-								signUpCommandResult = SignUpCommandResult.Succeeded(user.Id.ToString(), returnUrl!);
-							}
-							else
-							{
-								_logger.LogDebug("SignUpCommandHandler: failed to assign roles to user.");
-								await _mediator.Publish(new AssignRoleFailedAuditEvent(
-										user.Id,
-										"Failed to assign roles to user.",
-										null,
-										JsonConvert.SerializeObject(rolesResult.Errors)),
-									cancellationToken);
-
-								foreach (IdentityError error in rolesResult.Errors)
-								{
-									signUpCommandResult.Errors.Add(new KeyValuePair<string, string>("", error.Description));
-								}
-							}
-						}
-						else
-						{
-							signUpCommandResult = SignUpCommandResult.Succeeded(user.Id.ToString(), returnUrl!);
-						}
+						signUpCommandResult = await this.AddRolesToUserAsync(user, returnUrl, cancellationToken);
 					}
 					else
 					{
@@ -175,10 +136,7 @@
 									JsonConvert.SerializeObject(userResult.Errors)),
 						cancellationToken);
 
-						foreach (IdentityError error in userResult.Errors)
-						{
-							signUpCommandResult.Errors.Add(new KeyValuePair<string, string>("", error.Description));
-						}
+						userResult.AddToFailedResult(signUpCommandResult);
 					}
 				}
 			}
@@ -189,6 +147,60 @@
 			}
 
 			_logger.LogDebug("Handling {name}", nameof(SignUpCommand));
+			return signUpCommandResult;
+		}
+
+		/// <summary>
+		/// Adds the roles to user.
+		/// </summary>
+		/// <param name="user">The user.</param>
+		/// <param name="returnUrl">The return URL.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns></returns>
+		private async Task<SignUpCommandResult> AddRolesToUserAsync(AegisUser user, string returnUrl, CancellationToken cancellationToken)
+		{
+			SignUpCommandResult signUpCommandResult = SignUpCommandResult.Failed();
+
+			_logger.LogDebug("SignUpCommandHandler: get all default roles and assign them to the user.");
+			IEnumerable<string> roles = _roleManager.Roles
+				.Where(r => r.AssignByDefault)
+				.Select(r => r.Name ?? string.Empty)
+				.ToList();
+
+			if (roles.Any())
+			{
+				IdentityResult rolesResult = await _userManager.AddToRolesAsync(user, roles);
+
+				if (rolesResult.Succeeded)
+				{
+					_logger.LogDebug("SignUpCommandHandler: roles assigned to user.");
+					await _mediator.Publish(new AssignRoleSucceededAuditEvent(
+							user.Id,
+							"Assign roles to user.",
+							null,
+							string.Join(",", roles)),
+						cancellationToken);
+
+					signUpCommandResult = SignUpCommandResult.Succeeded(user.Id.ToString(), returnUrl);
+				}
+				else
+				{
+					_logger.LogDebug("SignUpCommandHandler: failed to assign roles to user.");
+					await _mediator.Publish(new AssignRoleFailedAuditEvent(
+							user.Id,
+							"Failed to assign roles to user.",
+							null,
+							JsonConvert.SerializeObject(rolesResult.Errors)),
+						cancellationToken);
+
+					rolesResult.AddToFailedResult(signUpCommandResult);
+				}
+			}
+			else
+			{
+				signUpCommandResult = SignUpCommandResult.Succeeded(user.Id.ToString(), returnUrl);
+			}
+
 			return signUpCommandResult;
 		}
 	}

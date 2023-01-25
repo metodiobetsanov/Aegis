@@ -5,11 +5,11 @@
 	using Aegis.Constants;
 
 	/// <summary>
-	/// Initializer Exception
+	/// Application Flow Exception
 	/// </summary>
 	/// <seealso cref="Exception" />
 	[Serializable]
-	public class HostException : Exception
+	public class ApplicationFlowException : Exception
 	{
 		/// <summary>
 		/// Gets the debug message.
@@ -20,49 +20,49 @@
 		public string? DebugMessage { get; init; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HostException"/> class.
+		/// Initializes a new instance of the <see cref="ApplicationFlowException"/> class.
 		/// </summary>
-		public HostException()
-			: base(HostConstants.SomethingWentWrongWithHost) => this.DebugMessage = HostConstants.SomethingWentWrongWithHost;
+		public ApplicationFlowException()
+			: base(HostConstants.SomethingWentWrong) => this.DebugMessage = HostConstants.SomethingWentWrong;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HostException"/> class.
+		/// Initializes a new instance of the <see cref="ApplicationFlowException"/> class.
 		/// </summary>
 		/// <param name="message">The message that describes the error.</param>
-		public HostException(string? message)
+		public ApplicationFlowException(string? message)
 			: base(message) => this.DebugMessage = message;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HostException"/> class.
+		/// Initializes a new instance of the <see cref="ApplicationFlowException"/> class.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		/// <param name="debugMessage">The debug message.</param>
-		public HostException(string? message, string? debugMessage)
+		public ApplicationFlowException(string? message, string? debugMessage)
 			: base(message) => this.DebugMessage = debugMessage;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HostException"/> class.
+		/// Initializes a new instance of the <see cref="ApplicationFlowException"/> class.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="innerException">The exception that is the cause of the current exception, or a null reference (<see langword="Nothing" /> in Visual Basic) if no inner exception is specified.</param>
-		public HostException(string? message, Exception? innerException)
+		public ApplicationFlowException(string? message, Exception? innerException)
 			: base(message, innerException) => this.DebugMessage = message;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HostException"/> class.
+		/// Initializes a new instance of the <see cref="ApplicationFlowException"/> class.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		/// <param name="debugMessage">The debug message.</param>
 		/// <param name="innerException">The inner exception.</param>
-		public HostException(string? message, string? debugMessage, Exception? innerException)
+		public ApplicationFlowException(string? message, string? debugMessage, Exception? innerException)
 			: base(message, innerException) => this.DebugMessage = debugMessage;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="HostException"/> class.
+		/// Initializes a new instance of the <see cref="ApplicationFlowException"/> class.
 		/// </summary>
 		/// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
 		/// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination.</param>
-		protected HostException(SerializationInfo info, StreamingContext context)
+		protected ApplicationFlowException(SerializationInfo info, StreamingContext context)
 			: base(info, context) => this.DebugMessage = info.GetString(nameof(this.DebugMessage))!;
 
 		/// <summary>

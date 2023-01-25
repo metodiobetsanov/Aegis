@@ -1,13 +1,12 @@
-﻿namespace Aegis.Application.Queries.Authentication.Handlers
+﻿namespace Aegis.Application.Commands.Authentication.Handlers
 {
 	using Aegis.Application.Constants;
 	using Aegis.Application.Constants.Services;
 	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.CQRS;
 	using Aegis.Application.Exceptions;
-	using Aegis.Application.Queries.Authentication;
-	using Aegis.Models.Authentication;
 	using Aegis.Models.Settings;
+	using Aegis.Models.Shared;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
 	using Microsoft.AspNetCore.Http;
@@ -16,15 +15,15 @@
 	using Microsoft.Extensions.Logging;
 
 	/// <summary>
-	/// Email Confirmation Query Handler
+	/// Send Account Activation Command Handler
 	/// </summary>
-	/// <seealso cref="Aegis.Application.Contracts.CQRS.IQueryHandler&lt;Aegis.Application.Queries.Authentication.EmailConfirmationQuery, Aegis.Models.Authentication.EmailConfirmationQueryResult&gt;" />
-	public sealed class EmailConfirmationQueryHandler : IQueryHandler<EmailConfirmationQuery, EmailConfirmationQueryResult>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommandHandler&lt;Aegis.Application.Commands.Authentication.SendAccountActivationCommand, Aegis.Models.Shared.HandlerResult&gt;" />
+	public sealed class SendAccountActivationCommandHandler : ICommandHandler<SendAccountActivationCommand, HandlerResult>
 	{
 		/// <summary>
 		/// The logger
 		/// </summary>
-		private readonly ILogger<EmailConfirmationQueryHandler> _logger;
+		private readonly ILogger<SendAccountActivationCommandHandler> _logger;
 
 		/// <summary>
 		/// The mail sender service
@@ -42,14 +41,14 @@
 		private readonly UserManager<AegisUser> _userManager;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="EmailConfirmationQueryHandler" /> class.
+		/// Initializes a new instance of the <see cref="SendAccountActivationCommandHandler" /> class.
 		/// </summary>
 		/// <param name="logger">The logger.</param>
 		/// <param name="mailSenderService">The mail sender service.</param>
 		/// <param name="appSettings">The application settings.</param>
 		/// <param name="userManager">The user manager.</param>
-		public EmailConfirmationQueryHandler(
-			ILogger<EmailConfirmationQueryHandler> logger,
+		public SendAccountActivationCommandHandler(
+			ILogger<SendAccountActivationCommandHandler> logger,
 			IMailSenderService mailSenderService,
 			AppSettings appSettings,
 			UserManager<AegisUser> userManager)
@@ -61,28 +60,28 @@
 		}
 
 		/// <summary>
-		/// Handles the specified query.
+		/// Handles the specified command.
 		/// </summary>
-		/// <param name="query">The query.</param>
+		/// <param name="command">The command.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>
-		///   <see cref="EmailConfirmationQueryResult" />
+		///   <see cref="andlerResult" />
 		/// </returns>
 		/// <exception cref="IdentityProviderException"></exception>
-		public async Task<EmailConfirmationQueryResult> Handle(EmailConfirmationQuery query, CancellationToken cancellationToken)
+		public async Task<HandlerResult> Handle(SendAccountActivationCommand command, CancellationToken cancellationToken)
 		{
-			_logger.LogDebug("Handling {name}", nameof(EmailConfirmationQuery));
-			EmailConfirmationQueryResult sendConfirmationEmailCommandResult = EmailConfirmationQueryResult.Failed();
+			_logger.LogDebug("Handling {name}", nameof(SendAccountActivationCommand));
+			HandlerResult handlerResult = HandlerResult.Failed();
 
 			try
 			{
-				_logger.LogDebug("EmailConfirmationQueryHandler: check if user exists.");
-				AegisUser? user = await _userManager.FindByIdAsync(query.UserId!);
+				_logger.LogDebug("SendAccountActivationCommandHandler: check if user exists.");
+				AegisUser? user = await _userManager.FindByIdAsync(command.UserId!);
 
 				if (user is null)
 				{
-					_logger.LogDebug("EmailConfirmationQueryHandler: user does not exists.");
-					sendConfirmationEmailCommandResult.Errors.Add(new KeyValuePair<string, string>("", "User Not Found!"));
+					_logger.LogDebug("SendAccountActivationCommandHandler: user does not exists.");
+					handlerResult.AddError("User Not Found!");
 				}
 				else
 				{
@@ -96,17 +95,17 @@
 
 					string link = $"https://{_appSettings.PublicDomain}/Auth/ConfirmEmail{res}";
 					await _mailSenderService.SendEmailConfirmationLinkAsync(link, user.Email!);
-					sendConfirmationEmailCommandResult = EmailConfirmationQueryResult.Succeeded();
+					handlerResult = HandlerResult.Succeeded();
 				}
 			}
 			catch (Exception ex) when (ex is not IAegisException)
 			{
-				_logger.LogError(ex, "EmailConfirmationQueryHandler Error: {Message}", ex.Message);
+				_logger.LogError(ex, "SendAccountActivationCommandHandler Error: {Message}", ex.Message);
 				throw new IdentityProviderException(IdentityProviderConstants.SomethingWentWrong, ex.Message, ex);
 			}
 
-			_logger.LogDebug("Handled {name}", nameof(EmailConfirmationQuery));
-			return sendConfirmationEmailCommandResult;
+			_logger.LogDebug("Handled {name}", nameof(SendAccountActivationCommand));
+			return handlerResult;
 		}
 	}
 }

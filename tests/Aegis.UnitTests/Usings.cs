@@ -9,6 +9,8 @@ global using System.Text;
 
 global using Bogus;
 
+global using MediatR;
+
 global using Microsoft.AspNetCore.DataProtection;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Identity;

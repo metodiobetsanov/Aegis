@@ -3,9 +3,9 @@
 	using global::Aegis.Application.Commands.Authentication;
 	using global::Aegis.Application.Queries.Authentication;
 	using global::Aegis.Controllers;
+	using global::Aegis.Exceptions;
 	using global::Aegis.Models.Authentication;
-
-	using MediatR;
+	using global::Aegis.Models.Shared;
 
 	using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +13,7 @@
 
 	public class AuthenticationControllerTests
 	{
+		#region Setup
 		private static readonly Faker _faker = new Faker("en");
 
 		private readonly Mock<ILogger<AuthenticationController>> _logger = new Mock<ILogger<AuthenticationController>>();
@@ -35,28 +36,18 @@
 
 		public AuthenticationControllerTests()
 			=> _hc.Setup(x => x.User).Returns(_cp.Object);
+		#endregion Setup
 
 		#region SignIn
-		[Theory]
-		[InlineData(true)]
-		[InlineData(false)]
-		public void GetSignIn_ShouldReturnView(bool authenticated)
+		[Fact]
+		public void GetSignIn_ShouldReturnView_OnNotAuthenticatedUser()
 		{
 			// Arrange
-			if (authenticated)
-			{
-				_cp.Setup(x => x.Identity!.IsAuthenticated)
-					.Returns(authenticated);
-				_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
-					.ReturnsAsync(SignInQueryResult.Failed());
-			}
-
-			SignInQuery query = new SignInQuery();
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.SignIn(query).GetAwaiter().GetResult();
+			IActionResult result = controller.SignIn("/");
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -65,25 +56,49 @@
 		}
 
 		[Fact]
-		public void GetSignIn_ShouldReturnRedirect_OnAutheticatedUser()
+		public void GetSignIn_ShouldReturnRedirect_OnAuthenticatedUser()
 		{
 			// Arrange
+			string url = _faker.Internet.UrlRootedPath();
 			_cp.Setup(x => x.Identity!.IsAuthenticated)
 				.Returns(true);
 			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
+				.ReturnsAsync(SignInQueryResult.Succeeded(url));
 
-			SignInQuery query = new SignInQuery();
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.SignIn(query).GetAwaiter().GetResult();
+			IActionResult result = controller.SignIn(url);
 
 			// Assert
 			result.ShouldNotBeNull();
 			result.ShouldBeOfType<RedirectResult>();
-			((RedirectResult)result).Url.ShouldBe("~/");
+			((RedirectResult)result).Url.ShouldBe(url);
+		}
+
+		[Fact]
+		public void GetSignIn_ShouldThrowAnException_OnAuthenticatedUser_FailedSigninQuery()
+		{
+			// Arrange
+			string error = _faker.Lorem.Sentence();
+			SignInQueryResult result = SignInQueryResult.Failed();
+			result.AddError(error);
+
+			_cp.Setup(x => x.Identity!.IsAuthenticated)
+				.Returns(true);
+			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(result);
+
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			Exception exception = Record.Exception(() => controller.SignIn("/"));
+
+			// Assert
+			exception.ShouldNotBeNull();
+			exception.ShouldBeOfType<ApplicationFlowException>();
 		}
 
 		[Fact]
@@ -104,6 +119,29 @@
 			result.ShouldNotBeNull();
 			result.ShouldBeOfType<RedirectResult>();
 			((RedirectResult)result).Url.ShouldBe("~/");
+		}
+
+		[Fact]
+		public void PostSignIn_ShouldReturnRedirect_OnAuthenticatedUser()
+		{
+			// Arrange
+			string url = _faker.Internet.UrlRootedPath();
+			_cp.Setup(x => x.Identity!.IsAuthenticated)
+				.Returns(true);
+			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(SignInQueryResult.Succeeded(url));
+
+			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.SignIn(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<RedirectResult>();
+			((RedirectResult)result).Url.ShouldBe(url);
 		}
 
 		[Fact]
@@ -176,7 +214,7 @@
 			}
 			else if (signInCommandResult.AccounNotActive)
 			{
-				((RedirectToActionResult)result).ActionName.ShouldBe("EmailConfirmation");
+				((RedirectToActionResult)result).ActionName.ShouldBe("SendAccountActivation");
 			}
 			else if (signInCommandResult.AccounLocked)
 			{
@@ -207,11 +245,35 @@
 		}
 
 		[Fact]
+		public void GetSignInTwoStep_ShouldReturnRedirect_OnAuthenticatedUser()
+		{
+			// Arrange
+			string url = _faker.Internet.UrlRootedPath();
+			_cp.Setup(x => x.Identity!.IsAuthenticated)
+				.Returns(true);
+			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(SignInQueryResult.Succeeded(url));
+
+			SignInTwoStepQuery query = new SignInTwoStepQuery();
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.SignInTwoStep(query).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<RedirectResult>();
+			((RedirectResult)result).Url.ShouldBe(url);
+		}
+
+		[Fact]
 		public void GetSignInTwoStep_ShouldReturnView_OnFailedQuery()
 		{
 			// Arrange
+			string error = _faker.Lorem.Sentence();
 			SignInQueryResult signInQueryResult = SignInQueryResult.Failed();
-			signInQueryResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
+			signInQueryResult.AddError(error);
 
 			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepQuery>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(signInQueryResult);
@@ -318,7 +380,7 @@
 
 			if (signInCommandResult.AccounNotActive)
 			{
-				((RedirectToActionResult)result).ActionName.ShouldBe("EmailConfirmation");
+				((RedirectToActionResult)result).ActionName.ShouldBe("SendAccountActivation");
 			}
 			else if (signInCommandResult.AccounLocked)
 			{
@@ -328,26 +390,14 @@
 		#endregion SignInTwoStep
 
 		#region SignUp
-		[Theory]
-		[InlineData(true)]
-		[InlineData(false)]
-		public void GetSignUp_ShouldReturnView(bool authenticated)
+		[Fact]
+		public void GetSignUp_ShouldReturnView()
 		{
-			// Arrange
-			if (authenticated)
-			{
-				_cp.Setup(x => x.Identity!.IsAuthenticated)
-					.Returns(authenticated);
-				_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
-					.ReturnsAsync(SignInQueryResult.Failed());
-			}
-
-			SignInQuery query = new SignInQuery();
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.SignUp(query).GetAwaiter().GetResult();
+			IActionResult result = controller.SignUp("/");
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -364,12 +414,11 @@
 			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
 
-			SignInQuery query = new SignInQuery();
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.SignUp(query).GetAwaiter().GetResult();
+			IActionResult result = controller.SignUp("/");
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -395,7 +444,30 @@
 			// Assert
 			result.ShouldNotBeNull();
 			result.ShouldBeOfType<RedirectToActionResult>();
-			((RedirectToActionResult)result).ActionName.ShouldBe("EmailConfirmation");
+			((RedirectToActionResult)result).ActionName.ShouldBe("SendAccountActivation");
+		}
+
+		[Fact]
+		public void PostSignUp_ShouldReturnRedirect_OnAutheticatedUser()
+		{
+			// Arrange
+			_cp.Setup(x => x.Identity!.IsAuthenticated)
+				.Returns(true);
+			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
+
+			string password = _faker.Internet.Password(8, false, "\\w", "!Aa0");
+			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = password, ConfirmPassword = password, AcceptTerms = true };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.SignUp(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<RedirectResult>();
+			((RedirectResult)result).Url.ShouldBe("~/");
 		}
 
 		[Fact]
@@ -535,20 +607,20 @@
 		}
 		#endregion SignOut
 
-		#region EmailConfirmation
+		#region Locked
 		[Fact]
-		public void GetEmailConfirmation_ShouldReturnView()
+		public void GetLocked_ShouldReturnView()
 		{
 			// Arrange
-			_m.Setup(x => x.Send(It.IsAny<EmailConfirmationQuery>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(EmailConfirmationQueryResult.Succeeded());
+			_m.Setup(x => x.Send(It.IsAny<GetUserLockedTimeQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(GetUserLockedTimeQueryResult.Succeeded(DateTime.UtcNow));
 
-			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = _faker.Random.Guid().ToString() };
+			GetUserLockedTimeQuery query = new GetUserLockedTimeQuery { UserId = _faker.Random.Guid().ToString() };
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.EmailConfirmation(query).GetAwaiter().GetResult();
+			IActionResult result = controller.Locked(query).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -556,20 +628,43 @@
 		}
 
 		[Fact]
-		public void GetEmailConfirmation_ShouldReturnView_OnFailedEmailConfirmation()
+		public void GetLocked_ShouldReturnRedirect_OnAutheticatedUser()
 		{
 			// Arrange
-			EmailConfirmationQueryResult emailConfirmationQueryResult = EmailConfirmationQueryResult.Failed();
-			emailConfirmationQueryResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
-			_m.Setup(x => x.Send(It.IsAny<EmailConfirmationQuery>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(emailConfirmationQueryResult);
+			_cp.Setup(x => x.Identity!.IsAuthenticated)
+				.Returns(true);
+			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
 
-			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = _faker.Random.Guid().ToString() };
+			GetUserLockedTimeQuery query = new GetUserLockedTimeQuery { UserId = _faker.Random.Guid().ToString() };
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.EmailConfirmation(query).GetAwaiter().GetResult();
+			IActionResult result = controller.Locked(query).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<RedirectResult>();
+			((RedirectResult)result).Url.ShouldBe("~/");
+		}
+
+		[Fact]
+		public void GetLocked_ShouldReturnView_OnFailedQuery()
+		{
+			// Arrange
+			string error = _faker.Lorem.Sentence();
+			GetUserLockedTimeQueryResult handlerResult = GetUserLockedTimeQueryResult.Failed();
+			handlerResult.AddError(error);
+			_m.Setup(x => x.Send(It.IsAny<GetUserLockedTimeQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(handlerResult);
+
+			GetUserLockedTimeQuery query = new GetUserLockedTimeQuery { UserId = _faker.Random.Guid().ToString() };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.Locked(query).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -580,15 +675,15 @@
 		}
 
 		[Fact]
-		public void GetEmailConfirmation_ShouldReturnView_OnFailedValidation()
+		public void GetSendAccountActivation_ShouldReturnView_OnFailedValidation()
 		{
 			// Arrange
-			EmailConfirmationQuery query = new EmailConfirmationQuery();
+			SendAccountActivationCommand command = new SendAccountActivationCommand();
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.EmailConfirmation(query).GetAwaiter().GetResult();
+			IActionResult result = controller.SendAccountActivation(command).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -597,22 +692,22 @@
 			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(1);
 			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(2);
 		}
-		#endregion EmailConfirmation
+		#endregion Locked
 
-		#region ConfirmEmail
+		#region SendAccountActivation
 		[Fact]
-		public void GetConfirmEmail_ShouldReturnView()
+		public void GetSendAccountActivation_ShouldReturnView()
 		{
 			// Arrange
-			_m.Setup(x => x.Send(It.IsAny<ConfirmEmailQuery>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(EmailConfirmationQueryResult.Succeeded());
+			_m.Setup(x => x.Send(It.IsAny<SendAccountActivationCommand>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(HandlerResult.Succeeded());
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			SendAccountActivationCommand command = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.ConfirmEmail(query).GetAwaiter().GetResult();
+			IActionResult result = controller.SendAccountActivation(command).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -620,20 +715,130 @@
 		}
 
 		[Fact]
-		public void GetConfirmEmail_ShouldReturnView_OnFailedEmailConfirmation()
+		public void GetSendAccountActivation_ShouldReturnRedirect_OnAutheticatedUser()
 		{
 			// Arrange
-			EmailConfirmationQueryResult emailConfirmationQueryResult = EmailConfirmationQueryResult.Failed();
-			emailConfirmationQueryResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
-			_m.Setup(x => x.Send(It.IsAny<ConfirmEmailQuery>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(emailConfirmationQueryResult);
+			_cp.Setup(x => x.Identity!.IsAuthenticated)
+				.Returns(true);
+			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			SendAccountActivationCommand command = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.ConfirmEmail(query).GetAwaiter().GetResult();
+			IActionResult result = controller.SendAccountActivation(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<RedirectResult>();
+			((RedirectResult)result).Url.ShouldBe("~/");
+		}
+
+		[Fact]
+		public void GetSendAccountActivation_ShouldReturnView_OnFailedEmailConfirmation()
+		{
+			// Arrange
+			string error = _faker.Lorem.Sentence();
+			HandlerResult handlerResult = HandlerResult.Failed();
+			handlerResult.AddError(error);
+			_m.Setup(x => x.Send(It.IsAny<SendAccountActivationCommand>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(handlerResult);
+
+			SendAccountActivationCommand command = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.SendAccountActivation(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<ViewResult>();
+			((ViewResult)result).ViewData.ModelState.ShouldNotBeNull();
+			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(1);
+			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(1);
+		}
+
+		[Fact]
+		public void GetSendAccountActivation_ShouldReturnView_OnFailedValidation()
+		{
+			// Arrange
+			SendAccountActivationCommand command = new SendAccountActivationCommand();
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.SendAccountActivation(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<ViewResult>();
+			((ViewResult)result).ViewData.ModelState.ShouldNotBeNull();
+			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(1);
+			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(2);
+		}
+		#endregion SendAccountActivation
+
+		#region ActivateAccount
+		[Fact]
+		public void GetActivateAccount_ShouldReturnView()
+		{
+			// Arrange
+			_m.Setup(x => x.Send(It.IsAny<ActivateAccountCommand>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(HandlerResult.Succeeded());
+
+			ActivateAccountCommand command = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.ActivateAccount(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<ViewResult>();
+		}
+
+		[Fact]
+		public void GetActivateAccountCommand_ShouldReturnRedirect_OnAutheticatedUser()
+		{
+			// Arrange
+			_cp.Setup(x => x.Identity!.IsAuthenticated)
+				.Returns(true);
+			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
+
+			ActivateAccountCommand command = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.ActivateAccount(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<RedirectResult>();
+			((RedirectResult)result).Url.ShouldBe("~/");
+		}
+
+		[Fact]
+		public void GetConfirmEmail_ShouldReturnView_OnFailedEmailConfirmation()
+		{
+			// Arrange
+			string error = _faker.Lorem.Sentence();
+			HandlerResult handlerResult = HandlerResult.Failed();
+			handlerResult.AddError(error);
+			_m.Setup(x => x.Send(It.IsAny<ActivateAccountCommand>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(handlerResult);
+
+			ActivateAccountCommand command = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.ActivateAccount(command).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -647,12 +852,12 @@
 		public void GetConfirmEmail_ShouldReturnView_OnFailedValidation()
 		{
 			// Arrange
-			ConfirmEmailQuery query = new ConfirmEmailQuery();
+			ActivateAccountCommand command = new ActivateAccountCommand();
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.ConfirmEmail(query).GetAwaiter().GetResult();
+			IActionResult result = controller.ActivateAccount(command).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -661,6 +866,6 @@
 			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(2);
 			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(4);
 		}
-		#endregion ConfirmEmail
+		#endregion ActivateAccount
 	}
 }

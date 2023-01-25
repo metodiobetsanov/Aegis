@@ -1,17 +1,17 @@
 ﻿namespace Aegis.UnitTests.Application.Commands.Authentication.Handlers
 {
+	using global::Aegis.Application.Commands.Authentication;
+	using global::Aegis.Application.Commands.Authentication.Handlers;
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Exceptions;
-	using global::Aegis.Application.Queries.Authentication;
-	using global::Aegis.Application.Queries.Authentication.Handlers;
-	using global::Aegis.Models.Authentication;
+	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
-	public class ConfirmEmailQueryHandlerTests
+	public class ActivateAccountCommandHandlerTests
 	{
 		private static readonly Faker _faker = new Faker("en");
 
-		private readonly Mock<ILogger<ConfirmEmailQueryHandler>> _logger = new Mock<ILogger<ConfirmEmailQueryHandler>>();
+		private readonly Mock<ILogger<ActivateAccountCommandHandler>> _logger = new Mock<ILogger<ActivateAccountCommandHandler>>();
 		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
 
 		[Fact]
@@ -25,11 +25,11 @@
 			_userManager.Setup(x => x.ConfirmEmailAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Success);
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
-			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
+			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
 
 			// Act 
-			EmailConfirmationQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -43,11 +43,11 @@
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
-			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
+			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
 
 			// Act 
-			EmailConfirmationQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -65,11 +65,11 @@
 			_userManager.Setup(x => x.ConfirmEmailAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String(12), Description = _faker.Random.String(36) }));
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
-			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
+			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
 
 			// Act 
-			EmailConfirmationQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -84,8 +84,8 @@
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
 
-			ConfirmEmailQuery query = new ConfirmEmailQuery { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
-			ConfirmEmailQueryHandler handler = new ConfirmEmailQueryHandler(_logger.Object, _userManager.Object);
+			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
 
 			// Act 
 			Exception exception = Record.Exception(() => handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult());

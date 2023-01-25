@@ -1,5 +1,7 @@
 ﻿namespace Aegis.UnitTests.Application.Commands.Authentication.Handlers
 {
+	using global::Aegis.Application.Commands.Authentication;
+	using global::Aegis.Application.Commands.Authentication.Handlers;
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Constants.Services;
 	using global::Aegis.Application.Exceptions;
@@ -7,13 +9,14 @@
 	using global::Aegis.Application.Queries.Authentication.Handlers;
 	using global::Aegis.Models.Authentication;
 	using global::Aegis.Models.Settings;
+	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
-	public class EmailConfirmationQueryHandlerTests
+	public class SendAccountActivationCommandHandlerTests
 	{
 		private static readonly Faker _faker = new Faker("en");
 
-		private readonly Mock<ILogger<EmailConfirmationQueryHandler>> _logger = new Mock<ILogger<EmailConfirmationQueryHandler>>();
+		private readonly Mock<ILogger<SendAccountActivationCommandHandler>> _logger = new Mock<ILogger<SendAccountActivationCommandHandler>>();
 		private readonly Mock<IMailSenderService> _mss = new Mock<IMailSenderService>();
 		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
 
@@ -30,11 +33,11 @@
 			_userManager.Setup(x => x.GenerateEmailConfirmationTokenAsync(It.IsAny<AegisUser>()))
 				.ReturnsAsync(_faker.Random.String(36));
 
-			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = _faker.Random.Guid().ToString() };
-			EmailConfirmationQueryHandler handler = new EmailConfirmationQueryHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
+			SendAccountActivationCommand query = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
+			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
-			EmailConfirmationQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -48,11 +51,11 @@
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
 
-			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = _faker.Random.Guid().ToString() };
-			EmailConfirmationQueryHandler handler = new EmailConfirmationQueryHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
+			SendAccountActivationCommand query = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
+			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
-			EmailConfirmationQueryResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -67,8 +70,8 @@
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
 
-			EmailConfirmationQuery query = new EmailConfirmationQuery { UserId = _faker.Random.Guid().ToString() };
-			EmailConfirmationQueryHandler handler = new EmailConfirmationQueryHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
+			SendAccountActivationCommand query = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
+			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
 			Exception exception = Record.Exception(() => handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult());

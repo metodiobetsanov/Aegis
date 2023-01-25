@@ -3,9 +3,9 @@
 	using global::Aegis.Constants;
 	using global::Aegis.Exceptions;
 
-	public class HostExceptionTests
+	public class ApplicationFlowExceptionTests
 	{
-		public static readonly string DefaultMessage = HostConstants.SomethingWentWrongWithHost;
+		public static readonly string DefaultMessage = HostConstants.SomethingWentWrong;
 		public static readonly string TestMessage = nameof(TestMessage);
 		public static readonly string TestDebugMessage = nameof(TestDebugMessage);
 
@@ -13,7 +13,7 @@
 		public void Test_Constructor_One()
 		{
 			/// Act
-			HostException ex = new HostException();
+			ApplicationFlowException ex = new ApplicationFlowException();
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -27,7 +27,7 @@
 		public void Test_Constructor_Two()
 		{
 			/// Act
-			HostException ex = new HostException(TestMessage);
+			ApplicationFlowException ex = new ApplicationFlowException(TestMessage);
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -41,7 +41,7 @@
 		public void Test_Constructor_Tree()
 		{
 			/// Act
-			HostException ex = new HostException(TestMessage, TestDebugMessage);
+			ApplicationFlowException ex = new ApplicationFlowException(TestMessage, TestDebugMessage);
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -58,7 +58,7 @@
 			InvalidOperationException inner = new InvalidOperationException();
 
 			/// Act
-			HostException ex = new HostException(TestMessage, inner);
+			ApplicationFlowException ex = new ApplicationFlowException(TestMessage, inner);
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -77,7 +77,7 @@
 			InvalidOperationException inner = new InvalidOperationException();
 
 			/// Act
-			HostException ex = new HostException(TestMessage, TestDebugMessage, inner);
+			ApplicationFlowException ex = new ApplicationFlowException(TestMessage, TestDebugMessage, inner);
 
 			/// Assert
 			ex.ShouldNotBeNull();
@@ -93,10 +93,10 @@
 		public void Test_Serialization()
 		{
 			/// Act
-			HostException ex = new HostException(TestMessage, TestDebugMessage);
+			ApplicationFlowException ex = new ApplicationFlowException(TestMessage, TestDebugMessage);
 
 			string exAsString = JsonConvert.SerializeObject(ex);
-			HostException newEx = JsonConvert.DeserializeObject<HostException>(exAsString)!;
+			ApplicationFlowException newEx = JsonConvert.DeserializeObject<ApplicationFlowException>(exAsString)!;
 
 			// Assert
 			ex.ShouldNotBeNull();

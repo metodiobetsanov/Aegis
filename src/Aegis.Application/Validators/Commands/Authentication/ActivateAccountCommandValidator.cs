@@ -1,19 +1,19 @@
 ﻿namespace Aegis.Application.Validators.Commands.Authentication
 {
-	using Aegis.Application.Queries.Authentication;
+	using Aegis.Application.Commands.Authentication;
 
 	using FluentValidation;
 
 	/// <summary>
-	/// Confirm Email Query Validator
+	/// Activate Account Command Validator
 	/// </summary>
-	/// <seealso cref="FluentValidation.AbstractValidator&lt;Aegis.Application.Queries.Authentication.ConfirmEmailQuery&gt;" />
-	public sealed class ConfirmEmailQueryValidator : AbstractValidator<ConfirmEmailQuery>
+	/// <seealso cref="FluentValidation.AbstractValidator&lt;Aegis.Application.Commands.Authentication.ActivateAccountCommand&gt;" />
+	public sealed class ActivateAccountCommandValidator : AbstractValidator<ActivateAccountCommand>
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ConfirmEmailQueryValidator"/> class.
+		/// Initializes a new instance of the <see cref="ActivateAccountCommandValidator"/> class.
 		/// </summary>
-		public ConfirmEmailQueryValidator()
+		public ActivateAccountCommandValidator()
 		{
 			this.RuleFor(x => x.UserId)
 				.NotNull().WithMessage("This field is required!")

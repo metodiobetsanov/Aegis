@@ -1,5 +1,7 @@
 ﻿namespace Aegis.Application.Commands.Authentication.Handlers
 {
+	using System;
+
 	using Aegis.Application.Commands.Authentication;
 	using Aegis.Application.Constants;
 	using Aegis.Application.Contracts;
@@ -91,6 +93,7 @@
 
 				_logger.LogDebug("SignOutCommandHandler: sing out.");
 				await _signInManager.SignOutAsync();
+				await _signInManager.ForgetTwoFactorClientAsync();
 				await _events.RaiseAsync(new UserLogoutSuccessEvent(
 					_httpContext.HttpContext!.User.GetSubjectId(),
 					_httpContext.HttpContext!.User.GetDisplayName()));
