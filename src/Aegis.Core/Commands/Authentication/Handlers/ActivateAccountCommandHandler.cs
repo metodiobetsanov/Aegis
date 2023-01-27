@@ -3,10 +3,13 @@
 	using Aegis.Core.Constants;
 	using Aegis.Core.Contracts;
 	using Aegis.Core.Contracts.CQRS;
+	using Aegis.Core.Events.AuditEvents.IdentityProvider;
 	using Aegis.Core.Exceptions;
 	using Aegis.Core.Helpers;
 	using Aegis.Models.Shared;
 	using Aegis.Persistence.Entities.IdentityProvider;
+
+	using MediatR;
 
 	using Microsoft.AspNetCore.Identity;
 
@@ -24,6 +27,11 @@
 		private readonly ILogger<ActivateAccountCommandHandler> _logger;
 
 		/// <summary>
+		/// The mediator
+		/// </summary>
+		private readonly IMediator _mediator;
+
+		/// <summary>
 		/// The user manager
 		/// </summary>
 		private readonly UserManager<AegisUser> _userManager;
@@ -32,12 +40,15 @@
 		/// Initializes a new instance of the <see cref="ActivateAccountCommandHandler" /> class.
 		/// </summary>
 		/// <param name="logger">The logger.</param>
+		/// <param name="mediator">The mediator.</param>
 		/// <param name="userManager">The user manager.</param>
 		public ActivateAccountCommandHandler(
 			ILogger<ActivateAccountCommandHandler> logger,
+			IMediator mediator,
 			UserManager<AegisUser> userManager)
 		{
 			_logger = logger;
+			_mediator = mediator;
 			_userManager = userManager;
 		}
 
@@ -63,10 +74,15 @@
 				{
 					IdentityResult emailResult = await _userManager.ConfirmEmailAsync(user, command.Token!);
 
-					if (!emailResult.Succeeded)
+					if (emailResult.Succeeded)
+					{
+						await _mediator.Publish(new ActivateAccountSucceededAuditEvent(user.Id, "Activate Account"), cancellationToken);
+					}
+					else
 					{
 						handlerResult = HandlerResult.Failed();
 						emailResult.AddToFailedResult(handlerResult);
+						await _mediator.Publish(new ActivateAccountFailedAuditEvent(user.Id, "Failed to Activate Account"), cancellationToken);
 					}
 				}
 			}

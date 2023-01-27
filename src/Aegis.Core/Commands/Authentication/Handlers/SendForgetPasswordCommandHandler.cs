@@ -4,10 +4,14 @@
 	using Aegis.Core.Constants.Services;
 	using Aegis.Core.Contracts;
 	using Aegis.Core.Contracts.CQRS;
+	using Aegis.Core.Events.AuditEvents.IdentityProvider;
 	using Aegis.Core.Exceptions;
+	using Aegis.Core.Helpers;
 	using Aegis.Models.Settings;
 	using Aegis.Models.Shared;
 	using Aegis.Persistence.Entities.IdentityProvider;
+
+	using MediatR;
 
 	using Microsoft.AspNetCore.DataProtection;
 	using Microsoft.AspNetCore.Http;
@@ -25,6 +29,16 @@
 		/// The logger
 		/// </summary>
 		private readonly ILogger<SendForgetPasswordCommandHandler> _logger;
+
+		/// <summary>
+		/// The mediator
+		/// </summary>
+		private readonly IMediator _mediator;
+
+		/// <summary>
+		/// The data protector
+		/// </summary>
+		private readonly IDataProtector _dataProtector;
 
 		/// <summary>
 		/// The mail sender service
@@ -45,16 +59,21 @@
 		/// Initializes a new instance of the <see cref="SendForgetPasswordCommandHandler" /> class.
 		/// </summary>
 		/// <param name="logger">The logger.</param>
+		/// <param name="dataProtectionProvider">The data protection provider.</param>
 		/// <param name="mailSenderService">The mail sender service.</param>
 		/// <param name="appSettings">The application settings.</param>
 		/// <param name="userManager">The user manager.</param>
 		public SendForgetPasswordCommandHandler(
 			ILogger<SendForgetPasswordCommandHandler> logger,
+			IDataProtectionProvider dataProtectionProvider,
+			IMediator mediator,
 			IMailSenderService mailSenderService,
 			AppSettings appSettings,
 			UserManager<AegisUser> userManager)
 		{
 			_logger = logger;
+			_mediator = mediator;
+			_dataProtector = dataProtectionProvider.CreateProtector(ProtectorHelpers.QueryStringProtector);
 			_mailSenderService = mailSenderService;
 			_appSettings = appSettings;
 			_userManager = userManager;
@@ -82,15 +101,17 @@
 				if (user is not null)
 				{
 					string token = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-					QueryString res = QueryString.Create(new List<KeyValuePair<string, string?>>
+					ResetPasswordCommand resetPasswordCommand = new ResetPasswordCommand
 					{
-						new KeyValuePair<string, string?>("UserId", user.Id.ToString()),
-						new KeyValuePair<string, string?>("Token", token)
-					});
+						UserId = user.Id.ToString(),
+						Token = token
+					};
 
+					QueryString res = ProtectorHelpers.ProtectQueryString(_dataProtector, resetPasswordCommand);
 					string link = $"https://{_appSettings.PublicDomain}/ResetPassword{res}";
 					await _mailSenderService.SendResetPasswordLinkAsync(link, user.Email!);
+					await _mediator.Publish(new SendForgotPasswordSucceededAuditEvent(user.Id, "Send Forgot Password mail"), cancellationToken);
+
 				}
 			}
 			catch (Exception ex) when (ex is not IAegisException)

@@ -30,8 +30,8 @@
 							@Html.AntiForgeryToken()
 							<input type="hidden" asp-for="@Model.LogoutId" />
 
-							<div class="mb-4 d-flex justify-content-center">
-								<div class="form-check form-switch form-switch-m">
+							<div class="mb-4 d-flex justify-content-between">
+								<div class="mb-2 form-check form-switch form-switch-md">
 									<input asp-for="@Model.ForgetClient" class="form-check-input" type="checkbox">
 									<label asp-for="@Model.ForgetClient" class="form-check-label">
 										Forget this browser
@@ -67,7 +67,7 @@
 
 	<script>
 		$(document).ready(function () {
-			clock = $('.clock').FlipClock(6000, {
+			clock = $('.clock').FlipClock(60, {
 		        clockFace: 'MinuteCounter',
 		        countdown: true,
 		        callbacks: {

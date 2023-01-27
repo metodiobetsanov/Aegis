@@ -7,10 +7,13 @@
 	using Aegis.Core.Constants;
 	using Aegis.Core.Contracts;
 	using Aegis.Core.Contracts.CQRS;
+	using Aegis.Core.Events.AuditEvents.IdentityProvider;
 	using Aegis.Core.Exceptions;
 	using Aegis.Core.Helpers;
 	using Aegis.Models.Shared;
 	using Aegis.Persistence.Entities.IdentityProvider;
+
+	using MediatR;
 
 	using Microsoft.AspNetCore.Identity;
 
@@ -28,6 +31,11 @@
 		private readonly ILogger<ResetPasswordCommandHandler> _logger;
 
 		/// <summary>
+		/// The mediator
+		/// </summary>
+		private readonly IMediator _mediator;
+
+		/// <summary>
 		/// The user manager
 		/// </summary>
 		private readonly UserManager<AegisUser> _userManager;
@@ -36,12 +44,15 @@
 		/// Initializes a new instance of the <see cref="ResetPasswordCommandHandler" /> class.
 		/// </summary>
 		/// <param name="logger">The logger.</param>
+		/// <param name="mediator">The mediator.</param>
 		/// <param name="userManager">The user manager.</param>
 		public ResetPasswordCommandHandler(
 			ILogger<ResetPasswordCommandHandler> logger,
+			IMediator mediator,
 			UserManager<AegisUser> userManager)
 		{
 			_logger = logger;
+			_mediator = mediator;
 			_userManager = userManager;
 		}
 
@@ -65,16 +76,21 @@
 				{
 					IdentityResult emailResult = await _userManager.ResetPasswordAsync(user, command.Token!, command.Password!);
 
-					if (!emailResult.Succeeded)
+					if (emailResult.Succeeded)
+					{
+						await _mediator.Publish(new ResetPasswordSucceededAuditEvent(user.Id, "Reset Password"), cancellationToken);
+					}
+					else
 					{
 						handlerResult = HandlerResult.Failed();
 						emailResult.AddToFailedResult(handlerResult);
+						await _mediator.Publish(new ResetPasswordFailedAuditEvent(user.Id, "Failed to Reset Password"), cancellationToken);
 					}
 				}
 			}
 			catch (Exception ex) when (ex is not IAegisException)
 			{
-				_logger.LogError(ex, "EmailConfirmationQueryHandler Error: {Message}", ex.Message);
+				_logger.LogError(ex, "ResetPasswordCommandHandler Error: {Message}", ex.Message);
 				throw new IdentityProviderException(IdentityProviderConstants.SomethingWentWrong, ex.Message, ex);
 			}
 

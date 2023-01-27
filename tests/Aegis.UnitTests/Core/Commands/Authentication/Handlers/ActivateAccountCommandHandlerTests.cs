@@ -12,6 +12,7 @@
 		private static readonly Faker _faker = new Faker("en");
 
 		private readonly Mock<ILogger<ActivateAccountCommandHandler>> _logger = new Mock<ILogger<ActivateAccountCommandHandler>>();
+		private readonly Mock<IMediator> _m = new Mock<IMediator>();
 		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
 
 		[Fact]
@@ -26,7 +27,7 @@
 				.ReturnsAsync(IdentityResult.Success);
 
 			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String2(36) };
-			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
+			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _m.Object, _userManager.Object);
 
 			// Act 
 			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
@@ -44,7 +45,7 @@
 				.ReturnsAsync((AegisUser?)null);
 
 			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String2(36) };
-			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
+			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _m.Object, _userManager.Object);
 
 			// Act 
 			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
@@ -65,7 +66,7 @@
 				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String2(12), Description = _faker.Random.String2(36) }));
 
 			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String2(36) };
-			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
+			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _m.Object, _userManager.Object);
 
 			// Act 
 			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
@@ -84,7 +85,7 @@
 				.Throws(new Exception(nameof(Exception)));
 
 			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String2(36) };
-			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
+			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _m.Object, _userManager.Object);
 
 			// Act 
 			Exception exception = Record.Exception(() => handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult());

@@ -4,11 +4,14 @@
 	using Aegis.Core.Constants.Services;
 	using Aegis.Core.Contracts;
 	using Aegis.Core.Contracts.CQRS;
+	using Aegis.Core.Events.AuditEvents.IdentityProvider;
 	using Aegis.Core.Exceptions;
 	using Aegis.Core.Helpers;
 	using Aegis.Models.Settings;
 	using Aegis.Models.Shared;
 	using Aegis.Persistence.Entities.IdentityProvider;
+
+	using MediatR;
 
 	using Microsoft.AspNetCore.DataProtection;
 	using Microsoft.AspNetCore.Http;
@@ -28,6 +31,11 @@
 		/// The logger
 		/// </summary>
 		private readonly ILogger<SendAccountActivationCommandHandler> _logger;
+
+		/// <summary>
+		/// The mediator
+		/// </summary>
+		private readonly IMediator _mediator;
 
 		/// <summary>
 		/// The data protector
@@ -60,11 +68,13 @@
 		public SendAccountActivationCommandHandler(
 			ILogger<SendAccountActivationCommandHandler> logger,
 			IDataProtectionProvider dataProtectionProvider,
+			IMediator mediator,
 			IMailSenderService mailSenderService,
 			AppSettings appSettings,
 			UserManager<AegisUser> userManager)
 		{
 			_logger = logger;
+			_mediator = mediator;
 			_dataProtector = dataProtectionProvider.CreateProtector(ProtectorHelpers.QueryStringProtector);
 			_mailSenderService = mailSenderService;
 			_appSettings = appSettings;
@@ -102,6 +112,7 @@
 					QueryString res = ProtectorHelpers.ProtectQueryString(_dataProtector, activateAccountCommand);
 					string link = $"https://{_appSettings.PublicDomain}/ActivateAccount{res}";
 					await _mailSenderService.SendEmailConfirmationLinkAsync(link, user.Email!);
+					await _mediator.Publish(new ActivateAccountSucceededAuditEvent(user.Id, "Send Activate Account"), cancellationToken);
 				}
 			}
 			catch (Exception ex) when (ex is not IAegisException)

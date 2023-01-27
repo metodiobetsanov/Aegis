@@ -9,11 +9,11 @@
 	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
 
-	public class SendAccountActivationCommandHandlerTests
+	public class SendForgetPasswordCommandHandlerTests
 	{
 		private static readonly Faker _faker = new Faker("en");
 
-		private readonly Mock<ILogger<SendAccountActivationCommandHandler>> _logger = new Mock<ILogger<SendAccountActivationCommandHandler>>();
+		private readonly Mock<ILogger<SendForgetPasswordCommandHandler>> _logger = new Mock<ILogger<SendForgetPasswordCommandHandler>>();
 		private readonly Mock<IMediator> _m = new Mock<IMediator>();
 		private readonly Mock<IDataProtector> _dp = new Mock<IDataProtector>();
 		private readonly Mock<IDataProtectionProvider> _dpp = new Mock<IDataProtectionProvider>();
@@ -22,7 +22,7 @@
 
 		private readonly AppSettings _ap = new AppSettings { PublicDomain = _faker.Internet.DomainName() };
 
-		public SendAccountActivationCommandHandlerTests()
+		public SendForgetPasswordCommandHandlerTests()
 		{
 			_dp.Setup(sut => sut.Protect(It.IsAny<byte[]>())).Returns(Encoding.UTF8.GetBytes(_faker.Random.String2(36)));
 			_dp.Setup(sut => sut.Unprotect(It.IsAny<byte[]>())).Returns(Encoding.UTF8.GetBytes(_faker.Random.String2(36)));
@@ -34,17 +34,17 @@
 		{
 			// Arrange
 			AegisUser? user = new AegisUser();
-			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
 
 			_userManager.Setup(x => x.GenerateEmailConfirmationTokenAsync(It.IsAny<AegisUser>()))
 				.ReturnsAsync(_faker.Random.String2(36));
 
-			SendAccountActivationCommand query = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
-			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _dpp.Object, _m.Object, _mss.Object, _ap, _userManager.Object);
+			SendForgetPasswordCommand command = new SendForgetPasswordCommand { Email = _faker.Internet.Email() };
+			SendForgetPasswordCommandHandler handler = new SendForgetPasswordCommandHandler(_logger.Object, _dpp.Object, _m.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
-			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			HandlerResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -55,14 +55,14 @@
 		public void Handle_ShouldReturnTrue_NotExistingUser()
 		{
 			// Arrange
-			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
 
-			SendAccountActivationCommand query = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
-			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _dpp.Object, _m.Object, _mss.Object, _ap, _userManager.Object);
+			SendForgetPasswordCommand command = new SendForgetPasswordCommand { Email = _faker.Internet.Email() };
+			SendForgetPasswordCommandHandler handler = new SendForgetPasswordCommandHandler(_logger.Object, _dpp.Object, _m.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
-			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
+			HandlerResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -73,14 +73,14 @@
 		public void Handle_Exceptions()
 		{
 			// Arrange
-			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
 
-			SendAccountActivationCommand query = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
-			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _dpp.Object, _m.Object, _mss.Object, _ap, _userManager.Object);
+			SendForgetPasswordCommand command = new SendForgetPasswordCommand { Email = _faker.Internet.Email() };
+			SendForgetPasswordCommandHandler handler = new SendForgetPasswordCommandHandler(_logger.Object, _dpp.Object, _m.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
-			Exception exception = Record.Exception(() => handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult());
+			Exception exception = Record.Exception(() => handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult());
 
 			// Assert
 			exception.ShouldNotBeNull();
