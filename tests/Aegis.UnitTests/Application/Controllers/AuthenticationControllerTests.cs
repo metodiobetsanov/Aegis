@@ -320,6 +320,29 @@
 		}
 
 		[Fact]
+		public void PostSignInTwoStep_ShouldReturnRedirect_OnAuthenticatedUser()
+		{
+			// Arrange
+			string url = _faker.Internet.UrlRootedPath();
+			_cp.Setup(x => x.Identity!.IsAuthenticated)
+				.Returns(true);
+			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(SignInQueryResult.Succeeded(url));
+
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String2(6) };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.SignInTwoStep(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<RedirectResult>();
+			((RedirectResult)result).Url.ShouldBe(url);
+		}
+
+		[Fact]
 		public void PostSignInTwoStep_ShouldReturnView_OnValidationFailed()
 		{
 			// Arrange 
@@ -742,9 +765,6 @@
 			// Assert
 			result.ShouldNotBeNull();
 			result.ShouldBeOfType<ViewResult>();
-			((ViewResult)result).ViewData.ModelState.ShouldNotBeNull();
-			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(1);
-			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(1);
 		}
 
 		[Fact]
@@ -761,9 +781,6 @@
 			// Assert
 			result.ShouldNotBeNull();
 			result.ShouldBeOfType<ViewResult>();
-			((ViewResult)result).ViewData.ModelState.ShouldNotBeNull();
-			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(1);
-			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(2);
 		}
 		#endregion SendAccountActivation
 
@@ -785,6 +802,21 @@
 
 			// Act
 			IActionResult result = controller.ActivateAccount(_faker.Random.String2(36)).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<ViewResult>();
+		}
+
+		[Fact]
+		public void GetActivateAccount_ShouldReturnView_OnEpmtyQueryString()
+		{
+			// Arrange
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.ActivateAccount(null).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -831,9 +863,6 @@
 			// Assert
 			result.ShouldNotBeNull();
 			result.ShouldBeOfType<ViewResult>();
-			((ViewResult)result).ViewData.ModelState.ShouldNotBeNull();
-			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(2);
-			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(4);
 		}
 		#endregion ActivateAccount
 	}

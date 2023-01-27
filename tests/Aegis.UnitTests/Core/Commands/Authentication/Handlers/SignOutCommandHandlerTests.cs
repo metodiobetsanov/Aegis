@@ -77,6 +77,33 @@
 		}
 
 		[Fact]
+		public void Handle_ShouldReturnFalse_OnUpdateSecurityStamp()
+		{
+			// Arrange
+			AegisUser? user = _fakeUser.Generate();
+
+			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+				.ReturnsAsync(user);
+
+			_userManager.Setup(x => x.UpdateSecurityStampAsync(It.IsAny<AegisUser>()))
+				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String2(12), Description = _faker.Random.String2(36) }));
+
+			_isis.Setup(x => x.GetLogoutContextAsync(It.Is<string>(s => s == "valid")))
+				.ReturnsAsync(new LogoutRequest(_faker.Internet.Url(), new LogoutMessage { PostLogoutRedirectUri = _faker.Internet.Url() }));
+
+			SignOutCommand command = new SignOutCommand { LogoutId = _faker.Random.String2(12), ForgetClient = _faker.Random.Bool(), SignOutAllSessions = true };
+			SignOutCommandHandler handler = new SignOutCommandHandler(_logger.Object, _hca.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+
+			// Act 
+			SignOutCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.Success.ShouldBeFalse();
+			result.Errors.Count.ShouldBe(1);
+		}
+
+		[Fact]
 		public void Handle_Exceptions()
 		{
 			// Arrange

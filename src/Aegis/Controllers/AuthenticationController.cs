@@ -11,6 +11,7 @@
 
 	using Duende.IdentityServer.Extensions;
 
+	using FluentValidation;
 	using FluentValidation.AspNetCore;
 	using FluentValidation.Results;
 
@@ -451,18 +452,7 @@
 			{
 				_logger.LogDebug("GET@{name}: command is valid.", nameof(this.SendAccountActivation));
 				_logger.LogDebug("GET@{name}: send command to handler.", nameof(this.SendAccountActivation));
-				HandlerResult result = await _mediator.Send(command);
-
-				if (!result.Success)
-				{
-					_logger.LogDebug("GET@{name}: send email confirmation failed.", nameof(this.SendAccountActivation));
-					result.AddToModelState(this.ModelState);
-				}
-			}
-			else
-			{
-				_logger.LogDebug("GET@{name}: command is not valid.", nameof(this.SendAccountActivation));
-				validationresult.AddToModelState(this.ModelState);
+				_ = await _mediator.Send(command);
 			}
 
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.SendAccountActivation));
@@ -476,7 +466,7 @@
 		/// <returns></returns>
 		[AllowAnonymous]
 		[HttpGet("/ActivateAccount")]
-		public async Task<IActionResult> ActivateAccount([FromQuery] string pqs)
+		public async Task<IActionResult> ActivateAccount([FromQuery] string? pqs)
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.ActivateAccount));
 			_logger.LogDebug("GET@{name}: check if user is authenticated.", nameof(this.ActivateAccount));
@@ -490,35 +480,24 @@
 			_logger.LogDebug("GET@{name}: user is not authenticated.", nameof(this.ActivateAccount));
 			_logger.LogDebug("GET@{name}: unprotect query string and get the command.", nameof(this.ActivateAccount));
 
-			ActivateAccountCommand? command = ProtectorHelpers.UnProtectQueryString<ActivateAccountCommand>(
-				_dataProtectionProvider.CreateProtector(ProtectorHelpers.QueryStringProtector), pqs);
-
-			if (command is null)
+			if (!string.IsNullOrEmpty(pqs))
 			{
-				// TODO
-				throw new Exception();
-			}
+				ActivateAccountCommand? command = ProtectorHelpers.UnProtectQueryString<ActivateAccountCommand>(
+					_dataProtectionProvider.CreateProtector(ProtectorHelpers.QueryStringProtector), pqs);
 
-			_logger.LogDebug("GET@{name}: validate command.", nameof(this.ActivateAccount));
-			ActivateAccountCommandValidator validator = new ActivateAccountCommandValidator();
-			ValidationResult validationresult = validator.Validate(command);
-
-			if (validationresult.IsValid)
-			{
-				_logger.LogDebug("GET@{name}: command is valid.", nameof(this.ActivateAccount));
-				_logger.LogDebug("GET@{name}: send query to handler.", nameof(this.ActivateAccount));
-				HandlerResult result = await _mediator.Send(command);
-
-				if (!result.Success)
+				if (command is not null)
 				{
-					_logger.LogDebug("GET@{name}: confirm email failed.", nameof(this.ActivateAccount));
-					result.AddToModelState(this.ModelState);
+					_logger.LogDebug("GET@{name}: validate command.", nameof(this.ActivateAccount));
+					ActivateAccountCommandValidator validator = new ActivateAccountCommandValidator();
+					ValidationResult validationresult = validator.Validate(command);
+
+					if (validationresult.IsValid)
+					{
+						_logger.LogDebug("GET@{name}: command is valid.", nameof(this.ActivateAccount));
+						_logger.LogDebug("GET@{name}: send query to handler.", nameof(this.ActivateAccount));
+						_ = await _mediator.Send(command);
+					}
 				}
-			}
-			else
-			{
-				_logger.LogDebug("GET@{name}: command is valid.", nameof(this.ActivateAccount));
-				validationresult.AddToModelState(this.ModelState);
 			}
 
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.ActivateAccount));
@@ -578,26 +557,11 @@
 			{
 				_logger.LogDebug("POST@{name}: command is valid.", nameof(this.ForgotPassword));
 				_logger.LogDebug("POST@{name}: send command to handler.", nameof(this.ForgotPassword));
-				BaseResult result = await _mediator.Send(command);
-
-				if (result.Success)
-				{
-					return this.View("ForgotPasswordConfirmation");
-				}
-				else
-				{
-					_logger.LogDebug("POST@{name}: sign up failed.", nameof(this.ForgotPassword));
-					result.AddToModelState(this.ModelState);
-				}
-			}
-			else
-			{
-				_logger.LogDebug("POST@{name}: command is not valid.", nameof(this.ForgotPassword));
-				validationresult.AddToModelState(this.ModelState);
+				_ = await _mediator.Send(command);
 			}
 
 			_logger.LogDebug("Executed POST@{name}.", nameof(this.SignUp));
-			return this.View(command);
+			return this.View("ForgotPasswordConfirmation");
 		}
 
 		/// <summary>
@@ -607,7 +571,7 @@
 		/// <returns></returns>
 		[AllowAnonymous]
 		[HttpGet("/ResetPassword")]
-		public IActionResult ResetPassword([FromQuery] string pqs)
+		public IActionResult ResetPassword([FromQuery] string? pqs)
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.ResetPassword));
 			_logger.LogDebug("GET@{name}: check if user is authenticated.", nameof(this.ResetPassword));
@@ -620,18 +584,16 @@
 
 			_logger.LogDebug("GET@{name}: user is not authenticated.", nameof(this.ResetPassword));
 			_logger.LogDebug("GET@{name}: unprotect query string and get the command.", nameof(this.ActivateAccount));
+			ResetPasswordCommand? command = null;
 
-			ResetPasswordCommand? command = ProtectorHelpers.UnProtectQueryString<ResetPasswordCommand>(
-				_dataProtectionProvider.CreateProtector(ProtectorHelpers.QueryStringProtector), pqs);
-
-			if (command is null)
+			if (!string.IsNullOrEmpty(pqs))
 			{
-				// TODO
-				throw new Exception();
+				command = ProtectorHelpers.UnProtectQueryString<ResetPasswordCommand>(
+					_dataProtectionProvider.CreateProtector(ProtectorHelpers.QueryStringProtector), pqs);
 			}
 
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.ResetPassword));
-			return this.View(command);
+			return this.View(command ?? new ResetPasswordCommand());
 		}
 
 		/// <summary>
