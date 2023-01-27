@@ -65,7 +65,40 @@
 			_isis.Setup(x => x.GetLogoutContextAsync(It.Is<string>(s => s == "valid")))
 				.ReturnsAsync(new LogoutRequest(_faker.Internet.Url(), new LogoutMessage { PostLogoutRedirectUri = _faker.Internet.Url() }));
 
-			SignOutCommand command = new SignOutCommand { LogoutId = logoutId, ForgetClient = _faker.Random.Bool(), SignOutAllSessions = _faker.Random.Bool() };
+			SignOutCommand command = new SignOutCommand { LogoutId = logoutId, ForgetClient = false, SignOutAllSessions = false };
+			SignOutCommandHandler handler = new SignOutCommandHandler(_logger.Object, _hca.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
+
+			// Act 
+			SignOutCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.Success.ShouldBeTrue();
+		}
+
+		[Theory]
+		[InlineData(null)]
+		[InlineData("")]
+		[InlineData("valid")]
+		[InlineData("invalid")]
+		public void Handle_ShouldReturnTrue_OnForgetAll(string logoutId)
+		{
+			// Arrange
+			AegisUser? user = _fakeUser.Generate();
+
+			_isis.Setup(x => x.CreateLogoutContextAsync())
+				.ReturnsAsync(logoutId);
+
+			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+				.ReturnsAsync(user);
+
+			_userManager.Setup(x => x.UpdateSecurityStampAsync(It.IsAny<AegisUser>()))
+				.ReturnsAsync(IdentityResult.Success);
+
+			_isis.Setup(x => x.GetLogoutContextAsync(It.Is<string>(s => s == "valid")))
+				.ReturnsAsync(new LogoutRequest(_faker.Internet.Url(), new LogoutMessage { PostLogoutRedirectUri = _faker.Internet.Url() }));
+
+			SignOutCommand command = new SignOutCommand { LogoutId = logoutId, ForgetClient = true, SignOutAllSessions = true };
 			SignOutCommandHandler handler = new SignOutCommandHandler(_logger.Object, _hca.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 

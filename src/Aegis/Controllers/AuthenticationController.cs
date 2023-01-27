@@ -623,7 +623,7 @@
 			{
 				_logger.LogDebug("POST@{name}: command is valid.", nameof(this.ResetPassword));
 				_logger.LogDebug("POST@{name}: send command to handler.", nameof(this.ResetPassword));
-				BaseResult result = await _mediator.Send(command);
+				HandlerResult result = await _mediator.Send(command);
 
 				if (result.Success)
 				{
