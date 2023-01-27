@@ -135,14 +135,9 @@
 						_logger.LogDebug("SignOutCommandHandler: get logout context.");
 						LogoutRequest logoutRequest = await _interaction.GetLogoutContextAsync(logoutId);
 
-						if (logoutRequest is null)
-						{
-							signOutCommandResult = SignOutCommandResult.Succeeded("~/");
-						}
-						else
-						{
-							signOutCommandResult = SignOutCommandResult.Succeeded(logoutRequest.PostLogoutRedirectUri);
-						}
+						signOutCommandResult = logoutRequest is null
+							? SignOutCommandResult.Succeeded("~/")
+							: SignOutCommandResult.Succeeded(logoutRequest.PostLogoutRedirectUri);
 					}
 				}
 			}
