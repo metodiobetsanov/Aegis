@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: linux-4cores
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
