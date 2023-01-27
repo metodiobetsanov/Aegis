@@ -1,4 +1,12 @@
-﻿namespace Aegis.Core.Commands.Authentication
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+
+namespace Aegis.Core.Commands.Authentication
 {
 	using System.Runtime.Serialization;
 
@@ -47,7 +55,7 @@
 		/// Gets or sets a value indicating whether [accept terms].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [accept terms]; otherwise, <c>false</c>.
+		///  <c>true</c> if [accept terms]; otherwise, <c>false</c>.
 		/// </value>
 		[DataMember]
 		public bool AcceptTerms { get; init; }

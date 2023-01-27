@@ -1,4 +1,11 @@
-﻿namespace Aegis.Persistence
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.Persistence
 {
 	using Aegis.Persistence.Attributes;
 	using Aegis.Persistence.Converters;
@@ -97,7 +104,7 @@
 				b.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
 			});
 
-			//  AuditLog table
+			// AuditLog table
 			modelBuilder.Entity<AuditLog>(b =>
 			{
 				// Maps to the AuditLogs table

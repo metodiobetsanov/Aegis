@@ -1,4 +1,11 @@
-﻿namespace Aegis.UnitTests.Core.Initializers
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.UnitTests.Core.Initializers
 {
 	using global::Aegis.Core.Exceptions;
 	using global::Aegis.Core.Initializers;

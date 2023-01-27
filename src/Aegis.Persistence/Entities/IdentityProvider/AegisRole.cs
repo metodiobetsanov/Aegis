@@ -1,4 +1,11 @@
-﻿namespace Aegis.Persistence.Entities.IdentityProvider
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.Persistence.Entities.IdentityProvider
 {
 	using Microsoft.AspNetCore.Identity;
 
@@ -37,7 +44,7 @@
 		/// Gets or sets a value indicating whether [system role].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [system role]; otherwise, <c>false</c>.
+		///  <c>true</c> if [system role]; otherwise, <c>false</c>.
 		/// </value>
 		public bool SystemRole { get; set; }
 
@@ -45,7 +52,7 @@
 		/// Gets or sets a value indicating whether [protected role].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [protected role]; otherwise, <c>false</c>.
+		///  <c>true</c> if [protected role]; otherwise, <c>false</c>.
 		/// </value>
 		public bool ProtectedRole { get; set; }
 
@@ -53,7 +60,7 @@
 		/// Gets or sets a value indicating whether [assign by default].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [assign by default]; otherwise, <c>false</c>.
+		///  <c>true</c> if [assign by default]; otherwise, <c>false</c>.
 		/// </value>
 		public bool AssignByDefault { get; set; }
 

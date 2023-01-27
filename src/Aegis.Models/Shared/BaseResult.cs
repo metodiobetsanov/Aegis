@@ -1,4 +1,12 @@
-﻿namespace Aegis.Models.Shared
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+
+namespace Aegis.Models.Shared
 {
 	using System.Collections.Generic;
 
@@ -12,7 +20,7 @@
 		/// Gets a value indicating whether this <see cref="BaseResult"/> is success.
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if success; otherwise, <c>false</c>.
+		///  <c>true</c> if success; otherwise, <c>false</c>.
 		/// </value>
 		/// 
 		public bool Success { get; init; }

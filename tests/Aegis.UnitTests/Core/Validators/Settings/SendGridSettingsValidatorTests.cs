@@ -1,4 +1,11 @@
-﻿namespace Aegis.UnitTests.Core.Validators.Settings
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.UnitTests.Core.Validators.Settings
 {
 	using global::Aegis.Core.Validators.Settings;
 	using global::Aegis.Models.Settings;
@@ -13,14 +20,14 @@
 			{ new SendGridSettings { ApiKey = _faker.Random.String2(36) } },
 			{ new SendGridSettings { EmailConfirmationTemplate = _faker.Random.String2(36) } },
 			{ new SendGridSettings { VerificationCodeTemplate = _faker.Random.String2(36) } },
-			{ new SendGridSettings { ApiKey = "",  ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
-			{ new SendGridSettings { ApiKey = "   ", ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = "", ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = "  ", ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
 			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = "", EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
-			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = "   ", EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = "  ", EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
 			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = "", VerificationCodeTemplate = _faker.Random.String2(36)} },
-			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = "   ", VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = "  ", VerificationCodeTemplate = _faker.Random.String2(36)} },
 			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = "" } },
-			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = "   " } },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = "  " } },
 		};
 
 		[Fact]

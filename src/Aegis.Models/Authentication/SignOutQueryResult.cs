@@ -1,4 +1,12 @@
-﻿namespace Aegis.Models.Authentication
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+
+namespace Aegis.Models.Authentication
 {
 	using Aegis.Models.Shared;
 
@@ -20,7 +28,7 @@
 		/// Gets a value indicating whether [show signout prompt].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [show signout prompt]; otherwise, <c>false</c>.
+		///  <c>true</c> if [show signout prompt]; otherwise, <c>false</c>.
 		/// </value>
 		public bool ShowSignoutPrompt { get; init; }
 

@@ -1,4 +1,12 @@
-﻿namespace Aegis.Models.Authentication
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+
+namespace Aegis.Models.Authentication
 {
 	using Aegis.Models.Shared;
 
@@ -44,7 +52,7 @@
 		/// Gets a value indicating whether [requires two step].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [requires two step]; otherwise, <c>false</c>.
+		///  <c>true</c> if [requires two step]; otherwise, <c>false</c>.
 		/// </value>
 		public bool RequiresTwoStep { get; init; }
 
@@ -52,7 +60,7 @@
 		/// Gets a value indicating whether [account not active].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [account not active]; otherwise, <c>false</c>.
+		///  <c>true</c> if [account not active]; otherwise, <c>false</c>.
 		/// </value>
 		public bool AccounNotActive { get; init; }
 
@@ -60,7 +68,7 @@
 		/// Gets a value indicating whether [account not active].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [account not active]; otherwise, <c>false</c>.
+		///  <c>true</c> if [account not active]; otherwise, <c>false</c>.
 		/// </value>
 		public bool AccounLocked { get; init; }
 

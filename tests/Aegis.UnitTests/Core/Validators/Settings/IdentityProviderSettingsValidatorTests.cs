@@ -1,4 +1,11 @@
-﻿namespace Aegis.UnitTests.Core.Validators.Settings
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.UnitTests.Core.Validators.Settings
 {
 	using global::Aegis.Core.Validators.Settings;
 	using global::Aegis.Models.Settings;
@@ -13,9 +20,9 @@
 			{ new IdentityProviderSettings { LookupProtectorSigningDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = "" ,LookupProtectorSigningDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
-			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = "  " ,LookupProtectorSigningDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
+			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = " " ,LookupProtectorSigningDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") ,LookupProtectorSigningDerivationPassword = "" } },
-			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") ,LookupProtectorSigningDerivationPassword = "   " } },
+			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") ,LookupProtectorSigningDerivationPassword = "  " } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = "Aa0@" ,LookupProtectorSigningDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = new string('a', 32) ,LookupProtectorSigningDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
 			{ new IdentityProviderSettings { LookupProtectorEncryptionDerivationPassword = new string('A', 32) ,LookupProtectorSigningDerivationPassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },

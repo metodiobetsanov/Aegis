@@ -1,4 +1,12 @@
-﻿namespace Aegis.Core.Commands.Authentication.Handlers
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+
+namespace Aegis.Core.Commands.Authentication.Handlers
 {
 	using Aegis.Core.Commands.Authentication;
 	using Aegis.Core.Constants;
@@ -75,7 +83,7 @@
 		/// <param name="command">The command.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>
-		///   <see cref="Aegis.Models.Authentication.SignInCommandResult" />
+		///  <see cref="Aegis.Models.Authentication.SignInCommandResult" />
 		/// </returns>
 		/// <exception cref="Aegis.Core.Exceptions.IdentityProviderException"></exception>
 		public async Task<SignInCommandResult> Handle(SignInCommand command, CancellationToken cancellationToken)
@@ -101,7 +109,7 @@
 				}
 				else
 				{
-					_logger.LogDebug("SignInCommandHandler:  user exists.");
+					_logger.LogDebug("SignInCommandHandler: user exists.");
 					SignInResult result = await _signInManager.PasswordSignInAsync(user, command.Password!, command.RememberMe, lockoutOnFailure: true);
 
 					if (result.Succeeded)

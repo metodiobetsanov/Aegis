@@ -1,4 +1,11 @@
-﻿namespace Aegis.UnitTests.Core.Validators.Settings
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.UnitTests.Core.Validators.Settings
 {
 	using global::Aegis.Core.Validators.Settings;
 	using global::Aegis.Models.Settings;
@@ -14,11 +21,11 @@
 			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = _faker.System.FilePath() } },
 			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificatePassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
 			{ new AppSettings { PublicDomain = "", DataProtectionCertificateLocation = _faker.System.FilePath(), DataProtectionCertificatePassword = _faker.Internet.Password(8, false, "\\w", "!Aa0")} },
-			{ new AppSettings { PublicDomain = "   ", DataProtectionCertificateLocation = _faker.System.FilePath(), DataProtectionCertificatePassword = _faker.Internet.Password(8, false, "\\w", "!Aa0")} },
+			{ new AppSettings { PublicDomain = "  ", DataProtectionCertificateLocation = _faker.System.FilePath(), DataProtectionCertificatePassword = _faker.Internet.Password(8, false, "\\w", "!Aa0")} },
 			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = "", DataProtectionCertificatePassword = _faker.Internet.Password(8, false, "\\w", "!Aa0")} },
-			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = "   ", DataProtectionCertificatePassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
+			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = "  ", DataProtectionCertificatePassword = _faker.Internet.Password(8, false, "\\w", "!Aa0") } },
 			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = _faker.System.FilePath(), DataProtectionCertificatePassword = "" } },
-			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = _faker.System.FilePath(), DataProtectionCertificatePassword = "   " } },
+			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = _faker.System.FilePath(), DataProtectionCertificatePassword = "  " } },
 			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = _faker.System.FilePath(), DataProtectionCertificatePassword = "Aa0@" } },
 			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = _faker.System.FilePath(), DataProtectionCertificatePassword = new string('a', 32) } },
 			{ new AppSettings { PublicDomain = _faker.Internet.DomainName(), DataProtectionCertificateLocation = _faker.System.FilePath(), DataProtectionCertificatePassword = new string('A', 32) } },

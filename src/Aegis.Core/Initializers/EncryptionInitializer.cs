@@ -1,4 +1,12 @@
-﻿namespace Aegis.Core.Initializers
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+
+namespace Aegis.Core.Initializers
 {
 	using System.Text;
 
@@ -35,7 +43,7 @@
 		/// Gets a value indicating whether this <see cref="IInitializer" /> is initialized.
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if initialized; otherwise, <c>false</c>.
+		///  <c>true</c> if initialized; otherwise, <c>false</c>.
 		/// </value>
 		public bool Initialized { get; private set; } = false;
 

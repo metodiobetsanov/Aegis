@@ -2,44 +2,44 @@
 <html lang="en">
 
 <head>
-    <!-- Meta section -->
-    <partial name="_MetaPartial" />
+  <!-- Meta section -->
+  <partial name="_MetaPartial" />
 
-    <title>
-        @(ViewBag.Title == null ? "Aegis" : ViewBag.Title + " | Aegis")
-    </title>
+  <title>
+    @(ViewBag.Title == null ? "Aegis" : ViewBag.Title + " | Aegis")
+  </title>
 
-    <!-- CSS section -->
-    <partial name="_CssPartial" />
-    @RenderSection("styles", required: false)
+  <!-- CSS section -->
+  <partial name="_CssPartial" />
+  @RenderSection("styles", required: false)
 
 </head>
 
 <body>
-    <div style="min-height: 100vh;" class="d-flex align-items-center">
-        <div class="container mb-5 mt-5">
-            <div class="row">
-                <div class="col-12 d-flex justify-content-center">
-                    <div class="text-center">
-                        <a href=@Url.Action("Index", "Home") class="d-block auth-logo">
-                            <img src="~/assets/images/logo/png/logo-no-background.png" alt="Aegis Identity Server" height="50" class="mx-auto">
-                        </a>
-                        <div class="row mt-3">
-                            <p class="text-muted">Powered by <a href="https://duendesoftware.com/" target="_blank" rel="noopener">Duende IdentityServer 6.</a></p>
-                        </div>
-                    </div>
-                </div>
+  <div style="min-height: 100vh;" class="d-flex align-items-center">
+    <div class="container mb-5 mt-5">
+      <div class="row">
+        <div class="col-12 d-flex justify-content-center">
+          <div class="text-center">
+            <a href=@Url.Action("Index", "Home") class="d-block auth-logo">
+              <img src="~/assets/images/logo/png/logo-no-background.png" alt="Aegis Identity Server" height="50" class="mx-auto">
+            </a>
+            <div class="row mt-3">
+              <p class="text-muted">Powered by <a href="https://duendesoftware.com/" target="_blank" rel="noopener">Duende IdentityServer 6.</a></p>
             </div>
-            <div class="mb-3 mt-3">
-                    @RenderBody()
-            </div>
+          </div>
         </div>
+      </div>
+      <div class="mb-3 mt-3">
+          @RenderBody()
+      </div>
     </div>
+  </div>
 
-       <partial name="_FooterPartial" />
-    <!-- JS section -->
-    <partial name="_JsPartial" />
-    @await RenderSectionAsync("scripts", required: false)
+    <partial name="_FooterPartial" />
+  <!-- JS section -->
+  <partial name="_JsPartial" />
+  @await RenderSectionAsync("scripts", required: false)
 
 </body>
 </html>
