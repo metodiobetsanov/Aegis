@@ -104,7 +104,7 @@
 			{
 				userId = Guid.Parse(_httpContext.HttpContext!.User.Claims.First(x => x.Type == "sub").Value);
 				username = _httpContext.HttpContext!.User.Claims.First(x => x.Type == "name").Value;
-				userIp = _httpContext.HttpContext!.Connection?.RemoteIpAddress?.ToString();
+				userIp = _httpContext.HttpContext!.Connection!.RemoteIpAddress?.ToString();
 				userAgent = _httpContext.HttpContext!.Request.Headers.FirstOrDefault(x => x.Key == "User-Agent").Value;
 			}
 

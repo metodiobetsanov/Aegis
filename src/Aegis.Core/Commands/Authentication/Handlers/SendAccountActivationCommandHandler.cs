@@ -112,7 +112,7 @@
 					QueryString res = ProtectorHelpers.ProtectQueryString(_dataProtector, activateAccountCommand);
 					string link = $"https://{_appSettings.PublicDomain}/ActivateAccount{res}";
 					await _mailSenderService.SendEmailConfirmationLinkAsync(link, user.Email!);
-					await _mediator.Publish(new ActivateAccountSucceededAuditEvent(user.Id, "Send Activate Account"), cancellationToken);
+					await _mediator.Publish(new SendActivateAccountSucceededAuditEvent(user.Id, "Send Activate Account email"), cancellationToken);
 				}
 			}
 			catch (Exception ex) when (ex is not IAegisException)
