@@ -1,6 +1,6 @@
 ﻿namespace Aegis.Areas.Admin.Controllers
 {
-	using Aegis.Application.Constants;
+	using Aegis.Core.Constants;
 
 	using Microsoft.AspNetCore.Authorization;
 	using Microsoft.AspNetCore.Mvc;

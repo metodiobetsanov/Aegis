@@ -5,6 +5,10 @@
     <!-- Meta section -->
     <partial name="_MetaPartial" />
 
+    <title>
+        @(ViewBag.Title == null ? "Aegis" : ViewBag.Title + " | Aegis")
+    </title>
+
     <!-- CSS section -->
     <partial name="_CssPartial" />
     @RenderSection("styles", required: false)

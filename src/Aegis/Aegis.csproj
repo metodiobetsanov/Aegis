@@ -22,10 +22,6 @@
 		<PackageReference Include="Scrutor" Version="4.2.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Aegis.Application\Aegis.Application.csproj" />
-	</ItemGroup>
-
 
 	<ItemGroup>
 		<Folder Include="wwwroot\assets\images\" />
@@ -35,6 +31,10 @@
 	<ItemGroup>
 		<Folder Include="wwwroot\assets\images\" />
 		<Folder Include="wwwroot\assets\ico\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Aegis.Core\Aegis.Core.csproj" />
 	</ItemGroup>
 
 </Project>

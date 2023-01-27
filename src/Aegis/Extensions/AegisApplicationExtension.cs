@@ -2,12 +2,12 @@
 {
 	using System.Security.Cryptography.X509Certificates;
 
-	using Aegis.Application.Constants;
-	using Aegis.Application.Constants.Services;
-	using Aegis.Application.Contracts;
-	using Aegis.Application.Contracts.IInitializers;
-	using Aegis.Application.Services;
-	using Aegis.Application.Validators.Settings;
+	using Aegis.Core.Constants;
+	using Aegis.Core.Constants.Services;
+	using Aegis.Core.Contracts;
+	using Aegis.Core.Contracts.IInitializers;
+	using Aegis.Core.Services;
+	using Aegis.Core.Validators.Settings;
 	using Aegis.Exceptions;
 	using Aegis.Models.Settings;
 	using Aegis.Persistence;

@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis.Models", "src\Aegis.M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis.Persistence", "src\Aegis.Persistence\Aegis.Persistence.csproj", "{84C9BCC3-2ED5-49BF-835D-FB6DB9F3A9A0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis.Application", "src\Aegis.Application\Aegis.Application.csproj", "{4C8F38A2-3B41-48A5-B161-722B335E821F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis.Core", "src\Aegis.Core\Aegis.Core.csproj", "{4C8F38A2-3B41-48A5-B161-722B335E821F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aegis.UnitTests", "tests\Aegis.UnitTests\Aegis.UnitTests.csproj", "{553AF2B1-33AC-473A-AEC9-27BBA690C73D}"
 EndProject

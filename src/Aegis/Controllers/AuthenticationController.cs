@@ -1,10 +1,10 @@
 ﻿namespace Aegis.Controllers
 {
-	using Aegis.Application.Commands.Authentication;
-	using Aegis.Application.Constants;
-	using Aegis.Application.Helpers;
-	using Aegis.Application.Queries.Authentication;
-	using Aegis.Application.Validators.Commands.Authentication;
+	using Aegis.Core.Commands.Authentication;
+	using Aegis.Core.Constants;
+	using Aegis.Core.Helpers;
+	using Aegis.Core.Queries.Authentication;
+	using Aegis.Core.Validators.Commands.Authentication;
 	using Aegis.Exceptions;
 	using Aegis.Models.Authentication;
 	using Aegis.Models.Shared;

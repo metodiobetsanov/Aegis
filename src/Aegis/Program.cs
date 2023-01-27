@@ -1,4 +1,4 @@
-using Aegis.Application.Constants;
+using Aegis.Core.Constants;
 using Aegis.Extensions;
 
 using HealthChecks.UI.Client;
