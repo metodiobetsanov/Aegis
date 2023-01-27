@@ -21,7 +21,6 @@ namespace Aegis.UnitTests.Application.Controllers
 		public static TheoryData<SignInCommandResult> SignInCommandResultValues => new TheoryData<SignInCommandResult>()
 		{
 			SignInCommandResult.TwoStepRequired(_faker.Random.Guid().ToString()),
-			SignInCommandResult.NotActiveAccount(_faker.Random.Guid().ToString()),
 			SignInCommandResult.LockedAccount(_faker.Random.Guid().ToString())
 		};
 
@@ -176,6 +175,26 @@ namespace Aegis.UnitTests.Application.Controllers
 			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(1);
 		}
 
+		[Fact]
+		public void PostSignIn_ShouldReturnView_OnNotActiveAccount()
+		{
+			// Arrange
+			_m.Setup(x => x.Send(It.IsAny<SignInCommand>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(SignInCommandResult.NotActiveAccount(_faker.Random.Guid().ToString()));
+
+			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.SignIn(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<ViewResult>();
+			((ViewResult)result).ViewName.ShouldBe("ActivateAccountMail");
+		}
+
 		[Theory]
 		[MemberData(nameof(SignInCommandResultValues))]
 		public void PostSignIn_ShouldReturnRedirectToAction(SignInCommandResult signInCommandResult)
@@ -198,10 +217,6 @@ namespace Aegis.UnitTests.Application.Controllers
 			if (signInCommandResult.RequiresTwoStep)
 			{
 				((RedirectToActionResult)result).ActionName.ShouldBe("SignInTwoStep");
-			}
-			else if (signInCommandResult.AccounNotActive)
-			{
-				((RedirectToActionResult)result).ActionName.ShouldBe("ActivateAccount");
 			}
 			else if (signInCommandResult.AccounLocked)
 			{

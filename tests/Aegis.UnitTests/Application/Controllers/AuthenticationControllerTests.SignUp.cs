@@ -54,7 +54,7 @@ namespace Aegis.UnitTests.Application.Controllers
 		}
 
 		[Fact]
-		public void PostSignUp_ShouldReturnRedirect_OnSuccessfulSignUp()
+		public void PostSignUp_ShouldReturnView_OnSuccessfulSignUp()
 		{
 			// Arrange 
 			_m.Setup(x => x.Send(It.IsAny<SignUpCommand>(), It.IsAny<CancellationToken>()))
@@ -70,8 +70,8 @@ namespace Aegis.UnitTests.Application.Controllers
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.ShouldBeOfType<RedirectToActionResult>();
-			((RedirectToActionResult)result).ActionName.ShouldBe("ActivateAccount");
+			result.ShouldBeOfType<ViewResult>();
+			((ViewResult)result).ViewName.ShouldBe("ActivateAccountMail");
 		}
 
 		[Fact]

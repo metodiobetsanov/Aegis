@@ -88,7 +88,7 @@
 							</div>
 
 							<div class="mb-3">
-								<div class="form-check form-check-primary">
+								<div class="form-check form-switch form-switch-md">
 									<input asp-for="@Model.AcceptTerms" class="form-check-input" type="checkbox"
 										  required data-parsley-trigger="change focusout">
 									<label asp-for="@Model.AcceptTerms" class="form-check-label">By registering you agree to the <a href="#" class="text-primary">Terms of Use</a></label>
@@ -107,7 +107,7 @@
 			<div class="text-center">
 
 				<div>
-					<p>Already have an account ? <a href="@Url.Action("SignIn", "Authentication")" class="fw-medium text-primary"> SignIn </a> </p>
+					<p>Already have an account ? <a href="@Url.Action("SignIn", "Authentication")" class="fw-medium text-primary"> Sign In </a> </p>
 				</div>
 			</div>
 		</div>
