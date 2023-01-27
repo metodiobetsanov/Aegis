@@ -1,4 +1,4 @@
-﻿namespace Aegis.UnitTests.Core.Controllers
+﻿namespace Aegis.UnitTests.Application.Controllers
 {
 	using global::Aegis.Controllers;
 

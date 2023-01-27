@@ -130,7 +130,8 @@
 				else if (result.AccounNotActive)
 				{
 					_logger.LogDebug("POST@{name}: account is not active.", nameof(this.SignIn));
-					return this.RedirectToAction(nameof(this.SendAccountActivation), new { result.UserId });
+					_ = await _mediator.Send(new SendAccountActivationCommand { UserId = result.UserId });
+					return this.RedirectToAction(nameof(this.ActivateAccount));
 				}
 				else if (result.AccounLocked)
 				{
@@ -229,7 +230,8 @@
 				else if (result.AccounNotActive)
 				{
 					_logger.LogDebug("POST@{name}: account not active.", nameof(this.SignInTwoStep));
-					return this.RedirectToAction(nameof(this.SendAccountActivation), new { result.UserId });
+					_ = await _mediator.Send(new SendAccountActivationCommand { UserId = result.UserId });
+					return this.RedirectToAction(nameof(this.ActivateAccount));
 				}
 				else if (result.AccounLocked)
 				{
@@ -311,7 +313,8 @@
 				if (result.Success)
 				{
 					_logger.LogDebug("POST@{name}: sign up successful.", nameof(this.SignUp));
-					return this.RedirectToAction(nameof(this.SendAccountActivation), new { result.UserId });
+					_ = await _mediator.Send(new SendAccountActivationCommand { UserId = result.UserId });
+					return this.RedirectToAction(nameof(this.ActivateAccount));
 				}
 				else
 				{
@@ -431,11 +434,11 @@
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
 		[AllowAnonymous]
-		[HttpGet("/AccountActivation")]
-		public async Task<IActionResult> SendAccountActivation([FromQuery] SendAccountActivationCommand command)
+		[HttpGet("/ActivateAccount")]
+		public IActionResult ActivateAccount()
 		{
-			_logger.LogDebug("Executing GET@{name}.", nameof(this.SendAccountActivation));
-			_logger.LogDebug("GET@{name}: check if user is authenticated.", nameof(this.SendAccountActivation));
+			_logger.LogDebug("Executing GET@{name}.", nameof(this.ActivateAccount));
+			_logger.LogDebug("GET@{name}: check if user is authenticated.", nameof(this.ActivateAccount));
 
 			if (this.CheckForAuthenticatedUser("~/", out string? redirectTo))
 			{
@@ -444,18 +447,7 @@
 			}
 
 			_logger.LogDebug("GET@{name}: user is not authenticated.", nameof(this.SignIn));
-			_logger.LogDebug("GET@{name}: validate command.", nameof(this.SendAccountActivation));
-			SendAccountActivationCommandValidator validator = new SendAccountActivationCommandValidator();
-			ValidationResult validationresult = validator.Validate(command);
-
-			if (validationresult.IsValid)
-			{
-				_logger.LogDebug("GET@{name}: command is valid.", nameof(this.SendAccountActivation));
-				_logger.LogDebug("GET@{name}: send command to handler.", nameof(this.SendAccountActivation));
-				_ = await _mediator.Send(command);
-			}
-
-			_logger.LogDebug("Executed GET@{name}.", nameof(this.SendAccountActivation));
+			_logger.LogDebug("Executed GET@{name}.", nameof(this.ActivateAccount));
 			return this.View();
 		}
 
@@ -501,7 +493,7 @@
 			}
 
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.ActivateAccount));
-			return this.View();
+			return this.View("ActivateAccountConfirmation");
 		}
 
 		/// <summary>

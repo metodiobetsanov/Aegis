@@ -1,4 +1,4 @@
-﻿namespace Aegis.UnitTests.Core.Exceptions
+﻿namespace Aegis.UnitTests.Application.Exceptions
 {
 	using global::Aegis.Constants;
 	using global::Aegis.Exceptions;
