@@ -1,4 +1,11 @@
-﻿namespace Aegis.UnitTests.Core.Validators.Commands.Authentication
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.UnitTests.Core.Validators.Commands.Authentication
 {
 	using global::Aegis.Core.Commands.Authentication;
 	using global::Aegis.Core.Queries.Authentication;
@@ -14,9 +21,9 @@
 			{ new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString() } },
 			{ new ActivateAccountCommand { Token = _faker.Random.String2(36) } },
 			{ new ActivateAccountCommand { UserId = "", Token =_faker.Random.String2(36) }},
-			{ new ActivateAccountCommand { UserId = "   ", Token =_faker.Random.String2(36) }},
+			{ new ActivateAccountCommand { UserId = "  ", Token =_faker.Random.String2(36) }},
 			{ new ActivateAccountCommand { UserId =_faker.Random.Guid().ToString(), Token = "" }},
-			{ new ActivateAccountCommand { UserId =_faker.Random.Guid().ToString(), Token = "   " }},
+			{ new ActivateAccountCommand { UserId =_faker.Random.Guid().ToString(), Token = "  " }},
 		};
 
 		[Fact]

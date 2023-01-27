@@ -1,4 +1,11 @@
-﻿namespace Aegis.Persistence.Entities.Application
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.Persistence.Entities.Application
 {
 	using Aegis.Persistence.Attributes;
 
@@ -35,7 +42,7 @@
 		/// Gets or sets a value indicating whether this <see cref="AuditLog"/> is succeeded.
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if succeeded; otherwise, <c>false</c>.
+		///  <c>true</c> if succeeded; otherwise, <c>false</c>.
 		/// </value>
 		public bool Succeeded { get; set; }
 

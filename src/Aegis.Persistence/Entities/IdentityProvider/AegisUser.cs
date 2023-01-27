@@ -1,4 +1,11 @@
-﻿namespace Aegis.Persistence.Entities.IdentityProvider
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.Persistence.Entities.IdentityProvider
 {
 	using Microsoft.AspNetCore.Identity;
 
@@ -56,7 +63,7 @@
 		/// Gets or sets a value indicating whether this instance is system user.
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if this instance is system user; otherwise, <c>false</c>.
+		///  <c>true</c> if this instance is system user; otherwise, <c>false</c>.
 		/// </value>
 		public bool SystemUser { get; set; }
 
@@ -64,7 +71,7 @@
 		/// Gets or sets a value indicating whether this instance is protected user.
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if this instance is protected user; otherwise, <c>false</c>.
+		///  <c>true</c> if this instance is protected user; otherwise, <c>false</c>.
 		/// </value>
 		public bool ProtectedUser { get; set; }
 
@@ -72,7 +79,7 @@
 		/// Gets or sets a value indicating whether [active profile].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [active profile]; otherwise, <c>false</c>.
+		///  <c>true</c> if [active profile]; otherwise, <c>false</c>.
 		/// </value>
 		public bool ActiveProfile { get; set; }
 
@@ -80,7 +87,7 @@
 		/// Gets or sets a value indicating whether this instance is profile completed.
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if this instance is profile completed; otherwise, <c>false</c>.
+		///  <c>true</c> if this instance is profile completed; otherwise, <c>false</c>.
 		/// </value>
 		public bool CompletedProfile { get; set; }
 
@@ -88,7 +95,7 @@
 		/// Gets or sets a value indicating whether [soft delete].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [soft delete]; otherwise, <c>false</c>.
+		///  <c>true</c> if [soft delete]; otherwise, <c>false</c>.
 		/// </value>
 		public bool SoftDelete { get; set; }
 

@@ -1,4 +1,12 @@
-﻿namespace Aegis.Core.Commands.Authentication
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+
+namespace Aegis.Core.Commands.Authentication
 {
 	using System.Runtime.Serialization;
 
@@ -28,7 +36,7 @@
 		/// Gets a value indicating whether [remember me].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [remember me]; otherwise, <c>false</c>.
+		///  <c>true</c> if [remember me]; otherwise, <c>false</c>.
 		/// </value>
 		[DataMember]
 		public bool RememberMe { get; init; }
@@ -37,7 +45,7 @@
 		/// Gets a value indicating whether [remember client].
 		/// </summary>
 		/// <value>
-		///   <c>true</c> if [remember client]; otherwise, <c>false</c>.
+		///  <c>true</c> if [remember client]; otherwise, <c>false</c>.
 		/// </value>
 		[DataMember]
 		public bool RememberClient { get; init; }

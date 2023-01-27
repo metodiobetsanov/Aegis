@@ -1,4 +1,12 @@
-﻿namespace Aegis.Core.Commands.Authentication.Handlers
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+
+namespace Aegis.Core.Commands.Authentication.Handlers
 {
 	using Aegis.Core.Constants;
 	using Aegis.Core.Constants.Services;
@@ -87,7 +95,7 @@
 		/// <param name="command">The command.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>
-		///   <see cref="andlerResult" />
+		///  <see cref="andlerResult" />
 		/// </returns>
 		/// <exception cref="IdentityProviderException"></exception>
 		public async Task<HandlerResult> Handle(SendAccountActivationCommand command, CancellationToken cancellationToken)

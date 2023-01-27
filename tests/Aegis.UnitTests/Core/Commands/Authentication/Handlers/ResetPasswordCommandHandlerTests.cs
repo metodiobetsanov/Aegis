@@ -1,4 +1,11 @@
-﻿namespace Aegis.UnitTests.Core.Commands.Authentication.Handlers
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+namespace Aegis.UnitTests.Core.Commands.Authentication.Handlers
 {
 	using global::Aegis.Core.Commands.Authentication;
 	using global::Aegis.Core.Commands.Authentication.Handlers;

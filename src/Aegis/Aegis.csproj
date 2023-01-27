@@ -34,7 +34,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Aegis.Core\Aegis.Core.csproj" />
+	 <ProjectReference Include="..\Aegis.Core\Aegis.Core.csproj" />
 	</ItemGroup>
 
 </Project>

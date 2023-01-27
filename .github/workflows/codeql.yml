@@ -9,7 +9,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: linux-8cores
+    runs-on: linux-4cores
     permissions:
       actions: read
       contents: read

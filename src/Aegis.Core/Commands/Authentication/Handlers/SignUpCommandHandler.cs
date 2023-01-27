@@ -1,4 +1,12 @@
-﻿namespace Aegis.Core.Commands.Authentication.Handlers
+﻿#region copyright
+//----------------------------------------------------------------------
+// Copyright 2023 MNB Software
+// Licensed under the Apache License, Version 2.0
+// You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+//----------------------------------------------------------------------
+#endregion
+
+namespace Aegis.Core.Commands.Authentication.Handlers
 {
 	using System.Threading;
 	using System.Threading.Tasks;
@@ -84,7 +92,7 @@
 		/// <param name="command">The command.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>
-		///   <see cref="SignUpCommandResult" />
+		///  <see cref="SignUpCommandResult" />
 		/// </returns>
 		/// <exception cref="Aegis.Core.Exceptions.IdentityProviderException"></exception>
 		public async Task<SignUpCommandResult> Handle(SignUpCommand command, CancellationToken cancellationToken)
