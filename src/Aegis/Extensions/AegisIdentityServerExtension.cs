@@ -1,6 +1,6 @@
 ﻿namespace Aegis.Extensions
 {
-	using Aegis.Application.Contracts;
+	using Aegis.Core.Contracts;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
 	using Microsoft.EntityFrameworkCore;

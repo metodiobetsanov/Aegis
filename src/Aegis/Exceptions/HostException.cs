@@ -23,7 +23,7 @@
 		/// Initializes a new instance of the <see cref="HostException"/> class.
 		/// </summary>
 		public HostException()
-			: base(HostConstants.SomethingWentWrong) => this.DebugMessage = HostConstants.SomethingWentWrong;
+			: base(HostConstants.SomethingWentWrongWithHost) => this.DebugMessage = HostConstants.SomethingWentWrongWithHost;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="HostException"/> class.

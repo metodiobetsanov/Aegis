@@ -1,8 +1,8 @@
 ﻿namespace Aegis.Extensions
 {
-	using Aegis.Application.Contracts;
-	using Aegis.Application.Services.DataProtection;
-	using Aegis.Application.Validators.Settings;
+	using Aegis.Core.Contracts;
+	using Aegis.Core.Services.DataProtection;
+	using Aegis.Core.Validators.Settings;
 	using Aegis.Exceptions;
 	using Aegis.Models.Settings;
 	using Aegis.Persistence;

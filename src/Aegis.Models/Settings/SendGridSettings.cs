@@ -19,6 +19,14 @@
 		public string ApiKey { get; set; } = default!;
 
 		/// <summary>
+		/// Gets or sets the verification code template.
+		/// </summary>
+		/// <value>
+		/// The verification code template.
+		/// </value>
+		public string ResetPasswordTemplate { get; set; } = default!;
+
+		/// <summary>
 		/// Gets or sets the email confirmation template.
 		/// </summary>
 		/// <value>

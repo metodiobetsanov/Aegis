@@ -1,4 +1,4 @@
-﻿namespace Aegis.Application.Contracts
+﻿namespace Aegis.Core.Contracts
 {
 	/// <summary>
 	/// Aegis Persistence Assembly marker interface

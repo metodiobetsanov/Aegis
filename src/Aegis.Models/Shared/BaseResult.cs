@@ -30,5 +30,18 @@
 		/// </summary>
 		public BaseResult()
 			=> this.Errors = new List<KeyValuePair<string, string>>();
+
+		/// <summary>
+		/// Adds the error.
+		/// </summary>
+		/// <param name="message">The message.</param>
+		/// <param name="code">The code.</param>
+		public void AddError(string message, string? code = null)
+		{
+			if (!this.Success)
+			{
+				this.Errors.Add(new KeyValuePair<string, string>(code ?? "", message));
+			}
+		}
 	}
 }
