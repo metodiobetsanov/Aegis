@@ -36,7 +36,7 @@
 			// Arrange
 			AegisUser? user = _fakeUser.Generate();
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_signInManager.Setup(x => x.GetTwoFactorAuthenticationUserAsync())
 				.ReturnsAsync(user);

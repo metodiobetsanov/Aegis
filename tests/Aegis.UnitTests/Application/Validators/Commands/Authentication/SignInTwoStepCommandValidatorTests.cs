@@ -25,7 +25,7 @@
 			// Arrange
 			SignInTwoStepCommand command = new SignInTwoStepCommand
 			{
-				Code = _faker.Random.String(6)
+				Code = _faker.Random.String2(6)
 			};
 			SignInTwoStepCommandValidator validator = new SignInTwoStepCommandValidator();
 

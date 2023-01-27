@@ -33,7 +33,7 @@
 			// Arrange
 			AegisUser? user = _fakeUser.Generate();
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -69,7 +69,7 @@
 			// Arrange
 			AegisUser? user = _fakeUser.Generate();
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -98,7 +98,7 @@
 			// Arrange
 			AegisUser? user = _fakeUser.Generate();
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -127,7 +127,7 @@
 			// Arrange
 			AegisUser? user = _fakeUser.Generate();
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -155,7 +155,7 @@
 			// Arrange
 			AegisUser? user = _fakeUser.Generate();
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -182,7 +182,7 @@
 		{
 			// Arrange
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/valid")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0"), ReturnUrl = returnUrl };
 			SignInCommandHandler handler = new SignInCommandHandler(_logger.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);

@@ -14,9 +14,12 @@
 
 	using IdentityModel;
 
+	using Microsoft.AspNetCore.Identity;
+
 	public class SignOutCommandHandlerTests
 	{
 		private static readonly Faker _faker = new Faker("en");
+		private static readonly Faker<AegisUser> _fakeUser = Helper.GetUserFaker();
 		private static readonly Guid _subId = _faker.Random.Guid();
 
 		private readonly Mock<ILogger<SignOutCommandHandler>> _logger = new Mock<ILogger<SignOutCommandHandler>>();
@@ -25,6 +28,7 @@
 		private readonly Mock<HttpContext> _hc = new Mock<HttpContext>();
 		private readonly Mock<ClaimsPrincipal> _hccp = new Mock<ClaimsPrincipal>();
 		private readonly Mock<IHttpContextAccessor> _hca = new Mock<IHttpContextAccessor>();
+		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
 		private readonly Mock<SignInManager<AegisUser>> _signInManager = Helper.GetSignInManagerMock();
 
 		public SignOutCommandHandlerTests()
@@ -47,13 +51,22 @@
 		public void Handle_ShouldReturnTrue(string logoutId)
 		{
 			// Arrange
+			AegisUser? user = _fakeUser.Generate();
+
 			_isis.Setup(x => x.CreateLogoutContextAsync())
 				.ReturnsAsync(logoutId);
+
+			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
+				.ReturnsAsync(user);
+
+			_userManager.Setup(x => x.UpdateSecurityStampAsync(It.IsAny<AegisUser>()))
+				.ReturnsAsync(IdentityResult.Success);
+
 			_isis.Setup(x => x.GetLogoutContextAsync(It.Is<string>(s => s == "valid")))
 				.ReturnsAsync(new LogoutRequest(_faker.Internet.Url(), new LogoutMessage { PostLogoutRedirectUri = _faker.Internet.Url() }));
 
-			SignOutCommand command = new SignOutCommand { LogoutId = logoutId };
-			SignOutCommandHandler handler = new SignOutCommandHandler(_logger.Object, _hca.Object, _isis.Object, _es.Object, _signInManager.Object);
+			SignOutCommand command = new SignOutCommand { LogoutId = logoutId, ForgetClient = _faker.Random.Bool(), SignOutAllSessions = _faker.Random.Bool() };
+			SignOutCommandHandler handler = new SignOutCommandHandler(_logger.Object, _hca.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
 			SignOutCommandResult result = handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult();
@@ -70,7 +83,7 @@
 			_isis.Setup(x => x.CreateLogoutContextAsync())
 				.Throws(new Exception(nameof(Exception)));
 			SignOutCommand command = new SignOutCommand();
-			SignOutCommandHandler handler = new SignOutCommandHandler(_logger.Object, _hca.Object, _isis.Object, _es.Object, _signInManager.Object);
+			SignOutCommandHandler handler = new SignOutCommandHandler(_logger.Object, _hca.Object, _isis.Object, _es.Object, _userManager.Object, _signInManager.Object);
 
 			// Act 
 			Exception exception = Record.Exception(() => handler.Handle(command, new CancellationToken()).GetAwaiter().GetResult());

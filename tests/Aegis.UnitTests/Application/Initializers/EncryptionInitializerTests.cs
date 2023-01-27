@@ -49,7 +49,7 @@
 		{
 			// Arrange
 			_pdpkRepo.Setup(x => x.GetEntities()).Returns(new List<PersonalDataProtectionKey> {
-				new PersonalDataProtectionKey { Id = Guid.NewGuid(), Key = _faker.Random.String(12), KeyHash = _faker.Random.String(36), ExpiresOn = DateTime.UtcNow, } });
+				new PersonalDataProtectionKey { Id = Guid.NewGuid(), Key = _faker.Random.String2(12), KeyHash = _faker.Random.String2(36), ExpiresOn = DateTime.UtcNow, } });
 
 			EncryptionInitializer initializer = new EncryptionInitializer(_logger.Object, _scf.Object);
 			initializer.Initialized.ShouldBeFalse();

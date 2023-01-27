@@ -18,11 +18,14 @@
 			this.RuleFor(x => x.ApiKey)
 				.NotNull().NotEmpty().WithMessage("'ApiKey' must not be empty!");
 
+			this.RuleFor(x => x.ResetPasswordTemplate)
+				.NotNull().NotEmpty().WithMessage("'ResetPasswordTemplate' must not be empty!");
+
 			this.RuleFor(x => x.EmailConfirmationTemplate)
 				.NotNull().NotEmpty().WithMessage("'EmailConfirmationTemplate' must not be empty!");
 
 			this.RuleFor(x => x.VerificationCodeTemplate)
-			.NotNull().NotEmpty().WithMessage("'VerificationCodeTemplate' must not be empty!");
+				.NotNull().NotEmpty().WithMessage("'VerificationCodeTemplate' must not be empty!");
 		}
 	}
 }

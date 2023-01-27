@@ -10,15 +10,17 @@
 		public static TheoryData<SendGridSettings> SendGridSettingsValues => new TheoryData<SendGridSettings>()
 		{
 			{ new SendGridSettings { } },
-			{ new SendGridSettings { ApiKey = _faker.Random.String(36) } },
-			{ new SendGridSettings { EmailConfirmationTemplate = _faker.Random.String(36) } },
-			{ new SendGridSettings { VerificationCodeTemplate = _faker.Random.String(36) } },
-			{ new SendGridSettings { ApiKey = "", EmailConfirmationTemplate = _faker.Random.String(36), VerificationCodeTemplate = _faker.Random.String(36)} },
-			{ new SendGridSettings { ApiKey = "   ", EmailConfirmationTemplate = _faker.Random.String(36), VerificationCodeTemplate = _faker.Random.String(36)} },
-			{ new SendGridSettings { ApiKey = _faker.Random.String(36), EmailConfirmationTemplate = "", VerificationCodeTemplate = _faker.Random.String(36)} },
-			{ new SendGridSettings { ApiKey = _faker.Random.String(36), EmailConfirmationTemplate = "   ", VerificationCodeTemplate = _faker.Random.String(36)} },
-			{ new SendGridSettings { ApiKey = _faker.Random.String(36), EmailConfirmationTemplate = _faker.Random.String(36), VerificationCodeTemplate = "" } },
-			{ new SendGridSettings { ApiKey = _faker.Random.String(36), EmailConfirmationTemplate = _faker.Random.String(36), VerificationCodeTemplate = "   " } },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36) } },
+			{ new SendGridSettings { EmailConfirmationTemplate = _faker.Random.String2(36) } },
+			{ new SendGridSettings { VerificationCodeTemplate = _faker.Random.String2(36) } },
+			{ new SendGridSettings { ApiKey = "",  ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = "   ", ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = "", EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = "   ", EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = "", VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = "   ", VerificationCodeTemplate = _faker.Random.String2(36)} },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = "" } },
+			{ new SendGridSettings { ApiKey = _faker.Random.String2(36), ResetPasswordTemplate = _faker.Random.String2(36), EmailConfirmationTemplate = _faker.Random.String2(36), VerificationCodeTemplate = "   " } },
 		};
 
 		[Fact]
@@ -27,9 +29,10 @@
 			// Arrange
 			SendGridSettings settings = new SendGridSettings
 			{
-				ApiKey = _faker.Random.String(36),
-				EmailConfirmationTemplate = _faker.Random.String(36),
-				VerificationCodeTemplate = _faker.Random.String(36)
+				ApiKey = _faker.Random.String2(36),
+				ResetPasswordTemplate = _faker.Random.String2(36),
+				EmailConfirmationTemplate = _faker.Random.String2(36),
+				VerificationCodeTemplate = _faker.Random.String2(36),
 			};
 			SendGridSettingsValidator validator = new SendGridSettingsValidator();
 

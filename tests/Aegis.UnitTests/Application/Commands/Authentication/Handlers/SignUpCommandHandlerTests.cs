@@ -34,7 +34,7 @@
 			List<AegisRole> roles = _fakeRole.Generate(10);
 
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
@@ -105,7 +105,7 @@
 			AegisUser user = _fakeUser.Generate();
 
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync(user);
@@ -128,13 +128,13 @@
 			List<AegisRole> roles = new List<AegisRole> { new AegisRole("test", "test", true, true, true) };
 
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
 
 			_userManager.Setup(x => x.CreateAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
-				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String(12), Description = _faker.Random.String(36) }));
+				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String2(12), Description = _faker.Random.String2(36) }));
 
 			_roleManager.Setup(x => x.Roles)
 				.Returns(roles.AsQueryable());
@@ -157,7 +157,7 @@
 			List<AegisRole> roles = _fakeRole.Generate(10);
 
 			_isis.Setup(x => x.GetAuthorizationContextAsync(It.Is<string>(s => s == "/test")))
-				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String(12) } }));
+				.ReturnsAsync(new AuthorizationRequest(new ValidatedAuthorizeRequest { Client = new Client { ClientId = _faker.Random.String2(12) } }));
 
 			_userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
@@ -166,7 +166,7 @@
 				.ReturnsAsync(IdentityResult.Success);
 
 			_userManager.Setup(x => x.AddToRolesAsync(It.IsAny<AegisUser>(), It.IsAny<IEnumerable<string>>()))
-				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String(12), Description = _faker.Random.String(36) }));
+				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String2(12), Description = _faker.Random.String2(36) }));
 
 			_roleManager.Setup(x => x.Roles)
 				.Returns(roles.AsQueryable());

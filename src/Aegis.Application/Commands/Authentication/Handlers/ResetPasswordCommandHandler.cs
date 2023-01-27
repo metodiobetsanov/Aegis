@@ -1,5 +1,9 @@
 ﻿namespace Aegis.Application.Commands.Authentication.Handlers
 {
+	using System;
+	using System.Threading;
+	using System.Threading.Tasks;
+
 	using Aegis.Application.Constants;
 	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.CQRS;
@@ -13,15 +17,15 @@
 	using Microsoft.Extensions.Logging;
 
 	/// <summary>
-	/// Activate Account Command Handler
+	/// Reset Password Command Handler
 	/// </summary>
-	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommandHandler&lt;Aegis.Application.Commands.Authentication.ActivateAccountCommand, Aegis.Models.Shared.HandlerResult&gt;" />
-	public sealed class ActivateAccountCommandHandler : ICommandHandler<ActivateAccountCommand, HandlerResult>
+	/// <seealso cref="Aegis.Application.Contracts.CQRS.ICommandHandler&lt;Aegis.Application.Commands.Authentication.ResetPasswordCommand, Aegis.Models.Shared.HandlerResult&gt;" />
+	public sealed class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand, HandlerResult>
 	{
 		/// <summary>
 		/// The logger
 		/// </summary>
-		private readonly ILogger<ActivateAccountCommandHandler> _logger;
+		private readonly ILogger<ResetPasswordCommandHandler> _logger;
 
 		/// <summary>
 		/// The user manager
@@ -29,12 +33,12 @@
 		private readonly UserManager<AegisUser> _userManager;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ActivateAccountCommandHandler" /> class.
+		/// Initializes a new instance of the <see cref="ResetPasswordCommandHandler" /> class.
 		/// </summary>
 		/// <param name="logger">The logger.</param>
 		/// <param name="userManager">The user manager.</param>
-		public ActivateAccountCommandHandler(
-			ILogger<ActivateAccountCommandHandler> logger,
+		public ResetPasswordCommandHandler(
+			ILogger<ResetPasswordCommandHandler> logger,
 			UserManager<AegisUser> userManager)
 		{
 			_logger = logger;
@@ -42,17 +46,15 @@
 		}
 
 		/// <summary>
-		/// Handles the specified query.
+		/// Handles the specified command.
 		/// </summary>
 		/// <param name="command">The command.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <returns>
-		///   <see cref="HandlerResult" />
-		/// </returns>
-		/// <exception cref="IdentityProviderException"></exception>
-		public async Task<HandlerResult> Handle(ActivateAccountCommand command, CancellationToken cancellationToken)
+		/// <returns></returns>
+		/// <exception cref="Aegis.Application.Exceptions.IdentityProviderException"></exception>
+		public async Task<HandlerResult> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
 		{
-			_logger.LogDebug("Handling {name}", nameof(ActivateAccountCommand));
+			_logger.LogDebug("Handling {name}", nameof(ResetPasswordCommand));
 			HandlerResult handlerResult = HandlerResult.Succeeded();
 
 			try
@@ -61,7 +63,7 @@
 
 				if (user is not null)
 				{
-					IdentityResult emailResult = await _userManager.ConfirmEmailAsync(user, command.Token!);
+					IdentityResult emailResult = await _userManager.ResetPasswordAsync(user, command.Token!, command.Password!);
 
 					if (!emailResult.Succeeded)
 					{
@@ -76,7 +78,7 @@
 				throw new IdentityProviderException(IdentityProviderConstants.SomethingWentWrong, ex.Message, ex);
 			}
 
-			_logger.LogDebug("Handled {name}", nameof(ActivateAccountCommand));
+			_logger.LogDebug("Handled {name}", nameof(ResetPasswordCommand));
 			return handlerResult;
 		}
 	}

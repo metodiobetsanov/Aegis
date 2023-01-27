@@ -20,7 +20,7 @@
 		public void Handle_ShouldReturnTrue()
 		{
 			// Arrange
-			string logoutId = _faker.Random.String(12);
+			string logoutId = _faker.Random.String2(12);
 			_isis.Setup(x => x.GetLogoutContextAsync(It.Is<string>(s => s == logoutId)))
 				.ReturnsAsync(new LogoutRequest(_faker.Internet.UrlRootedPath(), null));
 
@@ -39,9 +39,9 @@
 		public void Handle_ShouldReturnFalse()
 		{
 			// Arrange
-			string logoutId = _faker.Random.String(12);
+			string logoutId = _faker.Random.String2(12);
 			_isis.Setup(x => x.GetLogoutContextAsync(It.Is<string>(s => s == logoutId)))
-				.ReturnsAsync(new LogoutRequest(_faker.Internet.UrlRootedPath(), new LogoutMessage { ClientId = _faker.Random.String(12) }));
+				.ReturnsAsync(new LogoutRequest(_faker.Internet.UrlRootedPath(), new LogoutMessage { ClientId = _faker.Random.String2(12) }));
 
 			SignOutQuery query = new SignOutQuery { LogoutId = logoutId };
 			SignOutQueryHandler handler = new SignOutQueryHandler(_logger.Object, _isis.Object);

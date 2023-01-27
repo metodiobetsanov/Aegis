@@ -1,6 +1,7 @@
 ﻿namespace Aegis.Controllers
 {
 	using Aegis.Application.Commands.Authentication;
+	using Aegis.Application.Constants;
 	using Aegis.Application.Helpers;
 	using Aegis.Application.Queries.Authentication;
 	using Aegis.Application.Validators.Commands.Authentication;
@@ -16,7 +17,12 @@
 	using MediatR;
 
 	using Microsoft.AspNetCore.Authorization;
+	using Microsoft.AspNetCore.DataProtection;
 	using Microsoft.AspNetCore.Mvc;
+
+	using Newtonsoft.Json;
+
+	using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 	/// <summary>
 	/// Authentication Controller
@@ -30,6 +36,11 @@
 		private readonly ILogger<AuthenticationController> _logger;
 
 		/// <summary>
+		/// The data protection provider
+		/// </summary>
+		private readonly IDataProtectionProvider _dataProtectionProvider;
+
+		/// <summary>
 		/// The mediator
 		/// </summary>
 		private readonly IMediator _mediator;
@@ -39,9 +50,13 @@
 		/// </summary>
 		/// <param name="logger">The logger.</param>
 		/// <param name="mediator">The mediator.</param>
-		public AuthenticationController(ILogger<AuthenticationController> logger, IMediator mediator)
+		public AuthenticationController(
+			ILogger<AuthenticationController> logger,
+			IDataProtectionProvider dataProtectionProvider,
+			IMediator mediator)
 		{
 			_logger = logger;
+			_dataProtectionProvider = dataProtectionProvider;
 			_mediator = mediator;
 		}
 
@@ -326,15 +341,19 @@
 			_logger.LogDebug("GET@{name}: send query to handler.", nameof(this.SignOut));
 			SignOutQueryResult result = await _mediator.Send(query);
 
-			_logger.LogDebug("GET@{name}: prepare command(transfer query values).", nameof(this.SignOut));
-			SignOutCommand command = new SignOutCommand { LogoutId = query.LogoutId };
-
 			if (!result.ShowSignoutPrompt)
 			{
 				_logger.LogDebug("GET@{name}: do not show logout prompt, signing out.", nameof(this.SignOut));
-				return await this.SignOut(command);
+				return await this.SignOut(new SignOutCommand
+				{
+					LogoutId = query.LogoutId,
+					ForgetClient = true,
+					SignOutAllSessions = false
+				});
 			}
 
+			_logger.LogDebug("GET@{name}: prepare command(transfer query values).", nameof(this.SignOut));
+			SignOutCommand command = new SignOutCommand { LogoutId = query.LogoutId };
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.SignOut));
 			return this.View(command);
 		}
@@ -411,7 +430,7 @@
 		/// <param name="command">The command.</param>
 		/// <returns></returns>
 		[AllowAnonymous]
-		[HttpGet("/SendAccountActivation")]
+		[HttpGet("/AccountActivation")]
 		public async Task<IActionResult> SendAccountActivation([FromQuery] SendAccountActivationCommand command)
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.SendAccountActivation));
@@ -457,7 +476,7 @@
 		/// <returns></returns>
 		[AllowAnonymous]
 		[HttpGet("/ActivateAccount")]
-		public async Task<IActionResult> ActivateAccount([FromQuery] ActivateAccountCommand query)
+		public async Task<IActionResult> ActivateAccount([FromQuery] string pqs)
 		{
 			_logger.LogDebug("Executing GET@{name}.", nameof(this.ActivateAccount));
 			_logger.LogDebug("GET@{name}: check if user is authenticated.", nameof(this.ActivateAccount));
@@ -469,15 +488,26 @@
 			}
 
 			_logger.LogDebug("GET@{name}: user is not authenticated.", nameof(this.ActivateAccount));
+			_logger.LogDebug("GET@{name}: unprotect query string and get the command.", nameof(this.ActivateAccount));
+
+			ActivateAccountCommand? command = ProtectorHelpers.UnProtectQueryString<ActivateAccountCommand>(
+				_dataProtectionProvider.CreateProtector(ProtectorHelpers.QueryStringProtector), pqs);
+
+			if (command is null)
+			{
+				// TODO
+				throw new Exception();
+			}
+
 			_logger.LogDebug("GET@{name}: validate command.", nameof(this.ActivateAccount));
 			ActivateAccountCommandValidator validator = new ActivateAccountCommandValidator();
-			ValidationResult validationresult = validator.Validate(query);
+			ValidationResult validationresult = validator.Validate(command);
 
 			if (validationresult.IsValid)
 			{
 				_logger.LogDebug("GET@{name}: command is valid.", nameof(this.ActivateAccount));
 				_logger.LogDebug("GET@{name}: send query to handler.", nameof(this.ActivateAccount));
-				HandlerResult result = await _mediator.Send(query);
+				HandlerResult result = await _mediator.Send(command);
 
 				if (!result.Success)
 				{
@@ -493,6 +523,164 @@
 
 			_logger.LogDebug("Executed GET@{name}.", nameof(this.ActivateAccount));
 			return this.View();
+		}
+
+		/// <summary>
+		/// Emails the Reset Password.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
+		[AllowAnonymous]
+		[HttpGet("/ForgotPassword")]
+		public IActionResult ForgotPassword()
+		{
+			_logger.LogDebug("Executing GET@{name}.", nameof(this.ForgotPassword));
+			_logger.LogDebug("GET@{name}: check if user is authenticated.", nameof(this.ForgotPassword));
+
+			if (this.CheckForAuthenticatedUser("~/", out string? redirectTo))
+			{
+				_logger.LogDebug("GET@{name}: user is authenticated, redirecting.", nameof(this.ForgotPassword));
+				return this.Redirect(redirectTo!);
+			}
+
+			_logger.LogDebug("GET@{name}: user is not authenticated.", nameof(this.ForgotPassword));
+			_logger.LogDebug("GET@{name}: prepare command.", nameof(this.ForgotPassword));
+			SendForgetPasswordCommand command = new SendForgetPasswordCommand();
+
+			_logger.LogDebug("Executed GET@{name}.", nameof(this.ForgotPassword));
+			return this.View(command);
+		}
+
+		/// <summary>
+		/// Emails the Reset Password.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
+		[AllowAnonymous]
+		[HttpPost("/ForgotPassword")]
+		public async Task<IActionResult> ForgotPassword([FromForm] SendForgetPasswordCommand command)
+		{
+			_logger.LogDebug("Executing POST@{name}.", nameof(ForgotPassword));
+			_logger.LogDebug("POST@{name}: check if user is authenticated.", nameof(this.ForgotPassword));
+
+			if (this.CheckForAuthenticatedUser("~/", out string? redirectTo))
+			{
+				_logger.LogDebug("GET@{name}: user is authenticated, redirecting.", nameof(this.ForgotPassword));
+				return this.Redirect(redirectTo!);
+			}
+
+			_logger.LogDebug("POST@{name}: user is not authenticated.", nameof(this.ForgotPassword));
+			_logger.LogDebug("POST@{name}: validate command.", nameof(this.ForgotPassword));
+			SendForgetPasswordCommandValidator validator = new SendForgetPasswordCommandValidator();
+			ValidationResult validationresult = validator.Validate(command);
+
+			if (validationresult.IsValid)
+			{
+				_logger.LogDebug("POST@{name}: command is valid.", nameof(this.ForgotPassword));
+				_logger.LogDebug("POST@{name}: send command to handler.", nameof(this.ForgotPassword));
+				BaseResult result = await _mediator.Send(command);
+
+				if (result.Success)
+				{
+					return this.View("ForgotPasswordConfirmation");
+				}
+				else
+				{
+					_logger.LogDebug("POST@{name}: sign up failed.", nameof(this.ForgotPassword));
+					result.AddToModelState(this.ModelState);
+				}
+			}
+			else
+			{
+				_logger.LogDebug("POST@{name}: command is not valid.", nameof(this.ForgotPassword));
+				validationresult.AddToModelState(this.ModelState);
+			}
+
+			_logger.LogDebug("Executed POST@{name}.", nameof(this.SignUp));
+			return this.View(command);
+		}
+
+		/// <summary>
+		/// Emails the Reset Password.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
+		[AllowAnonymous]
+		[HttpGet("/ResetPassword")]
+		public IActionResult ResetPassword([FromQuery] string pqs)
+		{
+			_logger.LogDebug("Executing GET@{name}.", nameof(this.ResetPassword));
+			_logger.LogDebug("GET@{name}: check if user is authenticated.", nameof(this.ResetPassword));
+
+			if (this.CheckForAuthenticatedUser("~/", out string? redirectTo))
+			{
+				_logger.LogDebug("GET@{name}: user is authenticated, redirecting.", nameof(this.ResetPassword));
+				return this.Redirect(redirectTo!);
+			}
+
+			_logger.LogDebug("GET@{name}: user is not authenticated.", nameof(this.ResetPassword));
+			_logger.LogDebug("GET@{name}: unprotect query string and get the command.", nameof(this.ActivateAccount));
+
+			ResetPasswordCommand? command = ProtectorHelpers.UnProtectQueryString<ResetPasswordCommand>(
+				_dataProtectionProvider.CreateProtector(ProtectorHelpers.QueryStringProtector), pqs);
+
+			if (command is null)
+			{
+				// TODO
+				throw new Exception();
+			}
+
+			_logger.LogDebug("Executed GET@{name}.", nameof(this.ResetPassword));
+			return this.View(command);
+		}
+
+		/// <summary>
+		/// Emails the Reset Password.
+		/// </summary>
+		/// <param name="command">The command.</param>
+		/// <returns></returns>
+		[AllowAnonymous]
+		[HttpPost("/ResetPassword")]
+		public async Task<IActionResult> ResetPassword([FromForm] ResetPasswordCommand command)
+		{
+			_logger.LogDebug("Executing POST@{name}.", nameof(ForgotPassword));
+			_logger.LogDebug("POST@{name}: check if user is authenticated.", nameof(this.ResetPassword));
+
+			if (this.CheckForAuthenticatedUser("~/", out string? redirectTo))
+			{
+				_logger.LogDebug("GET@{name}: user is authenticated, redirecting.", nameof(this.ResetPassword));
+				return this.Redirect(redirectTo!);
+			}
+
+			_logger.LogDebug("POST@{name}: user is not authenticated.", nameof(this.ResetPassword));
+			_logger.LogDebug("POST@{name}: validate command.", nameof(this.ResetPassword));
+			ResetPasswordCommandValidator validator = new ResetPasswordCommandValidator();
+			ValidationResult validationresult = validator.Validate(command);
+
+			if (validationresult.IsValid)
+			{
+				_logger.LogDebug("POST@{name}: command is valid.", nameof(this.ResetPassword));
+				_logger.LogDebug("POST@{name}: send command to handler.", nameof(this.ResetPassword));
+				BaseResult result = await _mediator.Send(command);
+
+				if (result.Success)
+				{
+					return this.RedirectToAction("SignIn");
+				}
+				else
+				{
+					_logger.LogDebug("POST@{name}: reset password failed.", nameof(this.ResetPassword));
+					result.AddToModelState(this.ModelState);
+				}
+			}
+			else
+			{
+				_logger.LogDebug("POST@{name}: command is not valid.", nameof(this.ResetPassword));
+				validationresult.AddToModelState(this.ModelState);
+			}
+
+			_logger.LogDebug("Executed POST@{name}.", nameof(this.ResetPassword));
+			return this.View(command);
 		}
 
 		/// <summary>

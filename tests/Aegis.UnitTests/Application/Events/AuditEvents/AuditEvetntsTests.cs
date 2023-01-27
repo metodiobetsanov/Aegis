@@ -45,7 +45,7 @@ namespace Aegis.UnitTests.Application.Events.AuditEvents
 			// Arrange
 			_audotLogs.Clear();
 			Guid key = _faker.Random.Guid();
-			string summary = _faker.Random.String(36);
+			string summary = _faker.Random.String2(36);
 			CreateLookupProtectionKeySucceededAuditEvent @event = new CreateLookupProtectionKeySucceededAuditEvent(key, summary, true);
 			AuditEventHandler<IAuditEvent> handler = new AuditEventHandler<IAuditEvent>(_logger.Object, _hca.Object, _ac.Object);
 
@@ -73,7 +73,7 @@ namespace Aegis.UnitTests.Application.Events.AuditEvents
 			Guid key = _faker.Random.Guid();
 			Guid subId = _faker.Random.Guid();
 			string userName = _faker.Internet.UserName();
-			string summary = _faker.Random.String(36);
+			string summary = _faker.Random.String2(36);
 			_hccp.Setup(x => x.Claims).Returns(new List<Claim> { new Claim("sub", key.ToString()), new Claim(type: "name", userName) });
 			CreateLookupProtectionKeyFailedAuditEvent @event = new CreateLookupProtectionKeyFailedAuditEvent(subId, summary);
 			AuditEventHandler<IAuditEvent> handler = new AuditEventHandler<IAuditEvent>(_logger.Object, _hca.Object, _ac.Object);
@@ -105,7 +105,7 @@ namespace Aegis.UnitTests.Application.Events.AuditEvents
 			Guid key = _faker.Random.Guid();
 			Guid subId = _faker.Random.Guid();
 			string userName = _faker.Internet.UserName();
-			string summary = _faker.Random.String(36);
+			string summary = _faker.Random.String2(36);
 			_hccp.Setup(x => x.Claims).Returns(new List<Claim> { new Claim("sub", subId.ToString()), new Claim(type: "name", userName) });
 			_hcci.Setup(x => x.RemoteIpAddress).Returns((IPAddress?)null);
 			CreateLookupProtectionKeyFailedAuditEvent @event = new CreateLookupProtectionKeyFailedAuditEvent(key, summary);
@@ -136,7 +136,7 @@ namespace Aegis.UnitTests.Application.Events.AuditEvents
 			// Arrange
 			_audotLogs.Clear();
 			Guid key = _faker.Random.Guid();
-			string summary = _faker.Random.String(36);
+			string summary = _faker.Random.String2(36);
 			CreateLookupProtectionKeyFailedAuditEvent @event = new CreateLookupProtectionKeyFailedAuditEvent(key, summary);
 			AuditEventHandler<IAuditEvent> handler = new AuditEventHandler<IAuditEvent>(_logger.Object, _hca.Object, _ac.Object);
 

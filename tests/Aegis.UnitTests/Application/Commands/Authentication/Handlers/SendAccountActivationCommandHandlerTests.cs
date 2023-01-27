@@ -5,9 +5,6 @@
 	using global::Aegis.Application.Constants;
 	using global::Aegis.Application.Constants.Services;
 	using global::Aegis.Application.Exceptions;
-	using global::Aegis.Application.Queries.Authentication;
-	using global::Aegis.Application.Queries.Authentication.Handlers;
-	using global::Aegis.Models.Authentication;
 	using global::Aegis.Models.Settings;
 	using global::Aegis.Models.Shared;
 	using global::Aegis.Persistence.Entities.IdentityProvider;
@@ -17,10 +14,19 @@
 		private static readonly Faker _faker = new Faker("en");
 
 		private readonly Mock<ILogger<SendAccountActivationCommandHandler>> _logger = new Mock<ILogger<SendAccountActivationCommandHandler>>();
+		private readonly Mock<IDataProtector> _dp = new Mock<IDataProtector>();
+		private readonly Mock<IDataProtectionProvider> _dpp = new Mock<IDataProtectionProvider>();
 		private readonly Mock<IMailSenderService> _mss = new Mock<IMailSenderService>();
 		private readonly Mock<UserManager<AegisUser>> _userManager = Helper.GetUserManagerMock();
 
 		private readonly AppSettings _ap = new AppSettings { PublicDomain = _faker.Internet.DomainName() };
+
+		public SendAccountActivationCommandHandlerTests()
+		{
+			_dp.Setup(sut => sut.Protect(It.IsAny<byte[]>())).Returns(Encoding.UTF8.GetBytes(_faker.Random.String2(36)));
+			_dp.Setup(sut => sut.Unprotect(It.IsAny<byte[]>())).Returns(Encoding.UTF8.GetBytes(_faker.Random.String2(36)));
+			_dpp.Setup(x => x.CreateProtector(It.IsAny<string>())).Returns(_dp.Object);
+		}
 
 		[Fact]
 		public void Handle_ShouldReturnTrue()
@@ -31,10 +37,10 @@
 				.ReturnsAsync(user);
 
 			_userManager.Setup(x => x.GenerateEmailConfirmationTokenAsync(It.IsAny<AegisUser>()))
-				.ReturnsAsync(_faker.Random.String(36));
+				.ReturnsAsync(_faker.Random.String2(36));
 
 			SendAccountActivationCommand query = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
-			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
+			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _dpp.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
 			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
@@ -45,22 +51,21 @@
 		}
 
 		[Fact]
-		public void Handle_ShouldReturnFalse_NotExistingUser()
+		public void Handle_ShouldReturnTrue_NotExistingUser()
 		{
 			// Arrange
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
 
 			SendAccountActivationCommand query = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
-			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
+			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _dpp.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
 			HandlerResult result = handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Success.ShouldBeFalse();
-			result.Errors.Count.ShouldBe(1);
+			result.Success.ShouldBeTrue();
 		}
 
 		[Fact]
@@ -71,7 +76,7 @@
 				.Throws(new Exception(nameof(Exception)));
 
 			SendAccountActivationCommand query = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
-			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _mss.Object, _ap, _userManager.Object);
+			SendAccountActivationCommandHandler handler = new SendAccountActivationCommandHandler(_logger.Object, _dpp.Object, _mss.Object, _ap, _userManager.Object);
 
 			// Act 
 			Exception exception = Record.Exception(() => handler.Handle(query, new CancellationToken()).GetAwaiter().GetResult());

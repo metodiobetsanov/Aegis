@@ -25,7 +25,7 @@
 			_userManager.Setup(x => x.ConfirmEmailAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
 				.ReturnsAsync(IdentityResult.Success);
 
-			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String2(36) };
 			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
 
 			// Act 
@@ -37,13 +37,13 @@
 		}
 
 		[Fact]
-		public void Handle_ShouldReturnFalse_NotExistingUser()
+		public void Handle_ShouldReturnTrue_NotExistingUser()
 		{
 			// Arrange
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.ReturnsAsync((AegisUser?)null);
 
-			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String2(36) };
 			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
 
 			// Act 
@@ -51,8 +51,7 @@
 
 			// Assert
 			result.ShouldNotBeNull();
-			result.Success.ShouldBeFalse();
-			result.Errors.Count.ShouldBe(1);
+			result.Success.ShouldBeTrue();
 		}
 
 		[Fact]
@@ -63,9 +62,9 @@
 				.ReturnsAsync(user);
 
 			_userManager.Setup(x => x.ConfirmEmailAsync(It.IsAny<AegisUser>(), It.IsAny<string>()))
-				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String(12), Description = _faker.Random.String(36) }));
+				.ReturnsAsync(IdentityResult.Failed(new IdentityError { Code = _faker.Random.String2(12), Description = _faker.Random.String2(36) }));
 
-			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String2(36) };
 			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
 
 			// Act 
@@ -84,7 +83,7 @@
 			_userManager.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
 				.Throws(new Exception(nameof(Exception)));
 
-			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
+			ActivateAccountCommand query = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String2(36) };
 			ActivateAccountCommandHandler handler = new ActivateAccountCommandHandler(_logger.Object, _userManager.Object);
 
 			// Act 

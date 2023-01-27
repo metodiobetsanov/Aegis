@@ -17,6 +17,8 @@
 		private static readonly Faker _faker = new Faker("en");
 
 		private readonly Mock<ILogger<AuthenticationController>> _logger = new Mock<ILogger<AuthenticationController>>();
+		private readonly Mock<IDataProtector> _dp = new Mock<IDataProtector>();
+		private readonly Mock<IDataProtectionProvider> _dpp = new Mock<IDataProtectionProvider>();
 		private readonly Mock<IMediator> _m = new Mock<IMediator>();
 		private readonly Mock<ClaimsPrincipal> _cp = new Mock<ClaimsPrincipal>();
 		private readonly Mock<HttpContext> _hc = new Mock<HttpContext>();
@@ -35,7 +37,10 @@
 		};
 
 		public AuthenticationControllerTests()
-			=> _hc.Setup(x => x.User).Returns(_cp.Object);
+		{
+			_hc.Setup(x => x.User).Returns(_cp.Object);
+			_dpp.Setup(x => x.CreateProtector(It.IsAny<string>())).Returns(_dp.Object);
+		}
 		#endregion Setup
 
 		#region SignIn
@@ -43,7 +48,7 @@
 		public void GetSignIn_ShouldReturnView_OnNotAuthenticatedUser()
 		{
 			// Arrange
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -65,7 +70,7 @@
 			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(SignInQueryResult.Succeeded(url));
 
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -90,7 +95,7 @@
 			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(result);
 
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -109,7 +114,7 @@
 				.ReturnsAsync(SignInCommandResult.Succeeded("~/"));
 
 			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -132,7 +137,7 @@
 				.ReturnsAsync(SignInQueryResult.Succeeded(url));
 
 			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -149,7 +154,7 @@
 		{
 			// Arrange
 			SignInCommand command = new SignInCommand();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -169,12 +174,12 @@
 		{
 			// Arrange
 			SignInCommandResult signInCommand = SignInCommandResult.Failed();
-			signInCommand.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
+			signInCommand.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String2(12), _faker.Random.String2(12)));
 			_m.Setup(x => x.Send(It.IsAny<SignInCommand>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(signInCommand);
 
 			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -198,7 +203,7 @@
 				.ReturnsAsync(signInCommandResult);
 
 			SignInCommand command = new SignInCommand { Email = _faker.Internet.Email(), Password = _faker.Internet.Password(8, false, "\\w", "!Aa0") };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -232,7 +237,7 @@
 				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
 
 			SignInTwoStepQuery query = new SignInTwoStepQuery();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -255,7 +260,7 @@
 				.ReturnsAsync(SignInQueryResult.Succeeded(url));
 
 			SignInTwoStepQuery query = new SignInTwoStepQuery();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -279,7 +284,7 @@
 				.ReturnsAsync(signInQueryResult);
 
 			SignInTwoStepQuery query = new SignInTwoStepQuery();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -301,8 +306,8 @@
 			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepCommand>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(SignInCommandResult.Succeeded("~/"));
 
-			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6) };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String2(6) };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -319,7 +324,7 @@
 		{
 			// Arrange 
 			SignInTwoStepCommand command = new SignInTwoStepCommand();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -339,12 +344,12 @@
 		{
 			// Arrange
 			SignInCommandResult signInCommandResult = SignInCommandResult.Failed();
-			signInCommandResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
+			signInCommandResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String2(12), _faker.Random.String2(12)));
 			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepCommand>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(signInCommandResult);
 
-			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6) };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String2(6) };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -367,8 +372,8 @@
 			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepCommand>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(signInCommandResult);
 
-			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String(6) };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String2(6) };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -393,7 +398,7 @@
 		[Fact]
 		public void GetSignUp_ShouldReturnView()
 		{
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -414,7 +419,7 @@
 			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
 
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -435,7 +440,7 @@
 
 			string password = _faker.Internet.Password(8, false, "\\w", "!Aa0");
 			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = password, ConfirmPassword = password, AcceptTerms = true };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -458,7 +463,7 @@
 
 			string password = _faker.Internet.Password(8, false, "\\w", "!Aa0");
 			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = password, ConfirmPassword = password, AcceptTerms = true };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -475,7 +480,7 @@
 		{
 			// Arrange 
 			SignUpCommand command = new SignUpCommand();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -495,13 +500,13 @@
 		{
 			// Arrange
 			SignUpCommandResult signUpCommandResult = SignUpCommandResult.Failed();
-			signUpCommandResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
+			signUpCommandResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String2(12), _faker.Random.String2(12)));
 			_m.Setup(x => x.Send(It.IsAny<SignUpCommand>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(signUpCommandResult);
 
 			string password = _faker.Internet.Password(8, false, "\\w", "!Aa0");
 			SignUpCommand command = new SignUpCommand { Email = _faker.Internet.Email(), Password = password, ConfirmPassword = password, AcceptTerms = true };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -526,7 +531,7 @@
 				.ReturnsAsync(SignOutQueryResult.Show(true));
 
 			SignOutQuery query = new SignOutQuery();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -549,7 +554,7 @@
 				.ReturnsAsync(SignOutCommandResult.Succeeded("~/"));
 
 			SignOutQuery query = new SignOutQuery();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -569,7 +574,7 @@
 				.ReturnsAsync(SignOutCommandResult.Succeeded("~/"));
 
 			SignOutCommand command = new SignOutCommand();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -586,12 +591,12 @@
 		{
 			// Arrange
 			SignOutCommandResult signOutCommandResult = SignOutCommandResult.Failed();
-			signOutCommandResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String(12), _faker.Random.String(12)));
+			signOutCommandResult.Errors.Add(new KeyValuePair<string, string>(_faker.Random.String2(12), _faker.Random.String2(12)));
 			_m.Setup(x => x.Send(It.IsAny<SignOutCommand>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(signOutCommandResult);
 
 			SignOutCommand command = new SignOutCommand();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -616,7 +621,7 @@
 				.ReturnsAsync(GetUserLockedTimeQueryResult.Succeeded(DateTime.UtcNow));
 
 			GetUserLockedTimeQuery query = new GetUserLockedTimeQuery { UserId = _faker.Random.Guid().ToString() };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -637,7 +642,7 @@
 				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
 
 			GetUserLockedTimeQuery query = new GetUserLockedTimeQuery { UserId = _faker.Random.Guid().ToString() };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -660,7 +665,7 @@
 				.ReturnsAsync(handlerResult);
 
 			GetUserLockedTimeQuery query = new GetUserLockedTimeQuery { UserId = _faker.Random.Guid().ToString() };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -673,25 +678,6 @@
 			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(1);
 			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(1);
 		}
-
-		[Fact]
-		public void GetSendAccountActivation_ShouldReturnView_OnFailedValidation()
-		{
-			// Arrange
-			SendAccountActivationCommand command = new SendAccountActivationCommand();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
-			controller.ControllerContext.HttpContext = _hc.Object;
-
-			// Act
-			IActionResult result = controller.SendAccountActivation(command).GetAwaiter().GetResult();
-
-			// Assert
-			result.ShouldNotBeNull();
-			result.ShouldBeOfType<ViewResult>();
-			((ViewResult)result).ViewData.ModelState.ShouldNotBeNull();
-			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(1);
-			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(2);
-		}
 		#endregion Locked
 
 		#region SendAccountActivation
@@ -703,7 +689,7 @@
 				.ReturnsAsync(HandlerResult.Succeeded());
 
 			SendAccountActivationCommand command = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -724,7 +710,7 @@
 				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
 
 			SendAccountActivationCommand command = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -747,7 +733,7 @@
 				.ReturnsAsync(handlerResult);
 
 			SendAccountActivationCommand command = new SendAccountActivationCommand { UserId = _faker.Random.Guid().ToString() };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -766,7 +752,7 @@
 		{
 			// Arrange
 			SendAccountActivationCommand command = new SendAccountActivationCommand();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
@@ -786,15 +772,19 @@
 		public void GetActivateAccount_ShouldReturnView()
 		{
 			// Arrange
+			ActivateAccountCommand command = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String2(36) };
+			string commandAsString = JsonConvert.SerializeObject(command);
+
+			_dp.Setup(x => x.Unprotect(It.IsAny<byte[]>())).Returns(Encoding.UTF8.GetBytes(commandAsString));
+
 			_m.Setup(x => x.Send(It.IsAny<ActivateAccountCommand>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(HandlerResult.Succeeded());
 
-			ActivateAccountCommand command = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.ActivateAccount(command).GetAwaiter().GetResult();
+			IActionResult result = controller.ActivateAccount(_faker.Random.String2(36)).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -807,15 +797,15 @@
 			// Arrange
 			_cp.Setup(x => x.Identity!.IsAuthenticated)
 				.Returns(true);
+
 			_m.Setup(x => x.Send(It.IsAny<SignInQuery>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(SignInQueryResult.Succeeded("~/"));
 
-			ActivateAccountCommand command = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.ActivateAccount(command).GetAwaiter().GetResult();
+			IActionResult result = controller.ActivateAccount(_faker.Random.String2(36)).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();
@@ -824,40 +814,19 @@
 		}
 
 		[Fact]
-		public void GetConfirmEmail_ShouldReturnView_OnFailedEmailConfirmation()
-		{
-			// Arrange
-			string error = _faker.Lorem.Sentence();
-			HandlerResult handlerResult = HandlerResult.Failed();
-			handlerResult.AddError(error);
-			_m.Setup(x => x.Send(It.IsAny<ActivateAccountCommand>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(handlerResult);
-
-			ActivateAccountCommand command = new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString(), Token = _faker.Random.String(36) };
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
-			controller.ControllerContext.HttpContext = _hc.Object;
-
-			// Act
-			IActionResult result = controller.ActivateAccount(command).GetAwaiter().GetResult();
-
-			// Assert
-			result.ShouldNotBeNull();
-			result.ShouldBeOfType<ViewResult>();
-			((ViewResult)result).ViewData.ModelState.ShouldNotBeNull();
-			((ViewResult)result).ViewData.ModelState.Count.ShouldBe(1);
-			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(1);
-		}
-
-		[Fact]
-		public void GetConfirmEmail_ShouldReturnView_OnFailedValidation()
+		public void GetActivateAccount_ShouldReturnView_OnFailedValidation()
 		{
 			// Arrange
 			ActivateAccountCommand command = new ActivateAccountCommand();
-			AuthenticationController controller = new AuthenticationController(_logger.Object, _m.Object);
+			string commandAsString = JsonConvert.SerializeObject(command);
+
+			_dp.Setup(x => x.Unprotect(It.IsAny<byte[]>())).Returns(Encoding.UTF8.GetBytes(commandAsString));
+
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
 			controller.ControllerContext.HttpContext = _hc.Object;
 
 			// Act
-			IActionResult result = controller.ActivateAccount(command).GetAwaiter().GetResult();
+			IActionResult result = controller.ActivateAccount(_faker.Random.String2(36).ToBase64()).GetAwaiter().GetResult();
 
 			// Assert
 			result.ShouldNotBeNull();

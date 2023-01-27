@@ -51,6 +51,27 @@
 		}
 
 		/// <summary>
+		/// Sends the password reset link.
+		/// </summary>
+		/// <param name="link">The link.</param>
+		/// <param name="recipient">The recipient.</param>
+		/// <returns></returns>
+		public async Task SendResetPasswordLinkAsync(string link, string recipient)
+		{
+			_logger.LogDebug("Executing SendEmailConfirmationLinkAsync");
+			_logger.LogDebug("SendEmailConfirmationLinkAsync: send code to {recipient}", recipient);
+			EmailAddress to = new EmailAddress(recipient);
+
+			_logger.LogDebug("SendEmailConfirmationLinkAsync: create template data object");
+			object templateData = new { link };
+
+			_logger.LogDebug("SendVerificationCodeAsync: send email template");
+			await this.SendEmailTemplate(to, _sendGridSettings.ResetPasswordTemplate, templateData);
+
+			_logger.LogDebug("Executed SendEmailConfirmationLinkAsync");
+		}
+
+		/// <summary>
 		/// Sends the email confirmation link.
 		/// </summary>
 		/// <param name="link">The link.</param>
@@ -62,7 +83,7 @@
 			EmailAddress to = new EmailAddress(recipient);
 
 			_logger.LogDebug("SendEmailConfirmationLinkAsync: create template data object");
-			object templateData = new { Subject = "Confirm Email", link };
+			object templateData = new { link };
 
 			_logger.LogDebug("SendVerificationCodeAsync: send email template");
 			await this.SendEmailTemplate(to, _sendGridSettings.EmailConfirmationTemplate, templateData);
@@ -82,7 +103,7 @@
 			EmailAddress to = new EmailAddress(recipient);
 
 			_logger.LogDebug("SendVerificationCodeAsync: create template data object");
-			object templateData = new { Subject = "Verification Code", code };
+			object templateData = new { code };
 
 			_logger.LogDebug("SendVerificationCodeAsync: send email template");
 			await this.SendEmailTemplate(to, _sendGridSettings.VerificationCodeTemplate, templateData);

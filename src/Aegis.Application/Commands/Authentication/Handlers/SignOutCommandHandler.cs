@@ -7,6 +7,7 @@
 	using Aegis.Application.Contracts;
 	using Aegis.Application.Contracts.CQRS;
 	using Aegis.Application.Exceptions;
+	using Aegis.Application.Helpers;
 	using Aegis.Models.Authentication;
 	using Aegis.Persistence.Entities.IdentityProvider;
 
@@ -46,29 +47,37 @@
 		private readonly IEventService _events;
 
 		/// <summary>
+		/// The user manager
+		/// </summary>
+		private readonly UserManager<AegisUser> _userManager;
+
+		/// <summary>
 		/// The sign in manager.
 		/// </summary>
 		private readonly SignInManager<AegisUser> _signInManager;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="SignOutCommandHandler"/> class.
+		/// Initializes a new instance of the <see cref="SignOutCommandHandler" /> class.
 		/// </summary>
 		/// <param name="logger">The logger.</param>
 		/// <param name="httpContext">The HTTP context.</param>
 		/// <param name="interaction">The interaction.</param>
 		/// <param name="events">The events.</param>
+		/// <param name="userManager">The user manager.</param>
 		/// <param name="signInManager">The sign in manager.</param>
 		public SignOutCommandHandler(
 			ILogger<SignOutCommandHandler> logger,
 			IHttpContextAccessor httpContext,
 			IIdentityServerInteractionService interaction,
 			IEventService events,
+			UserManager<AegisUser> userManager,
 			SignInManager<AegisUser> signInManager)
 		{
 			_logger = logger;
 			_httpContext = httpContext;
 			_interaction = interaction;
 			_events = events;
+			_userManager = userManager;
 			_signInManager = signInManager;
 		}
 
@@ -90,30 +99,54 @@
 			{
 				_logger.LogDebug("SignOutCommandHandler: check logout id.");
 				string logoutId = command.LogoutId ?? await _interaction.CreateLogoutContextAsync();
+				AegisUser? user = await _userManager.FindByIdAsync(_httpContext.HttpContext!.User.GetSubjectId());
 
-				_logger.LogDebug("SignOutCommandHandler: sing out.");
-				await _signInManager.SignOutAsync();
-				await _signInManager.ForgetTwoFactorClientAsync();
-				await _events.RaiseAsync(new UserLogoutSuccessEvent(
-					_httpContext.HttpContext!.User.GetSubjectId(),
-					_httpContext.HttpContext!.User.GetDisplayName()));
-
-				if (string.IsNullOrEmpty(logoutId))
+				if (user is null)
 				{
-					signOutCommandResult = SignOutCommandResult.Succeeded("~/");
+					_logger.LogDebug("SignInCommandHandler: user does not exists.");
+					signOutCommandResult.AddError("", "WUser not found!");
 				}
 				else
 				{
-					_logger.LogDebug("SignOutCommandHandler: get logout context.");
-					LogoutRequest logoutRequest = await _interaction.GetLogoutContextAsync(logoutId);
+					if (command.SignOutAllSessions)
+					{
+						IdentityResult securityStampResult = await _userManager.UpdateSecurityStampAsync(user);
 
-					if (logoutRequest is null)
+						if (!securityStampResult.Succeeded)
+						{
+							securityStampResult.AddToFailedResult(signOutCommandResult);
+							return signOutCommandResult;
+						}
+					}
+
+					if (command.ForgetClient)
+					{
+						await _signInManager.ForgetTwoFactorClientAsync();
+					}
+
+					_logger.LogDebug("SignOutCommandHandler: sing out.");
+					await _signInManager.SignOutAsync();
+					await _events.RaiseAsync(new UserLogoutSuccessEvent(
+						_httpContext.HttpContext!.User.GetSubjectId(),
+						_httpContext.HttpContext!.User.GetDisplayName()));
+
+					if (string.IsNullOrEmpty(logoutId))
 					{
 						signOutCommandResult = SignOutCommandResult.Succeeded("~/");
 					}
 					else
 					{
-						signOutCommandResult = SignOutCommandResult.Succeeded(logoutRequest.PostLogoutRedirectUri);
+						_logger.LogDebug("SignOutCommandHandler: get logout context.");
+						LogoutRequest logoutRequest = await _interaction.GetLogoutContextAsync(logoutId);
+
+						if (logoutRequest is null)
+						{
+							signOutCommandResult = SignOutCommandResult.Succeeded("~/");
+						}
+						else
+						{
+							signOutCommandResult = SignOutCommandResult.Succeeded(logoutRequest.PostLogoutRedirectUri);
+						}
 					}
 				}
 			}

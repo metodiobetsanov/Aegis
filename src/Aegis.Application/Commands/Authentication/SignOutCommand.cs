@@ -26,6 +26,24 @@
 		public string? LogoutId { get; init; }
 
 		/// <summary>
+		/// Gets or sets a value indicating whether [forget client].
+		/// </summary>
+		/// <value>
+		///   <c>true</c> if [forget client]; otherwise, <c>false</c>.
+		/// </value>
+		[DataMember]
+		public bool ForgetClient { get; init; }
+
+		/// <summary>
+		/// Gets or sets a value indicating whether [sign out all sessions].
+		/// </summary>
+		/// <value>
+		///   <c>true</c> if [sign out all sessions]; otherwise, <c>false</c>.
+		/// </value>
+		[DataMember]
+		public bool SignOutAllSessions { get; init; }
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="SignOutCommand"/> class.
 		/// </summary>
 		public SignOutCommand() { }

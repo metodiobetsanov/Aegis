@@ -6,6 +6,14 @@
 	public interface IMailSenderService
 	{
 		/// <summary>
+		/// Sends the password reset link.
+		/// </summary>
+		/// <param name="link">The link.</param>
+		/// <param name="recipient">The recipient.</param>
+		/// <returns></returns>
+		Task SendResetPasswordLinkAsync(string link, string recipient);
+
+		/// <summary>
 		/// Sends the email confirmation link.
 		/// </summary>
 		/// <param name="link">The link.</param>

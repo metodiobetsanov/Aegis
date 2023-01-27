@@ -30,6 +30,21 @@
 							@Html.AntiForgeryToken()
 							<input type="hidden" asp-for="@Model.LogoutId" />
 
+							<div class="mb-4 d-flex justify-content-center">
+								<div class="form-check form-switch form-switch-m">
+									<input asp-for="@Model.ForgetClient" class="form-check-input" type="checkbox">
+									<label asp-for="@Model.ForgetClient" class="form-check-label">
+										Forget this browser
+									</label>
+								</div>
+								<div class="form-check form-switch form-switch-md">
+									<input asp-for="@Model.SignOutAllSessions" class="form-check-input" type="checkbox">
+									<label asp-for="@Model.SignOutAllSessions" class="form-check-label">
+										SignOut from all sessions
+									</label>
+								</div>
+							</div>
+
 							<div class="mb-3 d-flex justify-content-center">
 								<div class="btn-group btn-group-example" role="group">
 								<a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary waves-light waves-light w-lg">Go Home</a>
@@ -52,7 +67,7 @@
 
 	<script>
 		$(document).ready(function () {
-			clock = $('.clock').FlipClock(60, {
+			clock = $('.clock').FlipClock(6000, {
 		        clockFace: 'MinuteCounter',
 		        countdown: true,
 		        callbacks: {

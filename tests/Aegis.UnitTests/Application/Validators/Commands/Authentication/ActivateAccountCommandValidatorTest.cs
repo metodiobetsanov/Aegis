@@ -12,9 +12,9 @@
 		{
 			{ new ActivateAccountCommand() },
 			{ new ActivateAccountCommand { UserId = _faker.Random.Guid().ToString() } },
-			{ new ActivateAccountCommand { Token = _faker.Random.String(36) } },
-			{ new ActivateAccountCommand { UserId = "", Token =_faker.Random.String(36) }},
-			{ new ActivateAccountCommand { UserId = "   ", Token =_faker.Random.String(36) }},
+			{ new ActivateAccountCommand { Token = _faker.Random.String2(36) } },
+			{ new ActivateAccountCommand { UserId = "", Token =_faker.Random.String2(36) }},
+			{ new ActivateAccountCommand { UserId = "   ", Token =_faker.Random.String2(36) }},
 			{ new ActivateAccountCommand { UserId =_faker.Random.Guid().ToString(), Token = "" }},
 			{ new ActivateAccountCommand { UserId =_faker.Random.Guid().ToString(), Token = "   " }},
 		};
@@ -26,7 +26,7 @@
 			ActivateAccountCommand command = new ActivateAccountCommand
 			{
 				UserId = _faker.Random.Guid().ToString(),
-				Token = _faker.Random.String(36)
+				Token = _faker.Random.String2(36)
 			};
 			ActivateAccountCommandValidator validator = new ActivateAccountCommandValidator();
 
