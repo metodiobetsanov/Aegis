@@ -17,12 +17,6 @@ namespace Aegis.UnitTests.Application.Controllers
 
 	public partial class AuthenticationControllerTests
 	{
-		public static TheoryData<SignInCommandResult> SignInTwoStepCommandResultValues => new TheoryData<SignInCommandResult>()
-		{
-			SignInCommandResult.NotActiveAccount(_faker.Random.Guid().ToString()),
-			SignInCommandResult.LockedAccount(_faker.Random.Guid().ToString())
-		};
-
 		#region SignInTwoStep
 		[Fact]
 		public void GetSignInTwoStep_ShouldReturnView()
@@ -182,13 +176,32 @@ namespace Aegis.UnitTests.Application.Controllers
 			((ViewResult)result).ViewData.ModelState.ErrorCount.ShouldBe(1);
 		}
 
-		[Theory]
-		[MemberData(nameof(SignInTwoStepCommandResultValues))]
-		public void PostSignInTwoStep_ShouldReturnRedirectToAction(SignInCommandResult signInCommandResult)
+		[Fact]
+		public void PostSignInTwoStep_ShouldReturnView_OnNotActiveAccount()
 		{
 			// Arrange
 			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepCommand>(), It.IsAny<CancellationToken>()))
-				.ReturnsAsync(signInCommandResult);
+				.ReturnsAsync(SignInCommandResult.NotActiveAccount(_faker.Random.Guid().ToString()));
+
+			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String2(6) };
+			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
+			controller.ControllerContext.HttpContext = _hc.Object;
+
+			// Act
+			IActionResult result = controller.SignInTwoStep(command).GetAwaiter().GetResult();
+
+			// Assert
+			result.ShouldNotBeNull();
+			result.ShouldBeOfType<ViewResult>();
+			((ViewResult)result).ViewName.ShouldBe("ActivateAccountMail");
+		}
+
+		[Fact]
+		public void PostSignInTwoStep_ShouldReturnRedirectToAction_OnLocked()
+		{
+			// Arrange
+			_m.Setup(x => x.Send(It.IsAny<SignInTwoStepCommand>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(SignInCommandResult.LockedAccount(_faker.Random.Guid().ToString()));
 
 			SignInTwoStepCommand command = new SignInTwoStepCommand { Code = _faker.Random.String2(6) };
 			AuthenticationController controller = new AuthenticationController(_logger.Object, _dpp.Object, _m.Object);
@@ -200,15 +213,7 @@ namespace Aegis.UnitTests.Application.Controllers
 			// Assert
 			result.ShouldNotBeNull();
 			result.ShouldBeOfType<RedirectToActionResult>();
-
-			if (signInCommandResult.AccounNotActive)
-			{
-				((RedirectToActionResult)result).ActionName.ShouldBe("ActivateAccount");
-			}
-			else if (signInCommandResult.AccounLocked)
-			{
-				((RedirectToActionResult)result).ActionName.ShouldBe("Locked");
-			}
+			((RedirectToActionResult)result).ActionName.ShouldBe("Locked");
 		}
 		#endregion SignInTwoStep
 	}

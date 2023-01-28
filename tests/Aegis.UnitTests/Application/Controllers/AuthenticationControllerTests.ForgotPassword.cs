@@ -70,7 +70,7 @@ namespace Aegis.UnitTests.Application.Controllers
 			// Assert
 			result.ShouldNotBeNull();
 			result.ShouldBeOfType<ViewResult>();
-			((ViewResult)result).ViewName.ShouldBe("ForgotPasswordConfirmation");
+			((ViewResult)result).ViewName.ShouldBe("ForgotPasswordMail");
 		}
 
 		[Fact]
@@ -109,7 +109,7 @@ namespace Aegis.UnitTests.Application.Controllers
 			// Assert
 			result.ShouldNotBeNull();
 			result.ShouldBeOfType<ViewResult>();
-			((ViewResult)result).ViewName.ShouldBe("ForgotPasswordConfirmation");
+			((ViewResult)result).ViewName.ShouldBe("ForgotPasswordMail");
 		}
 
 		#endregion ForgotPassword

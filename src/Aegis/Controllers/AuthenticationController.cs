@@ -139,7 +139,8 @@ namespace Aegis.Controllers
 				{
 					_logger.LogDebug("POST@{name}: account is not active.", nameof(this.SignIn));
 					_ = await _mediator.Send(new SendAccountActivationCommand { UserId = result.UserId });
-					return this.RedirectToAction(nameof(this.ActivateAccount));
+					this.ViewBag.AccountNotActive = "Account is not active!";
+					return this.View("ActivateAccountMail");
 				}
 				else if (result.AccounLocked)
 				{
@@ -239,7 +240,8 @@ namespace Aegis.Controllers
 				{
 					_logger.LogDebug("POST@{name}: account not active.", nameof(this.SignInTwoStep));
 					_ = await _mediator.Send(new SendAccountActivationCommand { UserId = result.UserId });
-					return this.RedirectToAction(nameof(this.ActivateAccount));
+					this.ViewBag.AccountNotActive = "Account is not active!";
+					return this.View("ActivateAccountMail");
 				}
 				else if (result.AccounLocked)
 				{
@@ -322,7 +324,8 @@ namespace Aegis.Controllers
 				{
 					_logger.LogDebug("POST@{name}: sign up successful.", nameof(this.SignUp));
 					_ = await _mediator.Send(new SendAccountActivationCommand { UserId = result.UserId });
-					return this.RedirectToAction(nameof(this.ActivateAccount));
+					this.ViewBag.AccountNotActive = "Thank you for Signing Up!";
+					return this.View("ActivateAccountMail");
 				}
 				else
 				{
@@ -437,29 +440,6 @@ namespace Aegis.Controllers
 		}
 
 		/// <summary>
-		/// Emails the confirmation token.
-		/// </summary>
-		/// <param name="command">The command.</param>
-		/// <returns></returns>
-		[AllowAnonymous]
-		[HttpGet("/ActivateAccount")]
-		public IActionResult ActivateAccount()
-		{
-			_logger.LogDebug("Executing GET@{name}.", nameof(this.ActivateAccount));
-			_logger.LogDebug("GET@{name}: check if user is authenticated.", nameof(this.ActivateAccount));
-
-			if (this.CheckForAuthenticatedUser("~/", out string? redirectTo))
-			{
-				_logger.LogDebug("GET@{name}: user is authenticated, redirecting.", nameof(this.SignIn));
-				return this.Redirect(redirectTo!);
-			}
-
-			_logger.LogDebug("GET@{name}: user is not authenticated.", nameof(this.SignIn));
-			_logger.LogDebug("Executed GET@{name}.", nameof(this.ActivateAccount));
-			return this.View();
-		}
-
-		/// <summary>
 		/// Confirms the email.
 		/// </summary>
 		/// <param name="query">The query.</param>
@@ -561,7 +541,7 @@ namespace Aegis.Controllers
 			}
 
 			_logger.LogDebug("Executed POST@{name}.", nameof(this.SignUp));
-			return this.View("ForgotPasswordConfirmation");
+			return this.View("ForgotPasswordMail");
 		}
 
 		/// <summary>
