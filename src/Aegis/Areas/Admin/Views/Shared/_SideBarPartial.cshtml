@@ -1,0 +1,69 @@
+﻿<!-- Left Sidebar Start -->
+<div class="vertical-menu">
+
+    <div data-simplebar class="h-100">
+
+        <div id="sidebar-menu">
+
+            <ul class="metismenu list-unstyled" id="side-menu">
+
+                <!-- Menu Start -->
+                <li class="menu-title" key="t-menu">Menu</li>
+
+                <li>
+                    <a href=@Url.Action("Index", "Dashboards") key="t-default">
+                        <i class="bx bxs-home-circle"></i>
+                        <span key="t-dashboards">Home</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="waves-effect">
+                        <i class="bx bxs-dashboard"></i>
+                        <span key="t-dashboards">Dashboards</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                    </ul>
+                </li>
+                <!-- Menu End-->
+                <!-- Identity Service Start-->
+                <li class="menu-title" key="t-menu">Identity Service</li>
+
+                <li>
+                    <a href=@Url.Action("Index", "IdentityService") class="waves-effect">
+                        <i class="bx bxs-widget"></i>
+                       <span key="t-overview">Overview</span>
+                   </a>
+                </li>
+                <!-- Identity Service End -->
+
+                <!-- Identity Provider Start-->
+                <li class="menu-title" key="t-menu">Identity Provider</li>
+
+                <li>
+                   <a href=@Url.Action("Index", "IdentityProvider") class="waves-effect">
+                        <i class="bx bxs-widget"></i>
+                       <span key="t-overview">Overview</span>
+                   </a>
+                </li>
+                <!-- Identity Provider End -->
+
+                <!-- Reports Start -->
+                <li class="menu-title" key="t-reports">Reports</li>
+                <!-- Reports End -->
+
+                <!-- System Start -->
+                <li class="menu-title" key="t-system">System</li>
+                <li>
+                    <a href=@Url.Action("About", "System") class="waves-effect">
+                        <i class="bx bxs-info-circle"></i>
+                        <span key="t-system">About</span>
+                    </a>
+                </li>
+                <!-- System End -->
+             </ul>
+
+        </div>
+    </div>
+</div>
+<!-- Left Sidebar End -->

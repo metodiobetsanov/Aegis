@@ -1,0 +1,21 @@
+﻿<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0 font-size-18">@ViewData["Title"]</h4>
+
+            <div class="page-title-right d-none d-sm-block">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item "><a href="@Url.Action("Index", "Dashboards" , new { Area=ApplicationConstants.AdminArea })">Aegis </a></li>
+                   
+                    @if (@ViewData["Section"] is not null)
+                    {
+                        <li class="breadcrumb-item"><a href="@ViewData["SectionURL"]">@ViewData["Section"]</a></li>
+                    }
+
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>

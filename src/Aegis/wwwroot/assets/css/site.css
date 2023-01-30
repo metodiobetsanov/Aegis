@@ -1,8 +1,9 @@
-﻿footer {
+﻿.footer-blank {
     position: absolute;
     bottom: 10px;
     width: 100%;
 }
+
 
 .blank > .card {
     background: rgb(248, 248, 251);
