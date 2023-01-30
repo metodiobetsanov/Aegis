@@ -39,11 +39,6 @@ try
 	builder.Host
 		.UseSerilog(logger);
 
-	// Add MVC
-	builder.Services
-		.AddMvc()
-		.AddNewtonsoftJson();
-
 	// Add Aegis
 	builder.AddAegisApplication(logger);
 	builder.AddAegisIdentityProvider(logger);

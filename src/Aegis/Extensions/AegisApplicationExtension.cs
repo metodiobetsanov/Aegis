@@ -47,6 +47,11 @@ namespace Aegis.Extensions
 		{
 			logger.Information("Building Aegis Core.");
 
+			// Add MVC
+			builder.Services
+				.AddMvc()
+				.AddNewtonsoftJson();
+
 			// Add Application Settings
 			logger.Information("Aegis Core: adding settings.");
 			AppSettings? appSettings = builder.Configuration.GetSection(AppSettings.Section).Get<AppSettings>();
@@ -144,6 +149,25 @@ namespace Aegis.Extensions
 				.AddSingleton<IMailSenderService, MailSenderService>()
 				.AddScoped<IAegisContext, AegisContext>();
 
+			logger.Information("Aegis Core: adding HSTS.");
+			builder.Services.AddHsts(options =>
+			{
+				options.Preload = true;
+				options.IncludeSubDomains = true;
+				options.MaxAge = TimeSpan.FromDays(7);
+			});
+
+			logger.Information("Aegis Core: adding CORS.");
+			builder.Services.AddCors(options =>
+			{
+				options.AddDefaultPolicy(policy =>
+				{
+					policy.AllowAnyOrigin()
+						.AllowAnyMethod()
+						.AllowAnyHeader();
+				});
+			});
+
 			return builder;
 		}
 
@@ -185,11 +209,14 @@ namespace Aegis.Extensions
 				app.UseExceptionHandler("/Error");
 			}
 
+			app.UseHsts();
 			app.UseStaticFiles();
 			app.UseForwardedHeaders();
 
 			app.UseSerilogRequestLogging();
 			app.UseRouting();
+
+			app.UseCors();
 
 			return app;
 		}
