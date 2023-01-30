@@ -120,6 +120,10 @@ namespace Aegis.Extensions
 				options.LoginPath = "/signin";
 				options.LogoutPath = "/signout";
 				options.AccessDeniedPath = "/access-denied";
+				options.SlidingExpiration = true;
+				options.Cookie.HttpOnly = true;
+				options.Cookie.SameSite = SameSiteMode.Strict;
+				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 			});
 
 			return builder;
