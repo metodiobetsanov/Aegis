@@ -1,0 +1,34 @@
+﻿@using Aegis.Persistence.Entities.IdentityProvider;
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<AegisUser> SignInManager
+@inject UserManager<AegisUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    AegisUser? user = UserManager.GetUserAsync(User).GetAwaiter().GetResult();
+
+    <div class="dropdown d-inline-block">
+        <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img class="rounded-circle header-profile-user" src="@user!.ProfilePictureURL"
+             alt="Header Avatar">
+            <span class="d-none d-xl-inline-block ms-1" key="t-henry">
+                @user!.Email
+            </span>
+            <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end">
+            <a class="dropdown-item" href="@Url.Action("Index", "Profile", new { area = ApplicationConstants.UserArea })"><i class="bx bx-user font-size-16 align-middle me-1"></i> <span key="t-profile">Profile</span></a>
+            <a class="dropdown-item" href="@Url.Action("UpdatePassword", "Profile", new { area = ApplicationConstants.UserArea })"><i class="bx bx-user font-size-16 align-middle me-1"></i> <span key="t-update-password">Update Password</span></a>
+            <div class="dropdown-divider"></div>
+            @if (@User.IsInRole(IdentityProviderConstants.OperatorRole))
+            {
+                <a class="dropdown-item" href="@Url.Action("Index", "Dashboards", new { area = ApplicationConstants.AdminArea })"><i class="bx bxs-dashboard font-size-16 align-middle me-1"></i> <span key="t-control-panel">Control Panel</span></a>
+            }
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item text-danger" href="@Url.Action("SignOut", "Authentication")"><i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> <span key="t-logout">Sign Out</span></a>
+        </div>
+    </div>
+}
+
