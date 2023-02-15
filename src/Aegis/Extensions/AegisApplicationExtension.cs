@@ -14,6 +14,8 @@ namespace Aegis.Extensions
 	using Aegis.Core.Constants.Services;
 	using Aegis.Core.Contracts;
 	using Aegis.Core.Contracts.IInitializers;
+	using Aegis.Core.Hubs;
+	using Aegis.Core.Mappings;
 	using Aegis.Core.Services;
 	using Aegis.Core.Validators.Settings;
 	using Aegis.Exceptions;
@@ -26,6 +28,7 @@ namespace Aegis.Extensions
 	using MediatR;
 
 	using Microsoft.AspNetCore.DataProtection;
+	using Microsoft.AspNetCore.SignalR;
 	using Microsoft.EntityFrameworkCore;
 
 	using Scrutor;
@@ -126,15 +129,21 @@ namespace Aegis.Extensions
 			builder.Services
 				.AddMediatR(typeof(IAegisApplicationAssembly).Assembly);
 
-			logger.Information("Aegis Core: adding AutoMapper.");
+			//Add SignalR
+			logger.Information("Aegis Core: adding SignalR.");
+			builder.Services
+				.AddSignalR();
+
 			//Add AutoMapper
+			logger.Information("Aegis Core: adding AutoMapper.");
 			builder.Services
 				.AddAutoMapper(cfg =>
 				{
+					cfg.AddProfile<IdentityProviderMappingsProfile>();
 				});
 
-			logger.Information("Aegis Core: adding Initializers.");
 			// Add Initializers
+			logger.Information("Aegis Core: adding Initializers.");
 			builder.Services.Scan(delegate (ITypeSourceSelector s)
 			{
 				_ = s.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies()).AddClasses(delegate (IImplementationTypeFilter c)
@@ -144,8 +153,10 @@ namespace Aegis.Extensions
 					.WithSingletonLifetime();
 			});
 
+			// Add Services
 			logger.Information("Aegis Core: adding Services.");
 			builder.Services
+				.AddSingleton<IUserIdProvider, UserIdProvider>()
 				.AddSingleton<IMailSenderService, MailSenderService>()
 				.AddScoped<IAegisContext, AegisContext>();
 

@@ -7,6 +7,7 @@
 #endregion
 
 using Aegis.Core.Constants;
+using Aegis.Core.Hubs;
 using Aegis.Extensions;
 
 using HealthChecks.UI.Client;
@@ -60,6 +61,8 @@ try
 	app.UseAegisApplication();
 
 	app.UseAegisIdentityServer();
+
+	app.MapHub<AegisHub>("/hub");
 
 	app.MapHealthChecks("/health/live", new HealthCheckOptions
 	{

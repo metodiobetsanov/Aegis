@@ -1,0 +1,41 @@
+﻿@{
+	ViewData["Title"] = "Users";
+	ViewData["Section"] = "Users";
+	ViewData["SectionURL"] = Url.Action("Index", "Users", new { Area = ApplicationConstants.AdminArea });
+}
+
+@section styles{
+	<partial name="_DatatablesCSSPartial" /> />
+}
+
+<div class="row justify-content-center">
+	<div class="col-11 mt-5 mb-5">
+		<div class="card">
+			<div class="card-body">
+				<table id="users-table" class="table table-hover dt-responsive text-wrap"
+					   data-action="@Url.Action("AjaxGetUsers", "Users", new { Area = ApplicationConstants.AdminArea })"
+					   data-profile="@Url.Action("Profile", "Users", new { Area = ApplicationConstants.AdminArea })"
+					<thead class="table-light">
+						<tr>
+							<th style="text-align:center">#</th>
+							<th>Name</th>
+							<th>Email</th>
+							<th>Profile Tags</th>
+							<th>System Tags</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<partial name="_Reset2FA2Partial" />
+
+@section scripts {
+	<partial name="_DatatablesJSPartial" />
+	<script src="~/assets/js/views/users/all-users.js"></script>
+}

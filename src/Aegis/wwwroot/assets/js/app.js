@@ -280,6 +280,11 @@ File: Main Js File
         });
     }
 
+    function initDatatTables() {
+        $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
+        $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-group flex-wrap'
+    }
+
     function initCheckAll() {
         $('#checkAll').on('change', function () {
             $('.table-check .form-check-input').prop('checked', $(this).prop("checked"));
@@ -307,8 +312,10 @@ File: Main Js File
         initLanguage();
         initPreloader();
         Waves.init();
+        initDatatTables();
         initCheckAll();
     }
+
     $(document).ready(function () {
         init();
     })

@@ -1,0 +1,64 @@
+﻿<div class="modal fade" id="reset-2fa-modal" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reset-2fa-modal-title">Reset 2FA</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="card-body">
+                    <h3>Disclaimer</h3>
+                    <p class="text-muted text-justify">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam elementum, sem vitae condimentum feugiat, felis lorem vulputate augue, eget accumsan augue ex vel turpis. Donec fermentum orci vel dictum consectetur. Maecenas tincidunt, dui ut malesuada molestie, metus leo varius turpis, sed iaculis urna mauris a lacus. Maecenas mollis felis ut lacus scelerisque pretium.</p>
+                    <hr/>
+                    <div class="row d-flex justify-content-around mt-3">
+                        <div class="col-8">
+                            <p>Are you sure you want to continue with this action? </p>
+                        </div>
+                        <div class="col-2 d-flex justify-content-end">
+                            <input type="checkbox" id="reset-2fa-form-switch" switch="bool">
+                            <label for="reset-2fa-form-switch" data-on-label="Yes" data-off-label="No"></label>
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-center mt-3">
+                        <div class="col-10 reset-2fa-form-wrapper d-none">
+                            <hr />
+                            <form id="reset-2fa-form" data-action="@Url.Action("AjaxReset2FA", "Users", new { Area = ApplicationConstants.AdminArea })" class="form-horizontal" data-parsley-validate>
+                                @Html.AntiForgeryToken()
+
+                                <div class="row mb-4">
+                                    <label for="id" class="col-sm-3 col-form-label">Id</label>
+                                    <div class="col-sm-9">
+                                        <input id="id" name="id" type="text" class="form-control" disabled required>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <label for="email" class="col-sm-3 col-form-label">Email</label>
+                                    <div class="col-sm-9">
+                                        <input id="email" name="email" type="email" class="form-control" disabled required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <label for="code" class="col-sm-3 col-form-label">Verification Code</label>
+                                    <div id="verficaiton-code-errors" class="col-sm-9">
+                                        <div class="hstack gap-3">
+                                            <input id="code" name="code" type="text" class="form-control col" placeholder="Enter Your Code"
+                                                   required data-parsley-trigger="change focusout" data-parsley-errors-container="#verficaiton-code-errors">
+                                            <div class="vr"></div>
+                                            <button type="button" class="btn btn-outline-primary" onclick="send2FACode()">Send Code</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="reset-2fa-modal-save" class="btn btn-success w-sm d-none" onclick="submitReset2FaForm()">Save</button>
+                <button type="button" id="reset-2fa-modal-cancel" class="btn btn-danger w-sm" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

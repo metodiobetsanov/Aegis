@@ -9,3 +9,12 @@
     background: rgb(248, 248, 251);
     box-shadow: none;
 }
+
+
+tbody td {
+    vertical-align: middle !important;
+}
+
+.text-left {
+    text-align: left !important;
+}

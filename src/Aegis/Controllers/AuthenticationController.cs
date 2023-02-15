@@ -265,6 +265,37 @@ namespace Aegis.Controllers
 		}
 
 		/// <summary>
+		/// Sends the code.
+		/// </summary>
+		/// <param name="query">The query.</param>
+		/// <returns></returns>
+		[AllowAnonymous]
+		[HttpGet("/SendCode")]
+		public async Task<IActionResult> SendCode([FromQuery] SendCodeQuery query)
+		{
+			_logger.LogDebug("Executing GET@{name}.", nameof(this.SendCode));
+			_logger.LogDebug("GET@{name}: check if user id is provided.", nameof(this.SendCode));
+
+			if (string.IsNullOrEmpty(query.UserId))
+			{
+				_logger.LogDebug("GET@{name}: user id is not provided, creating query for current user.", nameof(this.SendCode));
+				query = new SendCodeQuery { UserId = this.User.Identity.GetSubjectId() };
+			}
+
+			_logger.LogDebug("GET@{name}: send query to handler.", nameof(this.SendCode));
+			BaseResult result = await _mediator.Send(query);
+
+			if (!result.Success)
+			{
+				_logger.LogDebug("GET@{name}: send code failed.", nameof(this.SendCode));
+				return this.BadRequest(result.Errors);
+			}
+
+			_logger.LogDebug("Executed GET@{name}.", nameof(this.SendCode));
+			return this.Ok();
+		}
+
+		/// <summary>
 		/// Signs up.
 		/// </summary>
 		/// <param name="query">The query.</param>
